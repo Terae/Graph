@@ -1,0 +1,264 @@
+#########################
+# project configuration #
+#########################
+
+language: cpp
+dist: trusty
+sudo: required
+
+################
+# build matrix #
+################
+
+matrix:
+  include:
+
+    # Valgrind
+    - os: linux
+      compiler: gcc
+      env:
+        - COMPILER=g++-5
+        - CMAKE_OPTIONS=-DGRAPH_Valgrind=ON
+      addons:
+        apt:
+          sources: ['ubuntu-toolchain-r-test']
+          packages: ['g++-5', 'valgrind']
+
+    # cppcheck
+    - os: linux
+      compiler: gcc
+      env:
+        - COMPILER=g++-6
+        - SPECIAL=cppcheck
+      addons:
+        apt:
+          sources: ['ubuntu-toolchain-r-test']
+          packages: ['g++-6', 'cppcheck']
+      after_success:
+        - make cppcheck
+
+    # Codecov + Coveralls (http://gronlier.fr/blog/2015/01/adding-code-coverage-to-your-c-project/)
+    - os: linux
+      compiler: gcc
+      env:
+        - COMPILER=g++-5
+        - CMAKE_OPTIONS=-DGRAPH_Coverage=ON
+      addons:
+        apt:
+          sources: ['ubuntu-toolchain-r-test']
+          packages: ['g++-5', 'lcov']
+      before_script:
+        - pip install --user cpp-coveralls
+      after_success:
+        - bash <(curl -s https://codecov.io/bash)
+        - coveralls --build-root test --include src --gcov 'gcov-5' --gcov-options '\-lp'
+
+    # clang sanitizer
+    #- os: linux
+    #  compiler: clang
+    #  env:
+    #    - COMPILER=clang++-4.0
+    #    - CMAKE_OPTIONS=-DGRAPH_Sanitizer=ON
+    #  addons:
+    #    apt:
+    #      sources: ['ubuntu-toolchain-r-test', 'llvm-toolchain-trusty-5.0']
+    #      packages: ['g++-6', 'clang-4.0']
+
+    ###############
+    # Linux / GCC #
+    ###############
+
+    #- os: linux
+    #  compiler: gcc
+    #  env: COMPILER=g++-4.9
+    #  addons:
+    #    apt:
+    #      sources: ['ubuntu-toolchain-r-test']
+    #      packages: ['g++-4.9']
+
+    - os: linux
+      compiler: gcc
+      env: COMPILER=g++-5
+      addons:
+        apt:
+          sources: ['ubuntu-toolchain-r-test']
+          packages: ['g++-5']
+
+    - os: linux
+      compiler: gcc
+      env: COMPILER=g++-6
+      addons:
+        apt:
+          sources: ['ubuntu-toolchain-r-test']
+          packages: ['g++-6']
+
+    - os: linux
+      compiler: gcc
+      env: COMPILER=g++-7
+      addons:
+        apt:
+          sources: ['ubuntu-toolchain-r-test']
+          packages: ['g++-7']
+
+
+    ###############
+    # OSX / Clang #
+    ###############
+
+    ## Error while comparing two iterators
+    #- os: osx
+    #  osx_image: xcode6.4
+      #compiler: clang
+      #env: COMPILER='clang++'
+
+    #- os: osx
+    #  osx_image: xcode7.3
+      #compiler: clang
+      #env: COMPILER='clang++'
+
+    #- os: osx
+    #  osx_image: xcode8
+      #compiler: clang
+      #env: COMPILER='clang++'
+
+    #- os: osx
+    #  osx_image: xcode8.1
+      #compiler: clang
+      #env: COMPILER='clang++'
+
+    #- os: osx
+    #  osx_image: xcode8.2
+      #compiler: clang
+      #env: COMPILER='clang++'
+
+    #- os: osx
+    #  osx_image: xcode8.3
+      #compiler: clang
+      #env: COMPILER='clang++'
+
+    #- os: osx
+    #  osx_image: xcode9
+      #compiler: clang
+      #env: COMPILER='clang++'
+
+    #- os: osx
+    #  osx_image: xcode9.1
+      #compiler: clang
+      #env: COMPILER='clang++'
+
+    #- os: osx
+    #  osx_image: xcode9.2
+      #compiler: clang
+      #env: COMPILER='clang++'
+
+
+    #################
+    # Linux / Clang #
+    #################
+
+    # Debug mode
+    #- os: linux
+    #  compiler: clang
+    #  env: LLVM_VERSION=default
+
+    #- os: linux
+    #  compiler: clang
+    #  env: COMPILER=clang++-3.5
+    #  addons:
+    #    apt:
+    #      sources: ['ubuntu-toolchain-r-test', 'llvm-toolchain-precise-3.5']
+    #      packages: ['g++-6', 'clang-3.5']
+
+    ## Error while comparing two iterators
+    #- os: linux
+    #  compiler: clang
+    #  env: COMPILER=clang++-3.6
+    #  addons:
+    #    apt:
+    #      sources: ['ubuntu-toolchain-r-test', 'llvm-toolchain-precise-3.6']
+    #      packages: ['g++-6', 'clang-3.6']
+
+    ## Error while comparing two iterators
+    #- os: linux
+    #  compiler: clang
+    #  env: COMPILER=clang++-3.7
+    #  addons:
+    #    apt:
+    #      sources: ['ubuntu-toolchain-r-test', 'llvm-toolchain-precise-3.7']
+    #      packages: ['g++-6', 'clang-3.7']
+
+    - os: linux
+      compiler: clang
+      env: COMPILER=clang++-3.8
+      addons:
+        apt:
+          sources: ['ubuntu-toolchain-r-test', 'llvm-toolchain-precise-3.8']
+          packages: ['g++-6', 'clang-3.8']
+
+    - os: linux
+      compiler: clang
+      env: COMPILER=clang++-3.9
+      addons:
+        apt:
+          sources: ['ubuntu-toolchain-r-test', 'llvm-toolchain-precise-3.9']
+          packages: ['g++-6', 'clang-3.9']
+
+    - os: linux
+      compiler: clang
+      env: COMPILER=clang++-4.0
+      addons:
+        apt:
+          sources: ['ubuntu-toolchain-r-test', 'llvm-toolchain-trusty-4.0']
+          packages: ['g++-6', 'clang-4.0']
+
+    #- os: linux
+    #  compiler: clang
+    #  env: COMPILER=clang++-5.0
+    #  addons:
+    #    apt:
+    #      sources: ['ubuntu-toolchain-r-test', 'llvm-toolchain-trusty-5.0']
+    #      packages: ['g++-6', 'clang-5.0']
+
+install:
+  ###################################################################
+  # All the dependencies are installed in ${TRAVIS_BUILD_DIR}/deps/ #
+  ###################################################################
+  - DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
+  - mkdir -p ${DEPS_DIR} && cd ${DEPS_DIR}
+
+  ###############################
+  # Override compiler if needed #
+  ###############################
+  - if [[ "${COMPILER}" != "" ]]; then export CXX=${COMPILER}; fi
+
+  ##########################
+  # Install a recent CMake #
+  ##########################
+  - |
+    if [[ "$TRAVIS_OS_NAME}" == "linux" ]]; then
+      CMAKE_URL="http://www.cmake.org/files/v3.3/cmake-3.3.2-Linux-x86_64.tar.gz"
+      mkdir cmake && travis_retry wget --no-check-certificate --quiet -O - ${CMAKE_URL} | tar --strip-components=1 -xz -C cmake
+      export PATH=${DEPS_DIR}/cmake/bin:${PATH}
+    elif [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
+      brew update
+      which cmake || brew install cmake
+    fi
+
+################
+# build script #
+################
+
+script:
+  # shox OS/compiler version
+  - uname -a
+  - $CXX --version
+
+  - cd ${TRAVIS_BUILD_DIR}
+  - cmake -H. -Bbuild ${CMAKE_OPTIONS}
+  #- cmake -H. -Bbuild -DCMAKE_BUILD_TYPE='Release' ${CMAKE_OPTIONS}
+  - cd build
+
+  # compile and run
+  #- make -j 4
+  - cmake --build . --config Release
+  - ctest --output-on-failure -C Release -j 4

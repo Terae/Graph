@@ -1,0 +1,5 @@
+/.idea
+/build
+/docs
+appveyor.yml.cached
+codecov.yml

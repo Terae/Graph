@@ -1,0 +1,3 @@
+* fix .travis.yml to send all informations to coveralls.io
+* update CII best practices
+* update README.md
