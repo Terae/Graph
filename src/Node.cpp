@@ -57,9 +57,9 @@ void basic_node<Data, Cost, Container, constContainer>::decrement_in_degree(int 
 template <class Data, class Cost, class Container, class constContainer>
 bool basic_node<Data, Cost, Container, constContainer>::set_edge(constContainer other, std::shared_ptr<Cost> cost) {
     std::pair<basic_node<Data, Cost, Container, constContainer>::EdgesIterator, bool> new_edge{add_edge(other, *cost)};
-    
+
     new_edge.first->cost = cost;
-    
+
     return new_edge.second;
 }
 
@@ -106,14 +106,14 @@ inline Data basic_node<Data, Cost, Container, constContainer>::get() const {
 template <class Data, class Cost, class Container, class constContainer>
 Cost& basic_node<Data, Cost, Container, constContainer>::get_cost(const Container &other) {
     std::shared_ptr<basic_node<Data, Cost, Container, constContainer> > ptr(detail::get_value(other, end_container));
-    
+
     if (ptr == nullptr)
         GRAPH_THROW(unexpected_nullptr)
-    
+
     for (EdgesIterator it{_out_edges.begin()}; it != _out_edges.end(); ++it)
         if (it->target.lock() == ptr)
             return *(it->cost);
-    
+
     //! Link doesn't exist
     _out_edges.emplace_back(std::weak_ptr<basic_node<Data, Cost, Container, constContainer> >(detail::get_value(other, end_container)), infinity);
     ptr->increment_in_degree();
@@ -123,14 +123,14 @@ Cost& basic_node<Data, Cost, Container, constContainer>::get_cost(const Containe
 template <class Data, class Cost, class Container, class constContainer>
 const Cost basic_node<Data, Cost, Container, constContainer>::get_cost(constContainer other) const {
     std::shared_ptr<basic_node<Data, Cost, Container, constContainer> > ptr(detail::get_value(other, cend_container));
-    
+
     if (ptr == nullptr)
         GRAPH_THROW(unexpected_nullptr)
-    
+
     for (auto/*EdgesIterator*/ it = _out_edges.begin(); it != _out_edges.end(); ++it)
         if (it->target.lock() == ptr)
             return *(it->cost);
-    
+
     //! Link doesn't exist
     return infinity;
 }
@@ -156,20 +156,20 @@ template <class Data, class Cost, class Container, class constContainer>
 template <class T_cost>
 void basic_node<Data, Cost, Container, constContainer>::set_cost(Container other, const T_cost& c) {
     std::shared_ptr<basic_node<Data, Cost, Container, constContainer> > ptr(detail::get_value(other, end_container));
-    
+
     if (ptr == nullptr)
         GRAPH_THROW(unexpected_nullptr)
-    
+
     Cost new_cost{static_cast<Cost>(c)};
-    
+
     bool existing_edge{false};
-    
+
     for (EdgesIterator it{_out_edges.begin()}; it != _out_edges.end(); ++it)
         if (it->target.lock() == ptr) {
             *(it->cost) = new_cost;
             existing_edge = true;
         }
-    
+
     if (!existing_edge)
         this->add_edge(other, new_cost);
 }
@@ -211,19 +211,19 @@ bool basic_node<Data, Cost, Container, constContainer>::del_edge_if(constContain
             break;
         } else
             ++it;
-    
+
     return false;
 }
 
 template <class Data, class Cost, class Container, class constContainer>
 std::size_t basic_node<Data, Cost, Container, constContainer>::clear_edges() {
     const std::size_t NUM{_out_edges.size()};
-    
+
     for (EdgesIterator it{_out_edges.begin()}; it != _out_edges.end(); ) {
         it->target.lock()->decrement_in_degree();
         it = _out_edges.erase(it);
     }
-    
+
     return NUM;
 }
 
@@ -237,14 +237,14 @@ inline std::pair<std::size_t, std::size_t> basic_node<Data, Cost, Container, con
 template <class Data, class Cost, class Container, class constContainer>
 bool basic_node<Data, Cost, Container, constContainer>::existing_adjacent_node(constContainer other) const {
     std::shared_ptr<basic_node<Data, Cost, Container, constContainer> > ptr(detail::get_value(other, cend_container));
-    
+
     if (ptr == nullptr)
         return false;
-    
+
     for (auto/*EdgesIterator*/ it = _out_edges.begin(); it != _out_edges.end(); ++it)
         if (it->target.lock() == ptr)
             return true;
-    
+
     //! Link doesn't exist
     return false;
 }

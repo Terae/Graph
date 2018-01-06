@@ -14,7 +14,7 @@
 TEST_CASE("detail") {
     using namespace std;
     using namespace detail;
-    
+
     SECTION("exceptions") {
         CHECK_THROWS_WITH(throw detail::invalid_argument::create("foo"),
                           "[graph.exception.invalid_argument] Invalid argument when calling 'foo'.");
@@ -29,13 +29,13 @@ TEST_CASE("detail") {
         CHECK_THROWS_WITH(throw detail::not_complete::create("foo"),
                           "[graph.exception.bad_graph.not_complete] Not complete graph when calling 'foo'.");
     }
-    
+
     SECTION("is_map_iterator<T>()") {
         CHECK_FALSE(is_map_iterator<int>::value);
         CHECK_FALSE(is_map_iterator<vector<int>::iterator>::value);
         CHECK(is_map_iterator<map<string, int>::iterator>::value);
     }
-    
+
     SECTION("get_value(const V&, const V&)") {
         map<string, int*> m;
         int* ptr = new int(1);
@@ -45,7 +45,7 @@ TEST_CASE("detail") {
         CHECK(get_value(m.end(), m.end()) == nullptr);
         delete ptr;
     }
-    
+
     SECTION("type_name<T>()") {
         CHECK(type_name<int>()              == "int");
         CHECK(type_name<float>()            == "float");
@@ -54,5 +54,15 @@ TEST_CASE("detail") {
         CHECK(type_name<decltype(2.4f)>()   == "float");
         CHECK(type_name<decltype(2.4)>()    == "double");
         CHECK(type_name<std::size_t>()      == "unsigned long");
+    }
+
+    SECTION("basic_degree") {
+        basic_degree<DIRECTED> d1(make_pair<std::size_t, std::size_t>(1, 2));
+        CHECK(d1 == make_pair<std::size_t, std::size_t>(1, 2));
+        CHECK(basic_degree<DIRECTED>::max().get_degree().first == std::numeric_limits<std::size_t>::max());
+
+        basic_degree<UNDIRECTED> d2(0);
+        CHECK(d2.get_degree() == 0);
+        CHECK(basic_degree<UNDIRECTED>::min() == d2);
     }
 }

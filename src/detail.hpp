@@ -26,6 +26,11 @@
 
 /// #define COUNT_ARGS(...) std::tuple_size<decltype(std::make_tuple(__VA_ARGS__))>::value
 
+enum Nature {
+    DIRECTED   = 'd',
+    UNDIRECTED = 'u'
+};
+
 /*!
  @brief unnamed namespace with internal helper functions
 
@@ -145,6 +150,53 @@ namespace detail {
     };
 
 //!
+//! @section degree
+//!
+    template <Nature N> class basic_degree;
+
+    template <> class basic_degree<DIRECTED> {
+    public:
+        using value_type = std::pair<std::size_t, std::size_t>;
+
+        basic_degree(const value_type& degree) : _deg(degree) {};
+        basic_degree(std::size_t in, std::size_t out) : basic_degree(std::make_pair(in, out)) {};
+
+        inline value_type get_degree() const { return _deg; }
+
+        bool operator==(const basic_degree& d) const { return _deg == d._deg; }
+        bool operator==(const value_type& v)   const { return _deg == v; }
+
+        bool operator< (const basic_degree& d) const { return _deg < d._deg; }
+
+        static basic_degree max() { return basic_degree(std::numeric_limits<std::size_t>::max(), std::numeric_limits<std::size_t>::max()); }
+        static basic_degree min() { return basic_degree(std::numeric_limits<std::size_t>::min(), std::numeric_limits<std::size_t>::min()); }
+
+    private:
+        value_type _deg;
+    };
+
+    template <> class basic_degree<UNDIRECTED> {
+    public:
+        using value_type = std::size_t;
+
+        basic_degree(const value_type& d) : _deg(d) {}
+        basic_degree(std::size_t in, std::size_t) : basic_degree(in) {}
+
+        inline value_type get_degree() const { return _deg; }
+
+        bool operator==(const basic_degree& d) const { return _deg == d._deg; }
+        bool operator==(const value_type& v)   const { return _deg == v; }
+
+        bool operator< (const basic_degree& d) const { return _deg < d._deg; }
+
+        static basic_degree max() { return basic_degree(std::numeric_limits<std::size_t>::max()); }
+        static basic_degree min() { return basic_degree(std::numeric_limits<std::size_t>::min()); }
+
+    private:
+        value_type _deg;
+    };
+
+//!
 //! @section helpers
 //!
 #include <memory>
@@ -187,7 +239,7 @@ namespace detail {
         if (status == 0)
             tname = demangled_name;
         std::free(demangled_name);
-    
+
         /// Replace all occurences of 'to_replace' by 'replacement' in 'base'
         /// Usefull to get an human readable 'std::string'
         std::function<void(std::string&, std::string, std::string)> replace_all =
@@ -197,7 +249,7 @@ namespace detail {
                         i += replacement.length();
                     }
                 };
-        
+
         replace_all(tname, "std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >", "std::string>");
         replace_all(tname, "std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >",   "std::string");
         return tname;

@@ -114,7 +114,7 @@ TEST_CASE("text") {
                                       "        \"198\", \"value of 297.000000\"\n"
                                       "    }\n"
                                       "}\n"};
-    
+
     const std::string GRAPH_2{"digraph<int, std::string, float> {\n"
                                       "    nodes: {\n"
                                       "        \"0\",   \"value of 0.000000\";\n"
@@ -230,29 +230,31 @@ TEST_CASE("text") {
                                       "        \"70\", \"6\",  \"70.6\"\n"
                                       "    }\n"
                                       "}\n"};
-    
+
     using namespace std;
-    using Graph = graph<int, string, float>;
-    
+    using Graph            = graph           <int, string, float>;
+    using Graph_directed   = graph_directed  <int, string, float>;
+    using Graph_undirected = graph_undirected<int, string, float>;
+
     SECTION("operator<<(ostream& os, const graph<Key, T, Cost>& g)") {
         SECTION("simple graph") {
-            Graph g(UNDIRECTED);
-    
+            Graph_undirected g;
+
             for (int i = 0; i < 200; i += 2)
                 g[i] = "value of " + to_string(i * 1.5);
-    
+
             ostringstream out;
             out << g;
-    
+
             CHECK(GRAPH_1 == out.str());
         }
-    
+
         SECTION("complete graph") {
-            Graph g(DIRECTED);
-        
+            Graph_directed g;
+
             for (int i = 0; i < 200; i += 2)
                 g[i] = "value of " + to_string(i * 1.5);
-            
+
             g(0,  2)  = 0.2;
             g(6,  82) = 6.82;
             g(0,  6)  = 0.6;
@@ -262,44 +264,52 @@ TEST_CASE("text") {
             g(24, 42) = 24.42;
             g(42, 24) = 42.24;
             g(42, 6);
-            
+
             ostringstream out;
             out << g;
-        
+
             CHECK(GRAPH_2 == out.str());
         }
     }
-    
+
     SECTION("operator>>(istream& is, graph<Key, T, Cost>& g)") {
         SECTION("Exceptions") {
-            Graph g;
-            std::stringstream ss1, ss2, ss3, ss4, ss5, ss6;
-            
+            Graph g1;
+            Graph_directed g2;
+            Graph_undirected g3;
+            std::stringstream ss1, ss2, ss3, ss4, ss5, ss6, ss7, ss8;
+
             ss1 << "badgraph<string, int, float> {\n    nodes: {\n    }\n}";
-            CHECK_THROWS_WITH(ss1 >> g, "[graph.exception.parse_error] parse error at 31: Bad graph nature when calling 'operator>>'.");
+            CHECK_THROWS_WITH(ss1 >> g1, "[graph.exception.parse_error] parse error at 31: Bad graph nature when calling 'operator>>'.");
 
-            ss2 << "graph<string, int, float> {\n badnodes: {\n    }\n}";
-            CHECK_THROWS_WITH(ss2 >> g, "[graph.exception.parse_error] parse error at 41: Bad format for nodes when calling 'operator>>'.");
+            ss2 << "graph<string, int, float> {\n    nodes: {\n    }\n}";
+            CHECK_THROWS_WITH(ss2 >> g2, "[graph.exception.invalid_argument] Bad graph nature (expected UNDIRECTED) when calling 'operator>>'.");
 
-            ss3 << "graph<string, int, float> {\n    nodes: {\n        bad values";
-            CHECK_THROWS_WITH(ss3 >> g, "[graph.exception.parse_error] parse error at 5: Bad type when calling 'read_T'.");
+            ss3 << "digraph<string, int, float> {\n    nodes: {\n    }\n}";
+            CHECK_THROWS_WITH(ss3 >> g3, "[graph.exception.invalid_argument] Bad graph nature (expected DIRECTED) when calling 'operator>>'.");
 
-            ss4 << "graph<string, int, float> {\n    nodes: {\n    },\n    badedges: {\n    }\n}";
-            CHECK_THROWS_WITH(ss4 >> g, "[graph.exception.parse_error] parse error at 64: Bad format for edges when calling 'operator>>'.");
-    
-            ss5 << "graph<string, int, float> {\n    nodes: {\n    },\n    edges: {\n        bad values\n    }\n}";
-            CHECK_THROWS_WITH(ss5 >> g, "[graph.exception.parse_error] parse error at 5: Bad type when calling 'read_T'.");
-    
-            ss6 << "graph<string, int, float> {\n    nodes: {\n    },\n    edges: {\n    }\n";
-            CHECK_THROWS_WITH(ss6 >> g, "[graph.exception.parse_error] parse error at 18446744073709551615: Bad format at the end of the graph when calling 'operator>>'.");
+            ss4 << "graph<string, int, float> {\n badnodes: {\n    }\n}";
+            CHECK_THROWS_WITH(ss4 >> g1, "[graph.exception.parse_error] parse error at 41: Bad format for nodes when calling 'operator>>'.");
+
+            ss5 << "graph<string, int, float> {\n    nodes: {\n        bad values";
+            CHECK_THROWS_WITH(ss5 >> g1, "[graph.exception.parse_error] parse error at 5: Bad type when calling 'read_T'.");
+
+            ss6 << "graph<string, int, float> {\n    nodes: {\n    },\n    badedges: {\n    }\n}";
+            CHECK_THROWS_WITH(ss6 >> g1, "[graph.exception.parse_error] parse error at 64: Bad format for edges when calling 'operator>>'.");
+
+            ss7 << "graph<string, int, float> {\n    nodes: {\n    },\n    edges: {\n        bad values\n    }\n}";
+            CHECK_THROWS_WITH(ss7 >> g1, "[graph.exception.parse_error] parse error at 5: Bad type when calling 'read_T'.");
+
+            ss8 << "graph<string, int, float> {\n    nodes: {\n    },\n    edges: {\n    }\n";
+            CHECK_THROWS_WITH(ss8 >> g1, "[graph.exception.parse_error] parse error at 18446744073709551615: Bad format at the end of the graph when calling 'operator>>'.");
         };
-        
+
         SECTION("Reading from istream") {
-            Graph g1(DIRECTED);
-    
+            Graph_directed g1;
+
             for (int i = 0; i < 200; i += 2)
                 g1[i] = "value of " + to_string(i * 1.5);
-    
+
             g1(0,  2)  = 0.2;
             g1(6,  82) = 6.82;
             g1(0,  6)  = 0.6;
@@ -309,21 +319,24 @@ TEST_CASE("text") {
             g1(24, 42) = 24.42;
             g1(42, 24) = 42.24;
             g1(42, 6);
-            
-            Graph g2;
+
+            Graph_directed g2;
             std::stringstream ss;
             ss << GRAPH_2;
             ss >> g2;
             CHECK(g1 == g2);
+
+            Graph_undirected g3;
+            CHECK_THROWS_WITH(g3.load("/tmp/graph.txt"), "[graph.exception.invalid_argument] Bad graph nature (expected DIRECTED) when calling 'operator>>'.");
         }
     }
-    
+
     SECTION("save/load") {
-        Graph g1(DIRECTED);
-    
+        Graph_directed g1;
+
         for(int i = 0; i < 200; i+=2)
             g1[i] = "value of " + to_string(i * 1.5);
-    
+
         g1(0,  2)  = 0.2;
         g1(6,  82) = 6.82;
         g1(0,  6)  = 0.6;
@@ -333,12 +346,15 @@ TEST_CASE("text") {
         g1(24, 42) = 24.42;
         g1(42, 24) = 42.24;
         g1(42, 6);
-        
+
         g1.save("/tmp/graph.txt");
-        
-        Graph g2;
+
+        Graph_directed g2;
         g2.load("/tmp/graph.txt");
-        
+
         CHECK(g1 == g2);
+
+        Graph_undirected g3;
+        CHECK_THROWS_WITH(g3.load("/tmp/graph.txt"), "[graph.exception.invalid_argument] Bad graph nature (expected DIRECTED) when calling 'operator>>'.");
     }
 }
