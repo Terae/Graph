@@ -228,14 +228,14 @@ TEST_CASE("element access") {
 #else
     SECTION("operator()(const key_type& k1, const key_type& k2) const") {
         SECTION("directed") {
-            Graph g1(DIRECTED);
+            Graph_directed g1;
             for(int i{0}; i < 10; ++i)
                 g1["node " + to_string(i)] = i;
 
             g1("node 1", "node 2") = 12;
             g1("node 1", "node 5") = 15;
 
-            const Graph g2(g1);
+            const Graph_directed g2(g1);
             CHECK(g2("node 1", "node 2") == 12);
             CHECK_THROWS_WITH(g2("node 5", "node 1"),
                               "[graph.exception.invalid_argument] Unexistant edge when calling 'operator()'.");
@@ -244,14 +244,14 @@ TEST_CASE("element access") {
         }
 
         SECTION("undirected") {
-            Graph g1(UNDIRECTED);
+            Graph_undirected g1;
             for(int i{0}; i < 10; ++i)
                 g1["node " + to_string(i)] = i;
 
             g1("node 1", "node 2") = 12;
             g1("node 1", "node 5") = 15;
 
-            const Graph g2(g1);
+            const Graph_undirected g2(g1);
             CHECK(g2("node 1", "node 2") == 12);
             CHECK(g2("node 5", "node 1") == 15);
             CHECK_THROWS_WITH(g2("node 1", "new node"),
@@ -261,18 +261,18 @@ TEST_CASE("element access") {
 
     SECTION("operator()(iterator it1, iterator it2) const") {
         SECTION("directed") {
-            Graph g1(DIRECTED);
+            Graph_directed g1;
             for(int i{0}; i < 10; ++i)
                 g1["node " + to_string(i)] = i;
 
             g1("node 1", "node 2") = 12;
             g1("node 1", "node 5") = 15;
 
-            const Graph g2(g1);
-            Graph::const_iterator it1{g2.find("node 1")};
-            Graph::const_iterator it2{g2.find("node 2")};
-            Graph::const_iterator it3{g2.find("node 3")};
-            Graph::const_iterator it5{g2.find("node 5")};
+            const Graph_directed g2(g1);
+            Graph_directed::const_iterator it1{g2.find("node 1")};
+            Graph_directed::const_iterator it2{g2.find("node 2")};
+            Graph_directed::const_iterator it3{g2.find("node 3")};
+            Graph_directed::const_iterator it5{g2.find("node 5")};
 
             CHECK(g2.get_nbr_nodes() == 10);
             CHECK(g2.get_nbr_edges() == 2);
@@ -286,18 +286,18 @@ TEST_CASE("element access") {
         }
 
         SECTION("undirected") {
-            Graph g1(UNDIRECTED);
+            Graph_undirected g1;
             for(int i{0}; i < 10; ++i)
                 g1["node " + to_string(i)] = i;
 
             g1("node 1", "node 2") = 12;
             g1("node 1", "node 5") = 15;
 
-            const Graph g2(g1);
-            Graph::const_iterator it1{g2.find("node 1")};
-            Graph::const_iterator it2{g2.find("node 2")};
-            Graph::const_iterator it3{g2.find("node 3")};
-            Graph::const_iterator it5{g2.find("node 5")};
+            const Graph_undirected g2(g1);
+            Graph_undirected::const_iterator it1{g2.find("node 1")};
+            Graph_undirected::const_iterator it2{g2.find("node 2")};
+            Graph_undirected::const_iterator it3{g2.find("node 3")};
+            Graph_undirected::const_iterator it5{g2.find("node 5")};
 
             CHECK(g2.get_nbr_nodes() == 10);
             CHECK(g2.get_nbr_edges() == 2);
