@@ -26,3 +26,4 @@ echo ""
 cd ${dir}
 github_changelog_generator terae/graph
 git add CHANGELOG.md
+git add CMakeLists.txt

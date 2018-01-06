@@ -321,13 +321,15 @@ TEST_CASE("text") {
             g1(42, 6);
 
             Graph_directed g2;
-            std::stringstream ss;
-            ss << GRAPH_2;
-            ss >> g2;
+            std::stringstream ss1;
+            ss1 << GRAPH_2;
+            ss1 >> g2;
             CHECK(g1 == g2);
 
+			std::stringstream ss2;
+			ss2 << GRAPH_2;
             Graph_undirected g3;
-            CHECK_THROWS_WITH(g3.load("/tmp/graph.txt"), "[graph.exception.invalid_argument] Bad graph nature (expected DIRECTED) when calling 'operator>>'.");
+            CHECK_THROWS_WITH(ss2 >> g3, "[graph.exception.invalid_argument] Bad graph nature (expected DIRECTED) when calling 'operator>>'.");
         }
     }
 
