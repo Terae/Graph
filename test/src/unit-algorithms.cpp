@@ -13,31 +13,31 @@
 
 TEST_CASE("algorithms") {
     using namespace std;
-    using Graph = graph<string, int, double>;
-    
+    using Graph = graph_directed<string, int, double>;
+
     SECTION("non-modifying sequence operations") {
         /*SECTION("all_of") {}
         SECTION("any_of") {}
         SECTION("none_of") {}*/
-        
+
         SECTION("for_each") {
-            Graph g(DIRECTED);
-    
+            Graph g;
+
             for(int i{0}; i < 10; ++i)
                 g["node " + to_string(i)] = i;
-    
+
             Graph::iterator it{g.emplace("target", 10).first};
-    
+
             int i{0};
             for_each(g.begin(), g.end(), [it, &i](decltype(g)::value_type /*pair<const string, shared_ptr<node<int, double>>> */&p){
                 p.second->add_edge(it, i * 10);
                 ++i;
             });
-            
+
             for(i = 0; i < 10; ++i)
                 CHECK(g("node " + to_string(i), "target") == i * 10);
         }
-        
+
         /*SECTION("count") {}
         SECTION("mismatch") {}
         SECTION("equal") {}
@@ -48,7 +48,7 @@ TEST_CASE("algorithms") {
         SECTION("search") {}
         SECTION("search_n") {}*/
     }
-    
+
     /*SECTION("modifying sequence operations") {
         SECTION("copy") {}
         SECTION("copy_if") {}
@@ -81,7 +81,7 @@ TEST_CASE("algorithms") {
         SECTION("unique") {}
         SECTION("unique_copy") {}
     }
-    
+
     SECTION("partitioning operations") {
         SECTION("is_partitioned") {}
         SECTION("partition") {}
@@ -89,7 +89,7 @@ TEST_CASE("algorithms") {
         SECTION("stable_partition") {}
         SECTION("partition_point") {}
     }
-    
+
     SECTION("sorting operations") {
         SECTION("is_sorted") {}
         SECTION("is_sorted_until") {}
@@ -99,14 +99,14 @@ TEST_CASE("algorithms") {
         SECTION("stable_sort") {}
         SECTION("nth_element") {}
     }
-    
+
     SECTION("binary search operations") {
         SECTION("lower_bound") {}
         SECTION("upper_bound") {}
         SECTION("binary_search") {}
         SECTION("equal_range") {}
     }
-    
+
     SECTION("set operations") {
         SECTION("merge") {}
         SECTION("inplace_merge") {}
@@ -116,7 +116,7 @@ TEST_CASE("algorithms") {
         SECTION("set_symmetric_difference") {}
         SECTION("set_union") {}
     }
-    
+
     SECTION("heap operations") {
         SECTION("is_heap") {}
         SECTION("is_heap_until") {}
@@ -125,7 +125,7 @@ TEST_CASE("algorithms") {
         SECTION("pop_heap") {}
         SECTION("sort_heap") {}
     }
-    
+
     SECTION("minimum/maximum operations") {
         SECTION("clamp") {}
         SECTION("max") {}

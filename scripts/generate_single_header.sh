@@ -1,14 +1,22 @@
 #!/bin/bash
 echo "Generating the header-only file .."
 
-LOCATION="single_include"
+HOME=`git rev-parse --show-toplevel`
+
+# Remove all trailing whitespaces
+#cd ${HOME}
+#for filename in `find -follow | grep -E '\.(cpp|h|hpp)$' | grep -v './test/third-party' | grep -v './build'`; do
+#	sed -i 's/[ \t]*$//' ${filename}
+#done
+
+LOCATION=${HOME}/single_include
 mkdir -p "$LOCATION"
 FILE="$LOCATION/graph.hpp"
 
 cat > "$FILE" << EOF
 /*
  *    ╔═╗╦═╗╔═╗╔═╗╦ ╦  C++ Graph library
- *    ║ ╦╠╦╝╠═╣╠═╝╠═╣  version 1.0.0
+ *    ║ ╦╠╦╝╠═╣╠═╝╠═╣  Version 1.0.0
  *    ╚═╝╩╚═╩ ╩╩  ╩ ╩  https://github.com/Terae/Structure
  *
  *
@@ -41,14 +49,14 @@ cat > "$FILE" << EOF
 EOF
 
 # Copying Graph.h, Graph.cpp and Node.cpp into graph.hpp
-sed -e '/#include "Graph.cpp"/ {' -e 'r src/Node.cpp' -e 'r src/Graph.cpp' -e 'd' -e '}' src/Graph.h >> "$FILE"
+sed -e '/#include "Graph.cpp"/ {' -e "r ${HOME}/src/Node.cpp" -e "r ${HOME}/src/Graph.cpp" -e 'd' -e '}' ${HOME}/src/Graph.h >> "$FILE"
 # Copying Node.h into graph.hpp
-sed -i -e '/#include "Node.h"/ {' -e 'r src/Node.h' -e 'd' -e '}' "$FILE"
+sed -i -e '/#include "Node.h"/ {' -e "r ${HOME}/src/Node.h" -e 'd' -e '}' "$FILE"
 sed -i '/#include "Node.cpp"/,+2d' "$FILE"
 sed -i 's/#include <Node.h>//' "$FILE"
 sed -i 's/#include <Graph.h>//' "$FILE"
 # Copying exception.hpp into graph.hpp
-sed -i -e '/#include "detail.hpp"/ {' -e 'r src/detail.hpp' -e 'd' -e '}' "$FILE"
+sed -i -e '/#include "detail.hpp"/ {' -e "r ${HOME}/src/detail.hpp" -e 'd' -e '}' "$FILE"
 # Modifying #ifndef/#define values
 sed -i 's/ROOT_GRAPH_H/ROOT_GRAPH_FINAL_H/' "$FILE"
 sed -i '/ROOT_NODE_H/d' "$FILE"
@@ -59,4 +67,3 @@ sed -i 's/\/\/\/.*//' "$FILE"
 sed -i 's/[ \t]*$//' "$FILE"
 # Remove unnecessary EOF
 sed -i '/^$/N;/\n$/D' "$FILE"
-

@@ -33,7 +33,7 @@ int main() {
                                    "        \"target\", \"target\", \"100\";\n"
                                    "    }\n"
                                    "}"};
-    graph<std::string, int, double> g(UNDIRECTED);
+    graph_undirected<std::string, int, double> g;
     std::stringstream ss;
     ss << TEXT;
     GRAPH_TRY {

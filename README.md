@@ -2,7 +2,9 @@
 [![codecov](https://codecov.io/gh/Terae/Graph/branch/master/graph/badge.svg)](https://codecov.io/gh/Terae/Graph)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/b79d80fae71f4eb9b447d1c78ce1fbc1)](https://www.codacy.com/app/Terae/Graph?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Terae/Graph&amp;utm_campaign=Badge_Grade)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/1526/badge)](https://bestpractices.coreinfrastructure.org/projects/1526)
+[![Github Releases](https://img.shields.io/github/release/terae/graph.svg)](https://github.com/terae/graph/releases)
 [![Github license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/terae/Structure/master/LICENSE)
+[![Github Issues](https://img.shields.io/github/issues/terae/graph.svg)](http://github.com/terae/graph/issues)
 <!--[![Coverage Status](https://coveralls.io/repos/github/Terae/Graph/badge.svg?branch=master)](https://coveralls.io/github/Terae/Graph?branch=master)-->
 <!-- [![Coverity Scan Build Status](https://scan.coverity.com/projects/14560/badge.svg)](https://scan.coverity.com/projects/structures) -->
 <!--[![Build status](https://ci.appveyor.com/api/projects/status/5y7aq1kn6lx3jd94?svg=true)](https://ci.appveyor.com/project/Terae17352/structure)-->
@@ -24,10 +26,10 @@ A STL-like graph library written in C++
 The Graph library is a STL-like library which can be used as an `std::` container. The class had these design goals:
 * **Intuitive syntax**. This container uses all the operator magic of modern C++ to achieve a good feeling in your code.
 * **Trivial integration**. The whole code consists of a single header file `graph.hpp`. No library, no subproject, no dependencies, no complex build system. The class is written in vanilla C++11. All in all, everything should require no adjustment of your compiler flags or project settings.
-* **Serious testing**. Ths class is heavily [unit-tested](https://github.com/terae/Structure/blob/master/tests/src/unit.cpp) and covers [100%](https://www.codacy.com/app/Terae/Graph?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Terae/Graph&amp;utm_campaign=Badge_Grade) of the code. Furthermore, I checked with [Valgrind](http://www.valgrind.org/) that there are no memory leaks. To maintain high quality, the project is following the [Core Infrastructure Initiative (CII) best practices](https://bestpractices.coreinfrastructure.org/projects/1526).
+* **Serious testing**. This class is heavily [unit-tested](https://github.com/terae/Structure/blob/master/tests/src/unit.cpp) and covers [100%](https://www.codacy.com/app/Terae/Graph?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Terae/Graph&amp;utm_campaign=Badge_Grade) of the code. Furthermore, I checked with [Valgrind](http://www.valgrind.org/) that there are no memory leaks. To maintain high quality, the project is following the [Core Infrastructure Initiative (CII) best practices](https://bestpractices.coreinfrastructure.org/projects/1526).
 
 ## Documentation
-The documentation will be finished once the functionality and interfaces are finalised.
+The documentation will be finished once the functionality and interfaces are finalized.
 
 Until then, here are a few short indications on how to use this library:
 * Requires Clang or GCC with `-std=c++11` (or other compiler with sufficient C++11 support).
@@ -38,7 +40,7 @@ Until then, here are a few short indications on how to use this library:
 to the files you want to use Graph objects. That's it.
 
 ## Quickstart example
-One [installed](#installation), let's initialize a sample graph:
+Once [installed](#installation), let's initialize a sample graph:
 
 ```c++
 #include "../src/Graph.h"

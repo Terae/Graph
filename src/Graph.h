@@ -35,11 +35,6 @@
 
 #include "Node.h"
 
-enum Nature {
-    DIRECTED   = 'd',
-    UNDIRECTED = 'u'
-};
-
 ///////////////////////////
 ///// ADJACENCY GRAPH /////
 ///////////////////////////
@@ -51,30 +46,30 @@ enum Nature {
  * @tparam T type of graphed value stored into a node. Aliased as member type Graph::graphed_type
  * @tparam Cost type of the cost between nodes.
  */
-template <class Key, class T, class Cost = std::size_t>
+template <class Key, class T, class Cost = std::size_t, Nature Nat = UNDIRECTED>
 class graph {
 public:
     class node;
-    class Degree;
-    
+    using Degree = detail::basic_degree<Nat>;
+
 private:
     using PtrNode  = std::shared_ptr<node>;
     using MapNodes = std::map<Key, PtrNode>;
-    
+
     MapNodes _nodes;
-    Nature   _nature;
     std::size_t _num_edges = 0;
-    
+
     const Cost infinity = std::numeric_limits<Cost>::has_infinity ? std::numeric_limits<Cost>::infinity() :
-                          std::numeric_limits<Cost>::max();
-    
+                                                                    std::numeric_limits<Cost>::max();
+
     std::ostream &print(std::ostream &os) const;
 
 public:
+
     //!
     //! @section exceptions
     //!
-    
+
     using bad_graph          = detail::bad_graph;
     using exception          = detail::exception;
     using invalid_argument   = detail::invalid_argument;
@@ -82,15 +77,15 @@ public:
     using not_complete       = detail::not_complete;
     using parse_error        = detail::parse_error;
     using unexpected_nullptr = detail::unexpected_nullptr;
-    
+
     //!
     //! @section container types
     //!
-    
+
     /// @name container types
     /// The canonic container types to use @ref Graph like any other STL container
     /// @{
-    
+
     /// the type of elements in a graph container
     using value_type   = std::pair<const Key, PtrNode>;
     /// the type of an element reference
@@ -101,7 +96,7 @@ public:
     using graphed_type = T;
     /// a type to represent container sizes
     using size_type    = std::size_t;
-    
+
     /// an iterator for a graph container
     using iterator               = typename std::map<Key, PtrNode>::iterator;
     /// a const iterator for a graph container
@@ -110,62 +105,62 @@ public:
     using reverse_iterator       = typename MapNodes::reverse_iterator;
     /// a const reverse iterator for a graph container
     using const_reverse_iterator = typename MapNodes::const_reverse_iterator;
-    
+
     /// @}
-    
+
     //!
     //! @section Iterators
     //!
-    
+
     iterator begin() noexcept;
     iterator end()   noexcept;
-    
+
     const_iterator begin()  const noexcept;
     const_iterator cbegin() const noexcept;
-    
+
     const_iterator end()  const noexcept;
     const_iterator cend() const noexcept;
-    
+
     reverse_iterator rbegin() noexcept;
     reverse_iterator rend()   noexcept;
-    
+
     const_reverse_iterator rbegin()  const noexcept;
     const_reverse_iterator crbegin() const noexcept;
-    
+
     const_reverse_iterator rend()  const noexcept;
     const_reverse_iterator crend() const noexcept;
-    
+
     //!
     //! @section Constructors
     //!
-    
+
     /// default constructor
-    explicit graph(Nature nature = UNDIRECTED);
-    
+    explicit graph();
+
     /// copy constructor
     graph(const graph &);
-    
+
     /// move constructor
     graph(graph &&) noexcept;
-    
+
     /// copy assignment operator
     graph &operator=(const graph &);
-    
+
     /// move assignment operator
     graph &operator=(graph &&);
-    
+
     virtual ~graph();
-    
+
     //!
     //! @section Capacity
     //!
 
     bool empty() const noexcept;
-    
+
     size_type size() const noexcept;
-    
+
     size_type max_size() const noexcept;
-    
+
     //!
     //! @section Element access
     //!
@@ -178,7 +173,7 @@ public:
 #else
     const graphed_type operator[](key_type &&) const;
 #endif
-    
+
     Cost &operator()(iterator,         iterator);
     Cost &operator()(const key_type &, const key_type &);
 
@@ -192,147 +187,125 @@ public:
     //!
     //! @section Modifiers
     //!
-    
+
     //! Adders
     /// @return pair<position, new node> insertion
     [[deprecated]] std::pair<iterator, bool> insert(const value_type &);
-    
+
     iterator insert(const_iterator position, const value_type &);
     iterator insert(const_iterator position, const key_type &, graphed_type &);
     iterator insert(const_iterator position, const key_type &, const node &);
-    
+
     /// @return pair<position, new node> emplacement
     std::pair<iterator, bool> emplace(const key_type &);
     std::pair<iterator, bool> emplace(const key_type &, const graphed_type &);
     std::pair<iterator, bool> emplace(const key_type &, const node &);
-    
+
     std::pair<iterator, bool> add_node(const key_type &);
     std::pair<iterator, bool> add_node(const key_type &, const graphed_type &);
     std::pair<iterator, bool> add_node(const key_type &, const node &);
-    
+
     bool add_edge(const_iterator,   const_iterator,   Cost = std::numeric_limits<Cost>::epsilon());
     bool add_edge(const key_type &, const key_type &, Cost = std::numeric_limits<Cost>::epsilon());
-    
+
     void link_all_nodes(Cost cost);
-    
+
     //! Deleters
-    
+
     iterator  erase(const_iterator);
     iterator  erase(const_iterator first, const_iterator last);
     size_type erase(const key_type &);
-    
+
     iterator  del_node (const_iterator);
     iterator  del_nodes(const_iterator first, const_iterator last);
     size_type del_node (const key_type &);
-    
+
     void clear() noexcept;
-    
+
     size_type del_edge(const_iterator,   const_iterator);
     size_type del_edge(const key_type &, const key_type &);
-    
+
     void clear_edges();
-    
+
     size_type clear_edges(const_iterator);
     size_type clear_edges(const key_type &);
-    
+
     //! Others
     void swap(graph &);
-    
+
     //!
     //! @section Functions
     //!
-    
+
     /// Non-modifying sequence operations
     size_type count(const key_type &) const;
-    
+
     iterator       find(const key_type &);
     const_iterator find(const key_type &) const;
-    
+
     //!
     //! @section Operations
     //!
-    
+
     bool existing_node(const_iterator)   const;
     bool existing_node(const key_type &) const;
-    
+
     bool existing_edge(const_iterator,   const_iterator)   const;
     bool existing_edge(const key_type &, const key_type &) const;
-    
+
     inline size_type get_nbr_nodes() const noexcept;
     inline size_type get_nbr_edges() const noexcept;
-    
+
     inline Nature get_nature() const;
-    
-    void set_nature(Nature new_nature);
-    
+
+    ///void set_nature(Nature new_nature);
+
     Degree degree(const_iterator)   const;
     Degree degree(const key_type &) const;
-    
+
     std::pair<const_iterator, Degree> degree_max() const;
     std::pair<const_iterator, Degree> degree_min() const;
-    
+
     std::map<key_type, Degree> degrees() const;
-    
+
     //!
     //! @section Text functions
     //!
-    
-    template<class K, class D, class C> friend std::ostream &operator<<(std::ostream &os, const graph<K, D, C> &g);
-    template<class K, class D, class C> friend std::istream &operator>>(std::istream &is, graph<K, D, C> &g);
-    
+
+    template<class K, class D, class C, Nature N> friend std::ostream &operator<<(std::ostream &os, const graph<K, D, C, N> &g);
+    template<class K, class D, class C, Nature N> friend std::istream &operator>>(std::istream &is,       graph<K, D, C, N> &g);
+
     void save  (const char *filepath) const;
     graph &load(const char *filepath);
-    
+
     //!
     //! @section Bool operators
     //!
-    
-    template<class K, class D, class C> bool operator==(const graph<K, D, C> &other) const noexcept;
-    template<class K, class D, class C> bool operator!=(const graph<K, D, C> &other) const noexcept;
+
+    template<class K, class D, class C, Nature N> bool operator==(const graph<K, D, C, N> &other) const noexcept;
+    template<class K, class D, class C, Nature N> bool operator!=(const graph<K, D, C, N> &other) const noexcept;
 
     /// CRTP: https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern
     class node : public basic_node<T, Cost, iterator, const_iterator> {
     public:
         explicit node();
-        
+
         explicit node(const T &);
-        
+
         node &operator=(const T &);
-    
+
     private:
         friend class graph;
-        
+
         void set_iterator_values(iterator this_, iterator end, const_iterator cend);
     };
-    
-    class Degree {
-    public:
-        using degree_directed   = std::pair<size_type, size_type>;
-        using degree_undirected = size_type;
-        
-        Degree(degree_undirected degree);
-        
-        Degree(const degree_directed& degree);
-        Degree(size_type in,   size_type out);
-    
-        degree_directed   get_degree_directed()   const;
-        degree_undirected get_degree_undirected() const;
-    
-        bool operator==(const Degree&)          const;
-        bool operator==(const degree_directed&) const;
-        bool operator==(degree_undirected)      const;
-        
-        bool operator<(const Degree&)          const;
-        
-        static Degree max(Nature);
-        static Degree min(Nature);
-        
-    private:
-        Nature n;
-        degree_directed   _directed_deg;
-        degree_undirected _undirected_deg;
-    };
 };
+
+template <class Key, class T, class Cost = std::size_t>
+using graph_directed = graph<Key, T, Cost, DIRECTED>;
+
+template <class Key, class T, class Cost = std::size_t>
+using graph_undirected = graph<Key, T, Cost, UNDIRECTED>;
 
 #include "Graph.cpp"
 
