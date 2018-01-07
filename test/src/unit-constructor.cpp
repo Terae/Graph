@@ -18,15 +18,23 @@
 struct cost {
     explicit cost(double n) : number(n) {}
     double number;
-    bool operator<(const cost& other) const { return number < other.number; }
+    bool operator<(const cost &other) const {
+        return number < other.number;
+    }
 };
 namespace std {
     template<>
     struct numeric_limits<cost> {
         static constexpr bool is_specialized = true;
-        static bool has_infinity() { return true; }
-        static cost infinity() { return cost(std::numeric_limits<double>::infinity()); }
-        static cost max()      { return cost(std::numeric_limits<double>::max()); }
+        static bool has_infinity() {
+            return true;
+        }
+        static cost infinity() {
+            return cost(std::numeric_limits<double>::infinity());
+        }
+        static cost max() {
+            return cost(std::numeric_limits<double>::max());
+        }
     };
 }
 
@@ -140,15 +148,19 @@ TEST_CASE("constructors") {
 
         SECTION("graph of struct types") {
             struct key {
-                explicit key(const string& n, int v) : name(n), value(v) {}
+                explicit key(const string &n, int v) : name(n), value(v) {}
                 string name;
                 int value;
-                bool operator<(const key& other) const { return tie(name, value) < tie(other.name, other.value); }
+                bool operator<(const key &other) const {
+                    return tie(name, value) < tie(other.name, other.value);
+                }
             };
             struct t {
                 explicit t(float d = 0.0) : data(d) {}
                 float data;
-                bool operator<(const t& other) const { return data < other.data; }
+                bool operator<(const t &other) const {
+                    return data < other.data;
+                }
             };
             graph<key, t, cost> g;
             key k1("node 1", 1);
@@ -209,8 +221,9 @@ TEST_CASE("constructors") {
 
         SECTION("nodes only") {
             Graph initial;
-            for(int i = 0; i < 100; ++i)
+            for (int i{0}; i < 100; ++i) {
                 initial["node " + to_string(i)] = i;
+            }
 
             Graph final = initial;
             CHECK(initial == final);
@@ -226,13 +239,16 @@ TEST_CASE("constructors") {
         SECTION("complete graph") {
             SECTION("directed") {
                 Graph_directed initial;
-                for(int i = 0; i < 100; ++i)
+                for (int i{0}; i < 100; ++i) {
                     initial["node " + to_string(i)] = i;
+                }
 
-                for(int i = 0; i < 99; i += 3)
-                    initial("node " + to_string(i), "node " + to_string(i+1)) = 20 * i;
-                for(int i = 0; i < 98; i += 3)
-                    initial("node " + to_string(i+2), "node " + to_string(i+1)) = 40 * i;
+                for (int i{0}; i < 99; i += 3) {
+                    initial("node " + to_string(i), "node " + to_string(i + 1)) = 20 * i;
+                }
+                for (int i{0}; i < 98; i += 3) {
+                    initial("node " + to_string(i + 2), "node " + to_string(i + 1)) = 40 * i;
+                }
 
                 Graph_directed final(initial);
                 CHECK(initial == final);
@@ -248,12 +264,15 @@ TEST_CASE("constructors") {
 
             SECTION("undirected") {
                 Graph_undirected initial;
-                for(int i = 0; i < 3; ++i)
+                for (int i{0}; i < 3; ++i) {
                     initial["node " + to_string(i)] = i;
-                for(int i = 0; i < 3; i += 3)
-                    initial("node " + to_string(i), "node " + to_string(i+1)) = 20 * i;
-                for(int i = 0; i < 3; i += 3)
-                    initial("node " + to_string(i+2), "node " + to_string(i+1)) = 40 * i;
+                }
+                for (int i{0}; i < 3; i += 3) {
+                    initial("node " + to_string(i), "node " + to_string(i + 1)) = 20 * i;
+                }
+                for (int i{0}; i < 3; i += 3) {
+                    initial("node " + to_string(i + 2), "node " + to_string(i + 1)) = 40 * i;
+                }
 
                 Graph_undirected final(initial);
                 CHECK(initial == final);
@@ -270,11 +289,13 @@ TEST_CASE("constructors") {
 
         SECTION("move constructor") {
             Graph_directed initial;
-            for(int i = 0; i < 100; ++i)
+            for (int i{0}; i < 100; ++i) {
                 initial["node " + to_string(i)] = i;
+            }
 
-            for(int i = 0; i < 99; i += 3)
-                initial("node " + to_string(i), "node " + to_string(i+1)) = 20 * i;
+            for (int i{0}; i < 99; i += 3) {
+                initial("node " + to_string(i), "node " + to_string(i + 1)) = 20 * i;
+            }
 
             Graph_directed final(move(initial));
             CHECK(initial != final);
@@ -288,13 +309,16 @@ TEST_CASE("constructors") {
         SECTION("assignment operator") {
             SECTION("directed") {
                 Graph_directed initial;
-                for (int i = 0; i < 100; ++i)
+                for (int i{0}; i < 100; ++i) {
                     initial["node " + to_string(i)] = i;
+                }
 
-                for (int i = 0; i < 99; i += 3)
+                for (int i{0}; i < 99; i += 3) {
                     initial("node " + to_string(i), "node " + to_string(i + 1)) = 20 * i;
-                for (int i = 0; i < 98; i += 3)
+                }
+                for (int i{0}; i < 98; i += 3) {
                     initial("node " + to_string(i + 2), "node " + to_string(i + 1)) = 40 * i;
+                }
 
                 Graph_directed final = initial;
                 CHECK(initial == final);
@@ -310,13 +334,16 @@ TEST_CASE("constructors") {
 
             SECTION("undirected") {
                 Graph_undirected initial;
-                for (int i = 0; i < 100; ++i)
+                for (int i{0}; i < 100; ++i) {
                     initial["node " + to_string(i)] = i;
+                }
 
-                for (int i = 0; i < 99; i += 3)
+                for (int i{0}; i < 99; i += 3) {
                     initial("node " + to_string(i), "node " + to_string(i + 1)) = 20 * i;
-                for (int i = 0; i < 98; i += 3)
+                }
+                for (int i{0}; i < 98; i += 3) {
                     initial("node " + to_string(i + 2), "node " + to_string(i + 1)) = 40 * i;
+                }
 
                 Graph_undirected final = initial;
                 CHECK(initial == final);
@@ -333,11 +360,13 @@ TEST_CASE("constructors") {
 
         SECTION("move assignment operator") {
             Graph initial;
-            for(int i = 0; i < 100; ++i)
+            for (int i{0}; i < 100; ++i) {
                 initial["node " + to_string(i)] = i;
+            }
 
-            for(int i = 0; i < 99; i += 3)
-                initial("node " + to_string(i), "node " + to_string(i+1)) = 20 * i;
+            for (int i{0}; i < 99; i += 3) {
+                initial("node " + to_string(i), "node " + to_string(i + 1)) = 20 * i;
+            }
 
             Graph final;
             final["node 0"] = 5;

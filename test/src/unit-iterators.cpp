@@ -9,11 +9,11 @@
     #pragma clang diagnostic ignored "-Wkeyword-macro"
 #endif
 #define private public // access to _nodes attribute
-	#if defined(TEST_SINGLE_HEADER_FILE)
-    	#include "graph.hpp"
-	#else
-    	#include "Graph.h"
-	#endif
+#if defined(TEST_SINGLE_HEADER_FILE)
+    #include "graph.hpp"
+#else
+    #include "Graph.h"
+#endif
 #undef private
 #if defined(__clang)
     #pragma clang diagnostic pop
@@ -279,8 +279,9 @@ TEST_CASE("iterators") {
 
     SECTION("getters") {
         Graph g;
-        for(int i = 0; i < 10; ++i)
+        for (int i{0}; i < 10; ++i) {
             g["node " + to_string(i)] = i;
+        }
 
         SECTION("find(const key_type& k)") {
             iterator it = g.find("unexisting node");

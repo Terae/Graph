@@ -13,7 +13,7 @@ echo "Changing version to $version ... "
 
 # /scripts/generate_single_header.sh
 sed -i "s/Version [^0-9.]*\([0-9.]*\).*/Version $version/" \
-		"$dir/scripts/generate_single_header.sh" || exit 2 #\
+		"$dir/scripts/pretty_code.sh" || exit 2 #\
 		#"<other files>" \
 
 # /CMakeLists.txt
@@ -24,6 +24,7 @@ echo "Done. Generation of CHANGELOG.md ..."
 echo ""
 
 cd ${dir}
-github_changelog_generator terae/graph
+
+github_changelog_generator terae/graph --simple-list --release-url https://github.com/terae/graph/releases/tag/v${version}
 git add CHANGELOG.md
 git add CMakeLists.txt

@@ -33,8 +33,9 @@ TEST_CASE("capacity") {
         g["node 2"] = 2;
         CHECK(g.size() == 2);
 
-        for (int i = 0; i < 10; ++i)
+        for (int i{0}; i < 10; ++i) {
             g["node " + to_string(i)] = i;
+        }
         CHECK(g.size() == 10);
 
         g.del_node("node 9");

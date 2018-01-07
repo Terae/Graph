@@ -48,11 +48,11 @@
  */
 template <class Key, class T, class Cost = std::size_t, Nature Nat = UNDIRECTED>
 class graph {
-public:
+  public:
     class node;
     using Degree = detail::basic_degree<Nat>;
 
-private:
+  private:
     using PtrNode  = std::shared_ptr<node>;
     using MapNodes = std::map<Key, PtrNode>;
 
@@ -60,11 +60,11 @@ private:
     std::size_t _num_edges = 0;
 
     const Cost infinity = std::numeric_limits<Cost>::has_infinity ? std::numeric_limits<Cost>::infinity() :
-                                                                    std::numeric_limits<Cost>::max();
+                          std::numeric_limits<Cost>::max();
 
     std::ostream &print(std::ostream &os) const;
 
-public:
+  public:
 
     //!
     //! @section exceptions
@@ -275,8 +275,8 @@ public:
     template<class K, class D, class C, Nature N> friend std::ostream &operator<<(std::ostream &os, const graph<K, D, C, N> &g);
     template<class K, class D, class C, Nature N> friend std::istream &operator>>(std::istream &is,       graph<K, D, C, N> &g);
 
-    void save  (const char *filepath) const;
-    graph &load(const char *filepath);
+    void save  (const char* filepath) const;
+    graph &load(const char* filepath);
 
     //!
     //! @section Bool operators
@@ -287,14 +287,14 @@ public:
 
     /// CRTP: https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern
     class node : public basic_node<T, Cost, iterator, const_iterator> {
-    public:
+      public:
         explicit node();
 
         explicit node(const T &);
 
         node &operator=(const T &);
 
-    private:
+      private:
         friend class graph;
 
         void set_iterator_values(iterator this_, iterator end, const_iterator cend);

@@ -28,8 +28,9 @@ TEST_CASE("operations") {
 
     SECTION("count(const key_type& k)") {
         Graph g;
-        for(int i = 0; i < 100; ++i)
+        for (int i{0}; i < 100; ++i) {
             g["node " + to_string(i)] = i;
+        }
         CHECK(g.count("node 2") == 1);
         CHECK(g.count("new node") == 0);
     }
@@ -45,8 +46,9 @@ TEST_CASE("operations") {
 
     SECTION("existing_node(const Key& k) const") {
         Graph g;
-        for(int i = 0; i < 100; ++i)
+        for (int i{0}; i < 100; ++i) {
             g["node " + to_string(i)] = i;
+        }
         CHECK(g.existing_node("node 55"));
         CHECK(!g.existing_node("unknown node"));
     }
@@ -116,16 +118,18 @@ TEST_CASE("operations") {
         CHECK(g.get_nbr_nodes() == 0);
 
         const int N = 489;
-        for(int i = 0; i < N; ++i)
+        for (int i{0}; i < N; ++i) {
             g["node " + to_string(i)] = i;
+        }
         CHECK(g.get_nbr_nodes() == N);
     }
 
     SECTION("get_nbr_edges()") {
         SECTION("directed") {
             Graph_directed g;
-            for(int i = 0; i < 100; ++i)
+            for (int i{0}; i < 100; ++i) {
                 g["node " + to_string(i)] = i;
+            }
 
             CHECK(g.get_nbr_edges() == 0);
 
@@ -140,8 +144,9 @@ TEST_CASE("operations") {
 
         SECTION("undirected") {
             Graph_undirected g;
-            for(int i = 0; i < 100; ++i)
+            for (int i{0}; i < 100; ++i) {
                 g["node " + to_string(i)] = i;
+            }
 
             CHECK(g.get_nbr_edges() == 0);
 
@@ -213,8 +218,8 @@ TEST_CASE("operations") {
     //}
 
     SECTION("Degree") {
-        CHECK(std::is_same<Graph_directed  ::Degree::value_type, std::pair<std::size_t, std::size_t> >::value);
-        CHECK(std::is_same<Graph_undirected::Degree::value_type, std::size_t>                         ::value);
+        CHECK(std::is_same<Graph_directed  ::Degree::value_type, std::pair<std::size_t, std::size_t>>::value);
+        CHECK(std::is_same<Graph_undirected::Degree::value_type, std::size_t>                        ::value);
     }
 
     SECTION("degree(const_iterator position") {
@@ -237,8 +242,9 @@ TEST_CASE("operations") {
             CHECK(g.degree(it_n1) == make_pair(0, 1));
 
             graph_directed<string, int, double>::iterator it[6];
-            for (int i{0}; i < 6; ++i)
+            for (int i{0}; i < 6; ++i) {
                 it[i] = g.add_node(std::to_string(i)).first;
+            }
 
             g(it[0], it[1]) = 01;
             g(it[0], it[2]) = 02;
@@ -275,8 +281,9 @@ TEST_CASE("operations") {
             CHECK(g.degree(it_n1) == 0);
 
             graph_undirected<string, int, double>::iterator it[6];
-            for (int i{0}; i < 6; ++i)
+            for (int i{0}; i < 6; ++i) {
                 it[i] = g.add_node(std::to_string(i)).first;
+            }
 
             g(it[0], it[1]) = 01;
             g(it[0], it[2]) = 02;

@@ -23,19 +23,21 @@ TEST_CASE("algorithms") {
         SECTION("for_each") {
             Graph g;
 
-            for(int i{0}; i < 10; ++i)
+            for (int i{0}; i < 10; ++i) {
                 g["node " + to_string(i)] = i;
+            }
 
             Graph::iterator it{g.emplace("target", 10).first};
 
             int i{0};
-            for_each(g.begin(), g.end(), [it, &i](decltype(g)::value_type /*pair<const string, shared_ptr<node<int, double>>> */&p){
+            for_each(g.begin(), g.end(), [it, &i](decltype(g)::value_type /*pair<const string, shared_ptr<node<int, double>>> */&p) {
                 p.second->add_edge(it, i * 10);
                 ++i;
             });
 
-            for(i = 0; i < 10; ++i)
+            for (i = 0; i < 10; ++i) {
                 CHECK(g("node " + to_string(i), "target") == i * 10);
+            }
         }
 
         /*SECTION("count") {}

@@ -60,8 +60,9 @@ TEST_CASE("element access") {
     SECTION("operator()(iterator it1, iterator it2)") {
         SECTION("directed") {
             Graph_directed g;
-            for(int i{0}; i < 10; ++i)
+            for (int i{0}; i < 10; ++i) {
                 g["node " + to_string(i)] = i;
+            }
 
             Graph_directed::iterator it1{g.find("node 1")};
             Graph_directed::iterator it2{g.find("node 2")};
@@ -82,8 +83,9 @@ TEST_CASE("element access") {
 
         SECTION("undirected") {
             Graph_undirected g;
-            for(int i{0}; i < 10; ++i)
+            for (int i{0}; i < 10; ++i) {
                 g["node " + to_string(i)] = i;
+            }
 
             Graph_undirected::iterator it1{g.find("node 1")};
             Graph_undirected::iterator it2{g.find("node 2")};
@@ -106,8 +108,9 @@ TEST_CASE("element access") {
     SECTION("operator()(const key_type& k1, const key_type& k2)") {
         SECTION("directed") {
             Graph_directed g;
-            for (int i{0}; i < 10; ++i)
+            for (int i{0}; i < 10; ++i) {
                 g["node " + to_string(i)] = i;
+            }
 
             g("node 1", "node 2") = 12;
             g("node 1", "node 5") = 15;
@@ -127,8 +130,9 @@ TEST_CASE("element access") {
 
         SECTION("undirected") {
             Graph_undirected g;
-            for (int i = 0; i < 10; ++i)
+            for (int i = 0; i < 10; ++i) {
                 g["node " + to_string(i)] = i;
+            }
 
             g("node 1", "node 2") = 12;
             g("node 1", "node 5") = 15;
@@ -151,8 +155,9 @@ TEST_CASE("element access") {
     SECTION("operator()(const key_type& k1, const key_type& k2) const") {
         SECTION("directed") {
             Graph_directed g1;
-            for(int i{0}; i < 10; ++i)
+            for (int i{0}; i < 10; ++i) {
                 g1["node " + to_string(i)] = i;
+            }
 
             g1("node 1", "node 2") = 12;
             g1("node 1", "node 5") = 15;
@@ -165,8 +170,9 @@ TEST_CASE("element access") {
 
         SECTION("undirected") {
             Graph_undirected g1;
-            for(int i{0}; i < 10; ++i)
+            for (int i{0}; i < 10; ++i) {
                 g1["node " + to_string(i)] = i;
+            }
 
             g1("node 1", "node 2") = 12;
             g1("node 1", "node 5") = 15;
@@ -181,8 +187,9 @@ TEST_CASE("element access") {
     SECTION("operator()(iterator it1, iterator it2) const") {
         SECTION("directed") {
             Graph_directed g1;
-            for(int i{0}; i < 10; ++i)
+            for (int i{0}; i < 10; ++i) {
                 g1["node " + to_string(i)] = i;
+            }
 
             g1("node 1", "node 2") = 12;
             g1("node 1", "node 5") = 15;
@@ -204,8 +211,9 @@ TEST_CASE("element access") {
 
         SECTION("undirected") {
             Graph_undirected g1;
-            for(int i{0}; i < 10; ++i)
+            for (int i{0}; i < 10; ++i) {
                 g1["node " + to_string(i)] = i;
+            }
 
             g1("node 1", "node 2") = 12;
             g1("node 1", "node 5") = 15;
@@ -229,8 +237,9 @@ TEST_CASE("element access") {
     SECTION("operator()(const key_type& k1, const key_type& k2) const") {
         SECTION("directed") {
             Graph_directed g1;
-            for(int i{0}; i < 10; ++i)
+            for (int i{0}; i < 10; ++i) {
                 g1["node " + to_string(i)] = i;
+            }
 
             g1("node 1", "node 2") = 12;
             g1("node 1", "node 5") = 15;
@@ -245,8 +254,9 @@ TEST_CASE("element access") {
 
         SECTION("undirected") {
             Graph_undirected g1;
-            for(int i{0}; i < 10; ++i)
+            for (int i{0}; i < 10; ++i) {
                 g1["node " + to_string(i)] = i;
+            }
 
             g1("node 1", "node 2") = 12;
             g1("node 1", "node 5") = 15;
@@ -262,8 +272,9 @@ TEST_CASE("element access") {
     SECTION("operator()(iterator it1, iterator it2) const") {
         SECTION("directed") {
             Graph_directed g1;
-            for(int i{0}; i < 10; ++i)
+            for (int i{0}; i < 10; ++i) {
                 g1["node " + to_string(i)] = i;
+            }
 
             g1("node 1", "node 2") = 12;
             g1("node 1", "node 5") = 15;
@@ -287,8 +298,9 @@ TEST_CASE("element access") {
 
         SECTION("undirected") {
             Graph_undirected g1;
-            for(int i{0}; i < 10; ++i)
+            for (int i{0}; i < 10; ++i) {
                 g1["node " + to_string(i)] = i;
+            }
 
             g1("node 1", "node 2") = 12;
             g1("node 1", "node 5") = 15;

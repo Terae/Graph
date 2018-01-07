@@ -7,11 +7,11 @@
 ///////////////////////////////////
 
 template <class Data, class Cost, class Container, class constContainer>
-basic_node<Data, Cost, Container, constContainer>::edge::edge(const std::weak_ptr<basic_node<Data, Cost, Container, constContainer> > &ptr, Cost c) : target(ptr),
-                                                                                   cost(std::make_shared<Cost>(c)) {}
+basic_node<Data, Cost, Container, constContainer>::edge::edge(const std::weak_ptr<basic_node<Data, Cost, Container, constContainer>> &ptr, Cost c) : target(ptr),
+    cost(std::make_shared<Cost>(c)) {}
 
 template <class Data, class Cost, class Container, class constContainer>
-std::tuple<Cost, basic_node<Data, Cost, Container, constContainer> > basic_node<Data, Cost, Container, constContainer>::edge::tie() const {
+std::tuple<Cost, basic_node<Data, Cost, Container, constContainer>> basic_node<Data, Cost, Container, constContainer>::edge::tie() const {
     return std::tie(*cost, *target.lock().get());
 }
 
@@ -35,7 +35,7 @@ constContainer basic_node<Data, Cost, Container, constContainer>::edge::get_cont
 ///////////////////////////////////
 
 template <class Data, class Cost, class Container, class constContainer>
-std::tuple<Data, std::size_t, std::list<typename basic_node<Data, Cost, Container, constContainer>::edge> > basic_node<Data, Cost, Container, constContainer>::tie() const {
+std::tuple<Data, std::size_t, std::list<typename basic_node<Data, Cost, Container, constContainer>::edge>> basic_node<Data, Cost, Container, constContainer>::tie() const {
     return std::tie(_data, _in_degree, _out_edges);
 }
 
@@ -69,15 +69,15 @@ template <class Data, class Cost, class Container, class constContainer>
 basic_node<Data, Cost, Container, constContainer>::basic_node() : basic_node(Data()) {}
 
 template <class Data, class Cost, class Container, class constContainer>
-basic_node<Data, Cost, Container, constContainer>::basic_node(const Data& d) : _data(d) {}
+basic_node<Data, Cost, Container, constContainer>::basic_node(const Data &d) : _data(d) {}
 
 template <class Data, class Cost, class Container, class constContainer>
-basic_node<Data, Cost, Container, constContainer>::basic_node(const basic_node& n) {
+basic_node<Data, Cost, Container, constContainer>::basic_node(const basic_node &n) {
     *this = n;
 }
 
 template <class Data, class Cost, class Container, class constContainer>
-basic_node<Data, Cost, Container, constContainer>& basic_node<Data, Cost, Container, constContainer>::operator=(const basic_node& n) {
+basic_node<Data, Cost, Container, constContainer> &basic_node<Data, Cost, Container, constContainer>::operator=(const basic_node &n) {
     _data               = n._data;
     _out_edges          = n._out_edges;
     _in_degree          = n._in_degree;
@@ -94,7 +94,7 @@ basic_node<Data, Cost, Container, constContainer>::~basic_node() {
 /// Element access
 
 template <class Data, class Cost, class Container, class constContainer>
-inline Data& basic_node<Data, Cost, Container, constContainer>::get() {
+inline Data &basic_node<Data, Cost, Container, constContainer>::get() {
     return _data;
 }
 
@@ -104,39 +104,43 @@ inline Data basic_node<Data, Cost, Container, constContainer>::get() const {
 }
 
 template <class Data, class Cost, class Container, class constContainer>
-Cost& basic_node<Data, Cost, Container, constContainer>::get_cost(const Container &other) {
-    std::shared_ptr<basic_node<Data, Cost, Container, constContainer> > ptr(detail::get_value(other, end_container));
+Cost &basic_node<Data, Cost, Container, constContainer>::get_cost(const Container &other) {
+    std::shared_ptr<basic_node<Data, Cost, Container, constContainer>> ptr(detail::get_value(other, end_container));
 
-    if (ptr == nullptr)
+    if (ptr == nullptr) {
         GRAPH_THROW(unexpected_nullptr)
+    }
 
     for (EdgesIterator it{_out_edges.begin()}; it != _out_edges.end(); ++it)
-        if (it->target.lock() == ptr)
+        if (it->target.lock() == ptr) {
             return *(it->cost);
+        }
 
     //! Link doesn't exist
-    _out_edges.emplace_back(std::weak_ptr<basic_node<Data, Cost, Container, constContainer> >(detail::get_value(other, end_container)), infinity);
+    _out_edges.emplace_back(std::weak_ptr<basic_node<Data, Cost, Container, constContainer>>(detail::get_value(other, end_container)), infinity);
     ptr->increment_in_degree();
     return *((--_out_edges.end())->cost);
 }
 
 template <class Data, class Cost, class Container, class constContainer>
 const Cost basic_node<Data, Cost, Container, constContainer>::get_cost(constContainer other) const {
-    std::shared_ptr<basic_node<Data, Cost, Container, constContainer> > ptr(detail::get_value(other, cend_container));
+    std::shared_ptr<basic_node<Data, Cost, Container, constContainer>> ptr(detail::get_value(other, cend_container));
 
-    if (ptr == nullptr)
+    if (ptr == nullptr) {
         GRAPH_THROW(unexpected_nullptr)
+    }
 
     for (auto/*EdgesIterator*/ it = _out_edges.begin(); it != _out_edges.end(); ++it)
-        if (it->target.lock() == ptr)
+        if (it->target.lock() == ptr) {
             return *(it->cost);
+        }
 
     //! Link doesn't exist
     return infinity;
 }
 
 template <class Data, class Cost, class Container, class constContainer>
-Cost& basic_node<Data, Cost, Container, constContainer>::operator[](Container other) {
+Cost &basic_node<Data, Cost, Container, constContainer>::operator[](Container other) {
     return get_cost(other);
 }
 
@@ -148,20 +152,20 @@ const Cost basic_node<Data, Cost, Container, constContainer>::operator[](constCo
 /// Modifiers
 template <class Data, class Cost, class Container, class constContainer>
 template <class T_data>
-inline void basic_node<Data, Cost, Container, constContainer>::set(const T_data& d) {
+inline void basic_node<Data, Cost, Container, constContainer>::set(const T_data &d) {
     _data = static_cast<Data>(d);
 }
 
 template <class Data, class Cost, class Container, class constContainer>
 template <class T_cost>
-void basic_node<Data, Cost, Container, constContainer>::set_cost(Container other, const T_cost& c) {
-    std::shared_ptr<basic_node<Data, Cost, Container, constContainer> > ptr(detail::get_value(other, end_container));
+void basic_node<Data, Cost, Container, constContainer>::set_cost(Container other, const T_cost &c) {
+    std::shared_ptr<basic_node<Data, Cost, Container, constContainer>> ptr(detail::get_value(other, end_container));
 
-    if (ptr == nullptr)
+    if (ptr == nullptr) {
         GRAPH_THROW(unexpected_nullptr)
+    }
 
     Cost new_cost{static_cast<Cost>(c)};
-
     bool existing_edge{false};
 
     for (EdgesIterator it{_out_edges.begin()}; it != _out_edges.end(); ++it)
@@ -170,16 +174,18 @@ void basic_node<Data, Cost, Container, constContainer>::set_cost(Container other
             existing_edge = true;
         }
 
-    if (!existing_edge)
+    if (!existing_edge) {
         this->add_edge(other, new_cost);
+    }
 }
 
 ///template <class Data, class Cost, class Container, class constContainer>
 ///std::pair<std::list<typename basic_node<Data, Cost, Container, constContainer>::edge>::iterator, bool> basic_node<Data, Cost, Container, constContainer>::add_edge(constContainer other, Cost cost) {
 ///    std::shared_ptr<basic_node<Data, Cost, Container, constContainer> > ptr{detail::get_value(other, cend_container)};
 ///
-///    if (ptr == nullptr)
+///    if (ptr == nullptr) {
 ///        GRAPH_THROW(unexpected_nullptr)
+///    }
 ///
 ///    for (EdgesIterator it{_out_edges.begin()}; it != _out_edges.end(); ++it)
 ///        if (it->target.lock() == ptr) {
@@ -196,7 +202,9 @@ void basic_node<Data, Cost, Container, constContainer>::set_cost(Container other
 
 template <class Data, class Cost, class Container, class constContainer>
 bool basic_node<Data, Cost, Container, constContainer>::del_edge(constContainer other) {
-    return del_edge_if(other, [](edge){ return true;} );
+    return del_edge_if(other, [](edge) {
+        return true;
+    } );
 }
 
 template <class Data, class Cost, class Container, class constContainer>
@@ -209,8 +217,9 @@ bool basic_node<Data, Cost, Container, constContainer>::del_edge_if(constContain
                 return true;
             }
             break;
-        } else
+        } else {
             ++it;
+        }
 
     return false;
 }
@@ -236,45 +245,47 @@ inline std::pair<std::size_t, std::size_t> basic_node<Data, Cost, Container, con
 
 template <class Data, class Cost, class Container, class constContainer>
 bool basic_node<Data, Cost, Container, constContainer>::existing_adjacent_node(constContainer other) const {
-    std::shared_ptr<basic_node<Data, Cost, Container, constContainer> > ptr(detail::get_value(other, cend_container));
+    std::shared_ptr<basic_node<Data, Cost, Container, constContainer>> ptr(detail::get_value(other, cend_container));
 
-    if (ptr == nullptr)
+    if (ptr == nullptr) {
         return false;
+    }
 
     for (auto/*EdgesIterator*/ it = _out_edges.begin(); it != _out_edges.end(); ++it)
-        if (it->target.lock() == ptr)
+        if (it->target.lock() == ptr) {
             return true;
+        }
 
     //! Link doesn't exist
     return false;
 }
 
 template <class Data, class Cost, class Container, class constContainer>
-constexpr bool operator==(const basic_node<Data, Cost, Container, constContainer>& n1, const basic_node<Data, Cost, Container, constContainer>& n2) noexcept {
+constexpr bool operator==(const basic_node<Data, Cost, Container, constContainer> &n1, const basic_node<Data, Cost, Container, constContainer> &n2) noexcept {
     return n1.tie() == n2.tie();
 }
 
 template <class Data, class Cost, class Container, class constContainer>
-constexpr bool operator!=(const basic_node<Data, Cost, Container, constContainer>& n1, const basic_node<Data, Cost, Container, constContainer>& n2) noexcept {
+constexpr bool operator!=(const basic_node<Data, Cost, Container, constContainer> &n1, const basic_node<Data, Cost, Container, constContainer> &n2) noexcept {
     return !(n1 == n2);
 }
 
 template <class Data, class Cost, class Container, class constContainer>
-constexpr bool operator<(const basic_node<Data, Cost, Container, constContainer>& n1, const basic_node<Data, Cost, Container, constContainer>& n2) noexcept {
+constexpr bool operator<(const basic_node<Data, Cost, Container, constContainer> &n1, const basic_node<Data, Cost, Container, constContainer> &n2) noexcept {
     return n1.tie() < n2.tie();
 }
 
 template <class Data, class Cost, class Container, class constContainer>
-constexpr bool operator>(const basic_node<Data, Cost, Container, constContainer>& n1, const basic_node<Data, Cost, Container, constContainer>& n2) noexcept {
+constexpr bool operator>(const basic_node<Data, Cost, Container, constContainer> &n1, const basic_node<Data, Cost, Container, constContainer> &n2) noexcept {
     return n2 < n1;
 }
 
 template <class Data, class Cost, class Container, class constContainer>
-constexpr bool operator<=(const basic_node<Data, Cost, Container, constContainer>& n1, const basic_node<Data, Cost, Container, constContainer>& n2) noexcept {
+constexpr bool operator<=(const basic_node<Data, Cost, Container, constContainer> &n1, const basic_node<Data, Cost, Container, constContainer> &n2) noexcept {
     return !(n2 < n1);
 }
 
 template <class Data, class Cost, class Container, class constContainer>
-constexpr bool operator>=(const basic_node<Data, Cost, Container, constContainer>& n1, const basic_node<Data, Cost, Container, constContainer>& n2) noexcept {
+constexpr bool operator>=(const basic_node<Data, Cost, Container, constContainer> &n1, const basic_node<Data, Cost, Container, constContainer> &n2) noexcept {
     return !(n1 < n2);
 }

@@ -174,7 +174,9 @@ SOFTWARE.
 
 ## Used third-party tools
 The library itself contains of a single header file licensed under the MIT license. However, it is build, tested and using a lot of third-party tools and services. Thanks a lot!
+* **[Artistic Style](http://astyle.sourceforge.net/astyle.html)** for format the code
 * **[Catch](https://github.com/philsquared/Catch)** for the unit tests
+* **[Changelog generator](https://github.com/skywinder/Github-Changelog-Generator)** for automated ChangeLog generation
 * **[Clang](http://clang.llvm.org/)** for compilation with code sanitizers
 * **[Cmake](https://cmake.org/)** for build automation
 * **[cppcheck](http://cppcheck.sourceforge.net/)** for static analysis

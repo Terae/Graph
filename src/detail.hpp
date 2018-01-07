@@ -37,9 +37,9 @@ enum Nature {
  This namespace collects some functions that could not be defined inside the @ref graph class.
  */
 namespace detail {
-//!
-//! @section exceptions
-//!
+    //!
+    //! @section exceptions
+    //!
 
     /*!
      @brief general exception of the @ref graph class
@@ -56,18 +56,18 @@ namespace detail {
      - @ref bad_graph for exceptions indicating a logical error in the usage of the @ref graph class
      */
     struct exception : public std::exception {
-        const char *what() const noexcept override {
+        const char* what() const noexcept override {
             return m.what();
         }
 
-    protected:
-        explicit exception(const char *what_arg) : m(what_arg) {}
+      protected:
+        explicit exception(const char* what_arg) : m(what_arg) {}
 
         static std::string name(const std::string &exception_type) {
             return "[graph.exception." + exception_type + "] ";
         }
 
-    private:
+      private:
         std::logic_error m;
     };
 
@@ -78,8 +78,8 @@ namespace detail {
             return invalid_argument(w.c_str());
         }
 
-    private:
-        explicit invalid_argument(const char *what_arg) : exception(what_arg) {}
+      private:
+        explicit invalid_argument(const char* what_arg) : exception(what_arg) {}
     };
 
     struct unexpected_nullptr final : public exception {
@@ -89,8 +89,8 @@ namespace detail {
             return unexpected_nullptr(w.c_str());
         }
 
-    private:
-        explicit unexpected_nullptr(const char *what_arg) : exception(what_arg) {}
+      private:
+        explicit unexpected_nullptr(const char* what_arg) : exception(what_arg) {}
     };
 
     /// @param[in] byte The byte index where the error occured (or 0 if the position cannot be determined)
@@ -107,8 +107,8 @@ namespace detail {
         /// The byte index of the last read character in the input file
         const std::size_t byte;
 
-    private:
-        explicit parse_error(const char *what_arg, std::size_t b) : exception(what_arg), byte(b) {}
+      private:
+        explicit parse_error(const char* what_arg, std::size_t b) : exception(what_arg), byte(b) {}
     };
 
     /*!
@@ -119,8 +119,8 @@ namespace detail {
      - @ref not_complete for exceptions indicating a non-complete graph error
      */
     struct bad_graph : public exception {
-    protected:
-        explicit bad_graph(const char *what_arg) : exception(what_arg) {}
+      protected:
+        explicit bad_graph(const char* what_arg) : exception(what_arg) {}
 
         static std::string name(const std::string &exception_type) {
             return "[graph.exception.bad_graph." + exception_type + "] ";
@@ -134,8 +134,8 @@ namespace detail {
             return negative_edge(w.c_str());
         }
 
-    private:
-        explicit negative_edge(const char *what_arg) : bad_graph(what_arg) {}
+      private:
+        explicit negative_edge(const char* what_arg) : bad_graph(what_arg) {}
     };
 
     struct not_complete final : public bad_graph {
@@ -145,60 +145,84 @@ namespace detail {
             return not_complete(w.c_str());
         }
 
-    private:
-        explicit not_complete(const char *what_arg) : bad_graph(what_arg) {}
+      private:
+        explicit not_complete(const char* what_arg) : bad_graph(what_arg) {}
     };
 
-//!
-//! @section degree
-//!
+    //!
+    //! @section degree
+    //!
     template <Nature N> class basic_degree;
 
     template <> class basic_degree<DIRECTED> {
-    public:
+      public:
         using value_type = std::pair<std::size_t, std::size_t>;
 
-        basic_degree(const value_type& degree) : _deg(degree) {};
+        basic_degree(const value_type &degree) : _deg(degree) {};
         basic_degree(std::size_t in, std::size_t out) : basic_degree(std::make_pair(in, out)) {};
 
-        inline value_type get_degree() const { return _deg; }
+        inline value_type get_degree() const {
+            return _deg;
+        }
 
-        bool operator==(const basic_degree& d) const { return _deg == d._deg; }
-        bool operator==(const value_type& v)   const { return _deg == v; }
+        bool operator==(const basic_degree &d) const {
+            return _deg == d._deg;
+        }
+        bool operator==(const value_type &v)   const {
+            return _deg == v;
+        }
 
-        bool operator< (const basic_degree& d) const { return _deg < d._deg; }
+        bool operator< (const basic_degree &d) const {
+            return _deg < d._deg;
+        }
 
-        static basic_degree max() { return basic_degree(std::numeric_limits<std::size_t>::max(), std::numeric_limits<std::size_t>::max()); }
-        static basic_degree min() { return basic_degree(std::numeric_limits<std::size_t>::min(), std::numeric_limits<std::size_t>::min()); }
+        static basic_degree max() {
+            return basic_degree(std::numeric_limits<std::size_t>::max(), std::numeric_limits<std::size_t>::max());
+        }
+        static basic_degree min() {
+            return basic_degree(std::numeric_limits<std::size_t>::min(), std::numeric_limits<std::size_t>::min());
+        }
 
-    private:
+      private:
         value_type _deg;
     };
 
     template <> class basic_degree<UNDIRECTED> {
-    public:
+      public:
         using value_type = std::size_t;
 
-        basic_degree(const value_type& d) : _deg(d) {}
+        basic_degree(const value_type &d) : _deg(d) {}
         basic_degree(std::size_t in, std::size_t) : basic_degree(in) {}
 
-        inline value_type get_degree() const { return _deg; }
+        inline value_type get_degree() const {
+            return _deg;
+        }
 
-        bool operator==(const basic_degree& d) const { return _deg == d._deg; }
-        bool operator==(const value_type& v)   const { return _deg == v; }
+        bool operator==(const basic_degree &d) const {
+            return _deg == d._deg;
+        }
+        bool operator==(const value_type &v)   const {
+            return _deg == v;
+        }
 
-        bool operator< (const basic_degree& d) const { return _deg < d._deg; }
+        bool operator< (const basic_degree &d) const {
+            return _deg < d._deg;
+        }
 
-        static basic_degree max() { return basic_degree(std::numeric_limits<std::size_t>::max()); }
-        static basic_degree min() { return basic_degree(std::numeric_limits<std::size_t>::min()); }
+        static basic_degree max() {
+            return basic_degree(std::numeric_limits<std::size_t>::max());
+        }
+        static basic_degree min() {
+            return basic_degree(std::numeric_limits<std::size_t>::min());
+        }
 
-    private:
+      private:
         value_type _deg;
     };
 
-//!
-//! @section helpers
-//!
+    //!
+    //! @section helpers
+    //!
 #include <memory>
     //! distinguish value type between map::iterator and shared_ptr: @see https://stackoverflow.com/a/31409532
     template <typename... >
@@ -207,6 +231,7 @@ namespace detail {
     template <typename T, typename = void>
     struct is_map_iterator : std::false_type { };
 
+    /// *INDENT-OFF*
     template <typename T>
     struct is_map_iterator<T,
             void_t<decltype(++std::declval<T&>()),                     /// incrementable,
@@ -214,6 +239,7 @@ namespace detail {
                    decltype(std::declval<T&>() == std::declval<T&>()), /// comparable
                    decltype((*std::declval<T&>()).second)> >           /// pair
             : std::true_type { };
+    /// *INDENT-ON*
 
     /// pointer
     ///template <class V, class = typename std::enable_if<!is_map_iterator<V>::value>::type>
@@ -221,8 +247,9 @@ namespace detail {
     /// map iterator
     template <class V, class = typename std::enable_if<is_map_iterator<V>::value>::type>
     inline typename std::iterator_traits<V>::value_type::second_type get_value(const V &v, const V &end) {
-        if (v == end)
+        if (v == end) {
             return static_cast<typename std::iterator_traits<V>::value_type::second_type>(nullptr);
+        }
         return (*v).second;
     }
 
@@ -234,21 +261,22 @@ namespace detail {
     std::string type_name() {
         int status;
         std::string tname{typeid(T).name()};
-        char *demangled_name{abi::__cxa_demangle(tname.c_str(), NULL, NULL, &status)};
+        char* demangled_name{abi::__cxa_demangle(tname.c_str(), NULL, NULL, &status)};
 
-        if (status == 0)
+        if (status == 0) {
             tname = demangled_name;
+        }
         std::free(demangled_name);
 
         /// Replace all occurences of 'to_replace' by 'replacement' in 'base'
         /// Usefull to get an human readable 'std::string'
-        std::function<void(std::string&, std::string, std::string)> replace_all =
-                [](std::string& base, std::string to_replace, std::string replacement) {
-                    for (std::string::size_type i{0}; (i = base.find(to_replace, i)) != std::string::npos; ) {
-                        base.replace(i, to_replace.length(), replacement);
-                        i += replacement.length();
-                    }
-                };
+        std::function<void(std::string &, std::string, std::string)> replace_all =
+        [](std::string & base, std::string to_replace, std::string replacement) {
+            for (std::string::size_type i{0}; (i = base.find(to_replace, i)) != std::string::npos; ) {
+                base.replace(i, to_replace.length(), replacement);
+                i += replacement.length();
+            }
+        };
 
         replace_all(tname, "std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >", "std::string>");
         replace_all(tname, "std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >",   "std::string");
@@ -257,31 +285,32 @@ namespace detail {
 
     /// Used into the graph::operator>> function
     template <class T>
-    std::istream& read_T(std::istream& is, T& t) {
+    std::istream &read_T(std::istream &is, T &t) {
         is.ignore(std::numeric_limits<std::streamsize>::max(), '"');
 
         std::string str;
         std::getline(is, str, '"');
         std::stringstream ss;
         ss << str;
-        if (!(ss >> t))
+        if (!(ss >> t)) {
             GRAPH_THROW_WITH(parse_error, 5, "Bad type");
+        }
 
         return is;
     }
     template<> inline
-    std::istream& read_T<std::string>(std::istream& is, std::string& str) {
+    std::istream &read_T<std::string>(std::istream &is, std::string &str) {
         is.ignore(std::numeric_limits<std::streamsize>::max(), '"');
         std::getline(is, str, '"');
         return is;
     }
 
     template <class C>
-    std::istream& read_cost(std::istream& is, C& c) {
+    std::istream &read_cost(std::istream &is, C &c) {
         std::string str = std::string(std::istreambuf_iterator<char>(is),
                                       std::istreambuf_iterator<char>());
         if (str.find_first_of("\"") == std::string::npos &&
-            str.find_first_of("infinity") != std::string::npos)
+                str.find_first_of("infinity") != std::string::npos)
             c = std::numeric_limits<C>::has_infinity ? std::numeric_limits<C>::infinity() :
                 std::numeric_limits<C>::max();
         else {

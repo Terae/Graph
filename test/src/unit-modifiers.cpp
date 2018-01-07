@@ -47,8 +47,9 @@ TEST_CASE("modifiers") {
 
             SECTION("insert(const_iterator position, const value_type& val)") {
                 Graph g;
-                for (int i{0}; i < 10; ++i)
+                for (int i{0}; i < 10; ++i) {
                     g["node " + to_string(i)] = i;
+                }
 
                 citerator cit{next(begin(g), 3)};
                 shared_ptr<Graph::node> ptr{make_shared<Graph::node>(42)};
@@ -59,15 +60,17 @@ TEST_CASE("modifiers") {
             SECTION("insert(const_iterator position, const key_type& k, graphed_type& x") {
                 Graph g;
                 iterator it{g.begin()};
-                for (int i{0}; i < 10; ++i)
+                for (int i{0}; i < 10; ++i) {
                     it = g.insert(it, "node " + to_string(i), i);
+                }
                 CHECK(it == --g.end());
             }
 
             SECTION("insert(const_iterator position, const key_type& k, const Node& n)") {
                 Graph g;
-                for (int i{0}; i < 10; ++i)
+                for (int i{0}; i < 10; ++i) {
                     g["node " + to_string(i)] = i;
+                }
                 Graph::node n(12);
                 iterator it{g.insert(g.begin(), "node 12", n)};
             }
@@ -173,8 +176,9 @@ TEST_CASE("modifiers") {
             SECTION("directed") {
                 Graph_directed g;
                 iterator_directed it[10];
-                for (int i{0}; i < 10; ++i)
+                for (int i{0}; i < 10; ++i) {
                     it[i] = g.add_node("node " + to_string(i)).first;
+                }
 
                 g.add_edge(it[1], it[2], 12);
                 g.add_edge(it[1], it[5], 15);
@@ -189,8 +193,9 @@ TEST_CASE("modifiers") {
             SECTION("undirected") {
                 Graph_undirected g;
                 iterator_undirected it[10];
-                for (int i{0}; i < 10; ++i)
+                for (int i{0}; i < 10; ++i) {
                     it[i] = g.add_node("node " + to_string(i)).first;
+                }
 
                 g.add_edge(it[1], it[2], 12);
                 g.add_edge(it[1], it[5], 15);
@@ -210,8 +215,9 @@ TEST_CASE("modifiers") {
         SECTION("add_edge(const key_type& k1, const key_type& k2, Cost cost") {
             SECTION("directed") {
                 Graph_directed g;
-                for (int i{0}; i < 10; ++i)
+                for (int i{0}; i < 10; ++i) {
                     g["node " + to_string(i)] = i;
+                }
 
                 g.add_edge("node 1", "node 2", 12);
                 g.add_edge("node 1", "node 5", 15);
@@ -228,8 +234,9 @@ TEST_CASE("modifiers") {
 
             SECTION("undirected") {
                 Graph_undirected g;
-                for (int i{0}; i < 10; ++i)
+                for (int i{0}; i < 10; ++i) {
                     g["node " + to_string(i)] = i;
+                }
 
                 g.add_edge("node 1", "node 2", 12);
                 g.add_edge("node 1", "node 5", 15);
@@ -248,8 +255,9 @@ TEST_CASE("modifiers") {
         SECTION("link_all_nodes(Cost cost)") {
             SECTION("directed") {
                 Graph_directed g;
-                for (int i{0}; i < 10; ++i)
+                for (int i{0}; i < 10; ++i) {
                     g["node " + to_string(i)] = i;
+                }
 
                 g.link_all_nodes(5);
                 CHECK(g.get_nbr_edges() == 90); // COMBINATION(10, 2) * 2
@@ -271,8 +279,9 @@ TEST_CASE("modifiers") {
 
             SECTION("undirected") {
                 Graph_undirected g;
-                for (int i{0}; i < 10; ++i)
+                for (int i{0}; i < 10; ++i) {
                     g["node " + to_string(i)] = i;
+                }
 
                 g.link_all_nodes(5);
                 CHECK(g.get_nbr_edges() == 45);
@@ -295,8 +304,9 @@ TEST_CASE("modifiers") {
         SECTION("erase(const_iterator position)") {
             SECTION("directed") {
                 Graph_directed g;
-                for (int i{0}; i < 10; ++i)
+                for (int i{0}; i < 10; ++i) {
                     g["node " + to_string(i)] = i;
+                }
                 iterator_directed it5{++g.find("node 5")};
                 iterator_directed it6{g.erase(g.find("node 5"))};
                 CHECK(it5 == it6);
@@ -317,8 +327,9 @@ TEST_CASE("modifiers") {
 
             SECTION("undirected") {
                 Graph_undirected g;
-                for (int i{0}; i < 10; ++i)
+                for (int i{0}; i < 10; ++i) {
                     g["node " + to_string(i)] = i;
+                }
                 iterator_undirected it5{++g.find("node 5")};
                 iterator_undirected it6{g.erase(g.find("node 5"))};
                 CHECK(it5 == it6);
@@ -338,8 +349,9 @@ TEST_CASE("modifiers") {
 
         SECTION("erase(const_iterator first, const_iterator last) - simple") {
             Graph g;
-            for (int i{0}; i < 10; ++i)
+            for (int i{0}; i < 10; ++i) {
                 g["node " + to_string(i)] = i;
+            }
             citerator first{g.find("node 5")};
             citerator last{g.find("node 8")};
             citerator result{g.erase(first, last)};
@@ -350,8 +362,9 @@ TEST_CASE("modifiers") {
         SECTION("erase(const_iterator first, const_iterator last) - edges") {
             SECTION("directed") {
                 Graph_directed g;
-                for (int i{0}; i < 10; ++i)
+                for (int i{0}; i < 10; ++i) {
                     g["node " + to_string(i)] = i;
+                }
 
                 g("node 1", "node 3") = 13;
                 g("node 1", "node 8") = 18;
@@ -365,8 +378,9 @@ TEST_CASE("modifiers") {
 
             SECTION("undirected") {
                 Graph_undirected g;
-                for (int i{0}; i < 10; ++i)
+                for (int i{0}; i < 10; ++i) {
                     g["node " + to_string(i)] = i;
+                }
 
                 g("node 1", "node 3") = 13;
                 g("node 1", "node 8") = 18;
@@ -381,8 +395,9 @@ TEST_CASE("modifiers") {
         SECTION("erase(const_iterator first, const_iterator last) - clear") {
             SECTION("directed") {
                 Graph_directed g;
-                for (int i{0}; i < 10; ++i)
+                for (int i{0}; i < 10; ++i) {
                     g["node " + to_string(i)] = i;
+                }
 
                 g.erase(g.begin(), g.end());
                 CHECK(g.empty());
@@ -391,8 +406,9 @@ TEST_CASE("modifiers") {
 
             SECTION("undirected") {
                 Graph_undirected g;
-                for (int i{0}; i < 10; ++i)
+                for (int i{0}; i < 10; ++i) {
                     g["node " + to_string(i)] = i;
+                }
 
                 g.erase(g.begin(), g.end());
                 CHECK(g.empty());
@@ -403,8 +419,9 @@ TEST_CASE("modifiers") {
         SECTION("erase(const key_type& k)") {
             SECTION("directed") {
                 Graph_directed g;
-                for (int i{0}; i < 10; ++i)
+                for (int i{0}; i < 10; ++i) {
                     g["node " + to_string(i)] = i;
+                }
                 CHECK(g.erase("node 4") == 1);
                 CHECK(g.erase("unknown node") == 0);
                 CHECK(g.size() == 9);
@@ -421,8 +438,9 @@ TEST_CASE("modifiers") {
 
             SECTION("undirected") {
                 Graph_undirected g;
-                for (int i{0}; i < 10; ++i)
+                for (int i{0}; i < 10; ++i) {
                     g["node " + to_string(i)] = i;
+                }
                 CHECK(g.erase("node 4") == 1);
                 CHECK(g.erase("unknown node") == 0);
                 CHECK(g.size() == 9);
@@ -440,8 +458,9 @@ TEST_CASE("modifiers") {
         SECTION("del_node(const_iterator position)") {
             SECTION("directed") {
                 Graph_directed g;
-                for (int i{0}; i < 10; ++i)
+                for (int i{0}; i < 10; ++i) {
                     g["node " + to_string(i)] = i;
+                }
                 iterator_directed it5{++g.find("node 5")};
                 iterator_directed it6{g.del_node(g.find("node 5"))};
                 CHECK(it5 == it6);
@@ -462,8 +481,9 @@ TEST_CASE("modifiers") {
 
             SECTION("undirected") {
                 Graph_undirected g;
-                for (int i{0}; i < 10; ++i)
+                for (int i{0}; i < 10; ++i) {
                     g["node " + to_string(i)] = i;
+                }
                 iterator_undirected it5{++g.find("node 5")};
                 iterator_undirected it6{g.del_node(g.find("node 5"))};
                 CHECK(it5 == it6);
@@ -483,8 +503,9 @@ TEST_CASE("modifiers") {
 
         SECTION("del_nodes(const_iterator first, const_iterator last) - simple") {
             Graph g;
-            for (int i{0}; i < 10; ++i)
+            for (int i{0}; i < 10; ++i) {
                 g["node " + to_string(i)] = i;
+            }
             iterator first{g.find("node 5")};
             iterator last{g.find("node 8")};
             iterator result{g.del_nodes(first, last)};
@@ -495,8 +516,9 @@ TEST_CASE("modifiers") {
         SECTION("del_nodes(const_iterator first, const_iterator last) - edges") {
             SECTION("directed") {
                 Graph_directed g;
-                for (int i{0}; i < 10; ++i)
+                for (int i{0}; i < 10; ++i) {
                     g["node " + to_string(i)] = i;
+                }
 
                 g("node 1", "node 3") = 13;
                 g("node 1", "node 8") = 18;
@@ -510,8 +532,9 @@ TEST_CASE("modifiers") {
 
             SECTION("undirected") {
                 Graph_undirected g;
-                for (int i{0}; i < 10; ++i)
+                for (int i{0}; i < 10; ++i) {
                     g["node " + to_string(i)] = i;
+                }
 
                 g("node 1", "node 3") = 13;
                 g("node 1", "node 8") = 18;
@@ -526,8 +549,9 @@ TEST_CASE("modifiers") {
         SECTION("del_nodes(const_iterator first, const_iterator last) - clear") {
             SECTION("directed") {
                 Graph_directed g;
-                for (int i{0}; i < 10; ++i)
+                for (int i{0}; i < 10; ++i) {
                     g["node " + to_string(i)] = i;
+                }
 
                 g.del_nodes(g.begin(), g.end());
                 CHECK(g.empty());
@@ -536,8 +560,9 @@ TEST_CASE("modifiers") {
 
             SECTION("undirected") {
                 Graph_undirected g;
-                for (int i{0}; i < 10; ++i)
+                for (int i{0}; i < 10; ++i) {
                     g["node " + to_string(i)] = i;
+                }
 
                 g.del_nodes(g.begin(), g.end());
                 CHECK(g.empty());
@@ -548,8 +573,9 @@ TEST_CASE("modifiers") {
         SECTION("del_node(const key_type& k)") {
             SECTION("directed") {
                 Graph_directed g;
-                for (int i{0}; i < 10; ++i)
+                for (int i{0}; i < 10; ++i) {
                     g["node " + to_string(i)] = i;
+                }
                 CHECK(g.del_node("node 4") == 1);
                 CHECK(g.del_node("unknown node") == 0);
                 CHECK(g.size() == 9);
@@ -566,8 +592,9 @@ TEST_CASE("modifiers") {
 
             SECTION("undirected") {
                 Graph_undirected g;
-                for (int i{0}; i < 10; ++i)
+                for (int i{0}; i < 10; ++i) {
                     g["node " + to_string(i)] = i;
+                }
                 CHECK(g.del_node("node 4") == 1);
                 CHECK(g.del_node("unknown node") == 0);
                 CHECK(g.size() == 9);
@@ -584,8 +611,9 @@ TEST_CASE("modifiers") {
 
         SECTION("clear()") {
             Graph g;
-            for (int i{0}; i < 10; ++i)
+            for (int i{0}; i < 10; ++i) {
                 g["node " + to_string(i)] = i;
+            }
             g("node 1", "node 2") = 42;
             g("node 2", "node 5") = 50;
             g("node 8", "new node") = 5;
@@ -600,8 +628,9 @@ TEST_CASE("modifiers") {
             SECTION("directed") {
                 Graph_directed g;
                 iterator_directed it[10];
-                for (int i{0}; i < 10; ++i)
+                for (int i{0}; i < 10; ++i) {
                     it[i] = g.add_node("node " + to_string(i)).first;
+                }
 
                 g.add_edge(it[1], it[2], 12);
                 g.add_edge(it[1], it[5], 15);
@@ -617,8 +646,9 @@ TEST_CASE("modifiers") {
             SECTION("undirected") {
                 Graph_undirected g;
                 iterator_undirected it[10];
-                for (int i{0}; i < 10; ++i)
+                for (int i{0}; i < 10; ++i) {
                     it[i] = g.add_node("node " + to_string(i)).first;
+                }
 
                 g.add_edge(it[1], it[2], 12);
                 g.add_edge(it[1], it[5], 15);
@@ -642,8 +672,9 @@ TEST_CASE("modifiers") {
             SECTION("directed") {
                 Graph_directed g;
                 iterator_directed it[10];
-                for (int i{0}; i < 10; ++i)
+                for (int i{0}; i < 10; ++i) {
                     it[i] = g.add_node("node " + to_string(i)).first;
+                }
 
                 g.add_edge("node 1", "node 2", 12);
                 g.add_edge("node 1", "node 5", 15);
@@ -661,8 +692,9 @@ TEST_CASE("modifiers") {
             SECTION("undirected") {
                 Graph_undirected g;
                 iterator_undirected it[10];
-                for (int i{0}; i < 10; ++i)
+                for (int i{0}; i < 10; ++i) {
                     it[i] = g.add_node("node " + to_string(i)).first;
+                }
 
                 g.add_edge("node 1", "node 2", 12);
                 g.add_edge("node 1", "node 5", 15);
@@ -686,8 +718,9 @@ TEST_CASE("modifiers") {
         SECTION("clear_edges()") {
             SECTION("directed") {
                 Graph_directed g;
-                for (int i{0}; i < 10; ++i)
+                for (int i{0}; i < 10; ++i) {
                     g.add_node("node " + to_string(i));
+                }
 
                 g("node 1", "node 5") = 15;
                 g("node 5", "node 6") = 56;
@@ -698,14 +731,16 @@ TEST_CASE("modifiers") {
                 g.clear_edges();
 
                 CHECK(g.get_nbr_edges() == 0);
-                for (citerator_directed cit{g.cbegin()}; cit != g.cend(); ++cit)
+                for (citerator_directed cit{g.cbegin()}; cit != g.cend(); ++cit) {
                     CHECK(cit->second->degree().second == 0);
+                }
             }
 
             SECTION("undirected") {
                 Graph_undirected g;
-                for (int i{0}; i < 10; ++i)
+                for (int i{0}; i < 10; ++i) {
                     g.add_node("node " + to_string(i));
+                }
 
                 g("node 1", "node 5") = 15;
                 g("node 5", "node 6") = 56;
@@ -716,8 +751,9 @@ TEST_CASE("modifiers") {
                 g.clear_edges();
 
                 CHECK(g.get_nbr_edges() == 0);
-                for (citerator_undirected cit{g.cbegin()}; cit != g.cend(); ++cit)
+                for (citerator_undirected cit{g.cbegin()}; cit != g.cend(); ++cit) {
                     CHECK(cit->second->degree().second == 0);
+                }
             }
         }
 
@@ -725,8 +761,9 @@ TEST_CASE("modifiers") {
             SECTION("directed") {
                 Graph_directed g;
                 iterator_directed it[10];
-                for (int i{0}; i < 10; ++i)
+                for (int i{0}; i < 10; ++i) {
                     it[i] = g.add_node("node " + to_string(i)).first;
+                }
 
                 g(it[1], it[5]) = 15;
                 g(it[5], it[6]) = 56;
@@ -748,8 +785,9 @@ TEST_CASE("modifiers") {
             SECTION("undirected") {
                 Graph_undirected g;
                 iterator_undirected it[10];
-                for (int i{0}; i < 10; ++i)
+                for (int i{0}; i < 10; ++i) {
                     it[i] = g.add_node("node " + to_string(i)).first;
+                }
 
                 g(it[1], it[5]) = 15;
                 g(it[5], it[6]) = 56;
@@ -774,8 +812,9 @@ TEST_CASE("modifiers") {
         SECTION("clear_edges(const Key& k)") {
             SECTION("directed") {
                 Graph_directed g;
-                for (int i{0}; i < 10; ++i)
+                for (int i{0}; i < 10; ++i) {
                     g.add_node("node " + to_string(i));
+                }
 
                 g("node 1", "node 5") = 15;
                 g("node 5", "node 6") = 56;
@@ -800,8 +839,9 @@ TEST_CASE("modifiers") {
 
             SECTION("undirected") {
                 Graph_undirected g;
-                for (int i{0}; i < 10; ++i)
+                for (int i{0}; i < 10; ++i) {
                     g.add_node("node " + to_string(i));
+                }
 
                 g("node 1", "node 5") = 15;
                 g("node 5", "node 6") = 56;

@@ -10,11 +10,11 @@
 #endif
 #define private public
 #define protected public
-	#if defined(TEST_SINGLE_HEADER_FILE)
-		#include "graph.hpp"
-	#else
-		#include "Graph.h"
-    #endif
+#if defined(TEST_SINGLE_HEADER_FILE)
+    #include "graph.hpp"
+#else
+    #include "Graph.h"
+#endif
 #undef private
 #undef protected
 #if defined(__clang__)
@@ -218,9 +218,9 @@ TEST_CASE("nodes") {
             it5->second->add_edge(it1, 1);
 
             auto edges = it1->second->get_edges();
-            for(int i = 2; i < 4; ++i) {
-                CHECK(*next(edges.begin(), i-2)->cost == i);
-                CHECK(next(edges.begin(), i-2)->target.lock()->get() == i * 11);
+            for (int i{2}; i < 4; ++i) {
+                CHECK(*next(edges.begin(), i - 2)->cost == i);
+                CHECK(next(edges.begin(), i - 2)->target.lock()->get() == i * 11);
             }
             CHECK(it2->second->get_edges().empty());
         }
@@ -230,7 +230,7 @@ TEST_CASE("nodes") {
             Graph<int, int>::iterator list_it[5];
 
             node<int, int> n(42);
-            for(int i{0}; i < 5; ++i) {
+            for (int i{0}; i < 5; ++i) {
                 list_it[i] = g.emplace("node " + std::to_string(i), node<int, int>(i)).first;
                 n[list_it[i]] = i * 10;
             }
@@ -238,7 +238,7 @@ TEST_CASE("nodes") {
             CHECK(get<0>(t) == 42);
             CHECK(get<1>(t) == 0);
             int i{0};
-            for(auto it : get<2>(t)) {
+            for (auto it : get<2>(t)) {
                 //CHECK(static_cast<Graph<int, int>::node>(it) == *list_it[i]->second);
                 CHECK(list_it[i]->second->degree().first == 1);
                 ++i;
@@ -454,13 +454,15 @@ TEST_CASE("nodes") {
             Graph<int, int>::iterator list_it[5];
 
             node<int, int> n(42);
-            for(int i{0}; i < 5; ++i)
+            for (int i{0}; i < 5; ++i) {
                 list_it[i] = g.emplace("node " + std::to_string(i), node<int, int>(i)).first;
+            }
 
             CHECK((n.degree() == make_pair<size_t, size_t>(0, 0)));
 
-            for(int i{0}; i < 5; ++i)
+            for (int i{0}; i < 5; ++i) {
                 n[list_it[i]] = i * 10;
+            }
             CHECK((n.degree() == make_pair<size_t, size_t>(0, 5)));
 
             list_it[0]->second->add_edge(list_it[1]);

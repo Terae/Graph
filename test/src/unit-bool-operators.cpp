@@ -18,21 +18,21 @@ TEST_CASE("bool operators") {
         Graph_directed g1;
         Graph_directed g2;
         graph<string, float, double, DIRECTED> g3;
-        for(int i = 0; i < 100; ++i) {
+        for (int i = 0; i < 100; ++i) {
             g1["node " + to_string(i)] = i;
             g2["node " + to_string(i)] = i;
             g3["node " + to_string(i)] = i;
         }
 
-        for(size_t i{0}; i < 98; i += 3) {
+        for (size_t i{0}; i < 98; i += 3) {
             g1("node " + to_string(i), "node " + to_string(i + 1)) = 20 * i;
-            g1("node " + to_string(i+2), "node " + to_string(i+1)) = 40 * i;
+            g1("node " + to_string(i + 2), "node " + to_string(i + 1)) = 40 * i;
 
             g2("node " + to_string(i), "node " + to_string(i + 1)) = 20 * i;
-            g2("node " + to_string(i+2), "node " + to_string(i+1)) = 40 * i;
+            g2("node " + to_string(i + 2), "node " + to_string(i + 1)) = 40 * i;
 
             g3("node " + to_string(i), "node " + to_string(i + 1)) = 20 * i;
-            g3("node " + to_string(i+2), "node " + to_string(i+1)) = 40 * i;
+            g3("node " + to_string(i + 2), "node " + to_string(i + 1)) = 40 * i;
         }
 
         CHECK(g1 == g2);
@@ -50,7 +50,7 @@ TEST_CASE("bool operators") {
         Graph_directed g5;
         Graph_directed g6;
 
-        for(int i = 0; i < 100; ++i) {
+        for (int i = 0; i < 100; ++i) {
             g1["node " + to_string(i)] = i;
             g3["node " + to_string(i)] = i;
             g4["node " + to_string(i)] = i;
@@ -64,15 +64,15 @@ TEST_CASE("bool operators") {
         g4["node 101"] = 101;
         CHECK(g1 != g4); // One more node
 
-        for(size_t i{0}; i < 98; i += 3) {
+        for (size_t i{0}; i < 98; i += 3) {
             g1("node " + to_string(i), "node " + to_string(i + 1)) = 20 * i;
-            g1("node " + to_string(i+2), "node " + to_string(i+1)) = 40 * i;
+            g1("node " + to_string(i + 2), "node " + to_string(i + 1)) = 40 * i;
 
             g5("node " + to_string(i), "node " + to_string(i + 1)) = 20 * i;
-            g5("node " + to_string(i+2), "node " + to_string(i+1)) = 40 * i;
+            g5("node " + to_string(i + 2), "node " + to_string(i + 1)) = 40 * i;
 
             g6("node " + to_string(i), "node " + to_string(i + 1)) = 20 * i;
-            g6("node " + to_string(i+2), "node " + to_string(i+1)) = 40 * i;
+            g6("node " + to_string(i + 2), "node " + to_string(i + 1)) = 40 * i;
         }
         g5("node 52", "node 12") = 42;
         CHECK(g1 != g5); // One more edge

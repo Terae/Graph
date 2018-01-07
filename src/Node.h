@@ -16,7 +16,7 @@
 
 template <class Data, class Cost, class Container, class constContainer>
 class basic_node {
-private:
+  private:
     template <class K, class T, class C, Nature N>
     friend class graph;
 
@@ -32,12 +32,12 @@ private:
     std::size_t _in_degree{0};
 
     struct edge {
-        std::weak_ptr<basic_node<Data, Cost, Container, constContainer> > target;
+        std::weak_ptr<basic_node<Data, Cost, Container, constContainer>> target;
         std::shared_ptr<Cost> cost;
 
-        edge(const std::weak_ptr<basic_node<Data, Cost, Container, constContainer> > &ptr, Cost c);
+        edge(const std::weak_ptr<basic_node<Data, Cost, Container, constContainer>> &ptr, Cost c);
 
-        std::tuple<Cost, basic_node<Data, Cost, Container, constContainer> > tie() const;
+        std::tuple<Cost, basic_node<Data, Cost, Container, constContainer>> tie() const;
 
         bool operator< (const edge &other) const;
 
@@ -57,35 +57,35 @@ private:
     inline ListEdges get_edges() const;
 
     template <class T, class C, class X, class Y>
-    friend constexpr bool operator==(const basic_node<T, C, X, Y>& n1, const basic_node<T, C, X, Y>& n2) noexcept;
+    friend constexpr bool operator==(const basic_node<T, C, X, Y> &n1, const basic_node<T, C, X, Y> &n2) noexcept;
 
     template <class T, class C, class X, class Y>
-    friend constexpr bool operator!=(const basic_node<T, C, X, Y>& n1, const basic_node<T, C, X, Y>& n2) noexcept;
+    friend constexpr bool operator!=(const basic_node<T, C, X, Y> &n1, const basic_node<T, C, X, Y> &n2) noexcept;
 
     template <class T, class C, class X, class Y>
-    friend constexpr bool operator<(const basic_node<T, C, X, Y>& n1, const basic_node<T, C, X, Y>& n2) noexcept;
+    friend constexpr bool operator<(const basic_node<T, C, X, Y> &n1, const basic_node<T, C, X, Y> &n2) noexcept;
 
     template <class T, class C, class X, class Y>
-    friend constexpr bool operator<=(const basic_node<T, C, X, Y>& n1, const basic_node<T, C, X, Y>& n2) noexcept;
+    friend constexpr bool operator<=(const basic_node<T, C, X, Y> &n1, const basic_node<T, C, X, Y> &n2) noexcept;
 
     template <class T, class C, class X, class Y>
-    friend constexpr bool operator>(const basic_node<T, C, X, Y>& n1, const basic_node<T, C, X, Y>& n2) noexcept;
+    friend constexpr bool operator>(const basic_node<T, C, X, Y> &n1, const basic_node<T, C, X, Y> &n2) noexcept;
 
     template <class T, class C, class X, class Y>
-    friend constexpr bool operator>=(const basic_node<T, C, X, Y>& n1, const basic_node<T, C, X, Y>& n2) noexcept;
+    friend constexpr bool operator>=(const basic_node<T, C, X, Y> &n1, const basic_node<T, C, X, Y> &n2) noexcept;
 
     basic_node(const basic_node &n);
 
     basic_node &operator=(const basic_node &n);
 
-protected:
+  protected:
     Data _data;
 
     Container      container_from_this; /// position of this on the container
     Container      end_container;       /// last position of the container (nullptr or end())
     constContainer cend_container;      /// last position of the container (nullptr or cend())
 
-public:
+  public:
     //!
     //! @section exceptions
     //!
@@ -100,7 +100,7 @@ public:
 
     explicit basic_node(const Data &d);
 
-    basic_node &operator=(basic_node&& n) = delete;
+    basic_node &operator=(basic_node &&n) = delete;
 
     ~basic_node();
 
@@ -112,10 +112,10 @@ public:
 
     inline Data get() const;
 
-          Cost &get_cost(const Container &other);
+    Cost &get_cost(const Container &other);
     const Cost  get_cost(constContainer   other) const;
 
-          Cost &operator[](Container      other);
+    Cost &operator[](Container      other);
     const Cost  operator[](constContainer other) const;
 
     //!
@@ -130,20 +130,20 @@ public:
     //! Adders
     /// @return true if it's a new edge
     std::pair<EdgesIterator, bool> add_edge(constContainer other, Cost cost = Cost(1)) {
-        std::shared_ptr<basic_node<Data, Cost, Container, constContainer> > ptr{detail::get_value(other, cend_container)};
+        std::shared_ptr<basic_node<Data, Cost, Container, constContainer>> ptr{detail::get_value(other, cend_container)};
 
         if (ptr == nullptr)
             GRAPH_THROW(unexpected_nullptr)
 
-        for (EdgesIterator it{_out_edges.begin()}; it != _out_edges.end(); ++it)
-            if (it->target.lock() == ptr) {
-                *it->cost = cost;
-                return std::make_pair(it, false);
-            }
+            for (EdgesIterator it{_out_edges.begin()}; it != _out_edges.end(); ++it)
+                if (it->target.lock() == ptr) {
+                    *it->cost = cost;
+                    return std::make_pair(it, false);
+                }
 
         //! Link doesn't exist
         ptr->increment_in_degree();
-        _out_edges.emplace_back(std::weak_ptr<basic_node<Data, Cost, Container, constContainer> >(ptr), cost);
+        _out_edges.emplace_back(std::weak_ptr<basic_node<Data, Cost, Container, constContainer>>(ptr), cost);
         std::pair<EdgesIterator, bool> result{std::make_pair(--_out_edges.end(), true)};
         return result;
     }

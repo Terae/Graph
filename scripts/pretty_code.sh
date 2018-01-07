@@ -1,13 +1,21 @@
 #!/bin/bash
-echo "Generating the header-only file .."
 
 HOME=`git rev-parse --show-toplevel`
 
-# Remove all trailing whitespaces
-#cd ${HOME}
-#for filename in `find -follow | grep -E '\.(cpp|h|hpp)$' | grep -v './test/third-party' | grep -v './build'`; do
-#	sed -i 's/[ \t]*$//' ${filename}
-#done
+echo -n "Formating the code with Artistic Style ... "
+astyle --style=google --indent=spaces=4 --indent-modifiers --indent-switches --indent-preproc-block --indent-preproc-define --indent-namespaces --indent-col1-comments --pad-oper --pad-comma --pad-header --align-pointer=type --align-reference=name --add-brackets --convert-tabs --close-templates --lineend=linux --preserve-date --suffix=none --formatted ${HOME}/src/* ${HOME}/test/src/unit-*.cpp ${HOME}/examples/*.cpp > /tmp/out.log 2>&1 || exit 1
+echo "Done."
+
+[ -s /tmp/out.log ]
+if [ $? -eq 0 ]; then
+	echo ""
+	cat /tmp/out.log
+	echo ""
+	echo "Please commit (or not) these changes and run the script again."
+	exit 0
+fi
+
+echo -n "Generating the header-only file        ... "
 
 LOCATION=${HOME}/single_include
 mkdir -p "$LOCATION"
@@ -49,21 +57,25 @@ cat > "$FILE" << EOF
 EOF
 
 # Copying Graph.h, Graph.cpp and Node.cpp into graph.hpp
-sed -e '/#include "Graph.cpp"/ {' -e "r ${HOME}/src/Node.cpp" -e "r ${HOME}/src/Graph.cpp" -e 'd' -e '}' ${HOME}/src/Graph.h >> "$FILE"
+sed -e '/#include "Graph.cpp"/ {' -e "r ${HOME}/src/Node.cpp" -e "r ${HOME}/src/Graph.cpp" -e 'd' -e '}' ${HOME}/src/Graph.h >> "$FILE" || exit 2
 # Copying Node.h into graph.hpp
-sed -i -e '/#include "Node.h"/ {' -e "r ${HOME}/src/Node.h" -e 'd' -e '}' "$FILE"
-sed -i '/#include "Node.cpp"/,+2d' "$FILE"
-sed -i 's/#include <Node.h>//' "$FILE"
-sed -i 's/#include <Graph.h>//' "$FILE"
+sed -i -e '/#include "Node.h"/ {' -e "r ${HOME}/src/Node.h" -e 'd' -e '}' "$FILE" || exit 2
+sed -i '/#include "Node.cpp"/,+2d' "$FILE" || exit 2
+sed -i 's/#include <Node.h>//' "$FILE" || exit 2
+sed -i 's/#include <Graph.h>//' "$FILE" || exit 2
 # Copying exception.hpp into graph.hpp
-sed -i -e '/#include "detail.hpp"/ {' -e "r ${HOME}/src/detail.hpp" -e 'd' -e '}' "$FILE"
+sed -i -e '/#include "detail.hpp"/ {' -e "r ${HOME}/src/detail.hpp" -e 'd' -e '}' "$FILE" || exit 2
 # Modifying #ifndef/#define values
-sed -i 's/ROOT_GRAPH_H/ROOT_GRAPH_FINAL_H/' "$FILE"
-sed -i '/ROOT_NODE_H/d' "$FILE"
-sed -i '/ROOT_DETAIL_H/d' "$FILE"
+sed -i 's/ROOT_GRAPH_H/ROOT_GRAPH_FINAL_H/' "$FILE" || exit 2
+sed -i '/ROOT_NODE_H/d' "$FILE" || exit 2
+sed -i '/ROOT_DETAIL_H/d' "$FILE" || exit 2
 # Remove comments
-sed -i 's/\/\/\/.*//' "$FILE"
+sed -i 's/\/\/\/.*//' "$FILE" || exit 2
 # Remove trailing whitespaces
-sed -i 's/[ \t]*$//' "$FILE"
+sed -i 's/[ \t]*$//' "$FILE" || exit 2
 # Remove unnecessary EOF
-sed -i '/^$/N;/\n$/D' "$FILE"
+sed -i '/^$/N;/\n$/D' "$FILE" || exit 2
+
+git add ${HOME}/single_include/graph.hpp
+
+echo "Done."

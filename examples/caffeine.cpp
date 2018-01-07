@@ -9,7 +9,7 @@ struct Atom {
     Atom() = default;
     Atom(char s, int nr, double w) : symbol(s), atomic_number(nr), atomic_weight(w) {}
 };
-ostream& operator<<(ostream& os, const Atom& a) {
+ostream &operator<<(ostream &os, const Atom &a) {
     return os << a.symbol << ':' << a.atomic_number << ':' << a.atomic_weight;
 }
 
@@ -22,14 +22,17 @@ int main() {
     using covalent_bond = int;
     graph_undirected<string, Atom, covalent_bond> caffeine;
     /// Initializing the graph
-    for(int i{1}; i <= 8; ++i)
+    for (int i{1}; i <= 8; ++i) {
         caffeine["C" + to_string(i)] = carbon;
+    }
 
-    for(int i{1}; i <= 10; ++i)
+    for (int i{1}; i <= 10; ++i) {
         caffeine["H" + to_string(i)] = hydrogen;
+    }
 
-    for(int i{1}; i <= 4; ++i)
+    for (int i{1}; i <= 4; ++i) {
         caffeine["N" + to_string(i)] = nitrogen;
+    }
 
     caffeine["O1"] = oxygen;
     caffeine["O2"] = oxygen;

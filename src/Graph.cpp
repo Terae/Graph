@@ -83,11 +83,12 @@ graph<Key, T, Cost, Nat>::graph(graph &&g) noexcept {
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-graph<Key, T, Cost, Nat>& graph<Key, T, Cost, Nat>::operator=(const graph &g) {
+graph<Key, T, Cost, Nat> &graph<Key, T, Cost, Nat>::operator=(const graph &g) {
     clear();
 
-    for (const_iterator it{g.cbegin()}; it != g.cend(); ++it)
+    for (const_iterator it{g.cbegin()}; it != g.cend(); ++it) {
         add_node(it->first, it->second->get());
+    }
 
     for (const_iterator it{g.cbegin()}; it != g.cend(); ++it) {
         auto list = it->second->get_edges();
@@ -101,11 +102,11 @@ graph<Key, T, Cost, Nat>& graph<Key, T, Cost, Nat>::operator=(const graph &g) {
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-graph<Key, T, Cost, Nat>& graph<Key, T, Cost, Nat>::operator=(graph &&g) {
+graph<Key, T, Cost, Nat> &graph<Key, T, Cost, Nat>::operator=(graph &&g) {
     //! If there is a self-reference: bug in the client part that should be fixed
-    if (this == &g)
+    if (this == &g) {
         GRAPH_THROW_WITH(invalid_argument, "Self-reference in the client part")
-
+    }
     swap(g);
     return *this;
 }
@@ -134,42 +135,44 @@ std::size_t graph<Key, T, Cost, Nat>::max_size() const noexcept {
 
 /// Element access
 template <class Key, class T, class Cost, Nature Nat>
-T& graph<Key, T, Cost, Nat>::operator[](const key_type& k) {
+T &graph<Key, T, Cost, Nat>::operator[](const key_type &k) {
     return add_node(k).first->second->get();
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-T& graph<Key, T, Cost, Nat>::operator[](key_type&& k) {
+T &graph<Key, T, Cost, Nat>::operator[](key_type &&k) {
     return add_node(k).first->second->get();
 }
 
 #if defined(GRAPH_HAS_CPP_17)
 template <class Key, class T, class Cost, Nature Nat>
-const std::optional<T> graph<Key, T, Cost, Nat>::operator[](key_type&& k) const {
+const std::optional<T> graph<Key, T, Cost, Nat>::operator[](key_type &&k) const {
     const_iterator it{find(k)};
     return it == cend() ? std::nullopt : std::optional<T>(it->second->get());
 }
 #else
 template <class Key, class T, class Cost, Nature Nat>
-const T graph<Key, T, Cost, Nat>::operator[](key_type&& k) const {
+const T graph<Key, T, Cost, Nat>::operator[](key_type &&k) const {
     const_iterator it{find(k)};
-    if (it == cend())
+    if (it == cend()) {
         GRAPH_THROW_WITH(invalid_argument, "Unexistant node")
+    }
 
     return it->second->get();
 }
 #endif
 
 template <class Key, class T, class Cost, Nature Nat>
-Cost& graph<Key, T, Cost, Nat>::operator()(iterator it1, iterator it2) {
-    if (!existing_edge(it1, it2))
+Cost &graph<Key, T, Cost, Nat>::operator()(iterator it1, iterator it2) {
+    if (!existing_edge(it1, it2)) {
         add_edge(it1, it2, infinity);
+    }
 
     return it1->second->get_cost(it2);
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-Cost& graph<Key, T, Cost, Nat>::operator()(const key_type& k1, const key_type& k2) {
+Cost &graph<Key, T, Cost, Nat>::operator()(const key_type &k1, const key_type &k2) {
     iterator it1{add_node(k1).first};
     iterator it2{add_node(k2).first};
 
@@ -183,20 +186,21 @@ const std::optional<Cost> graph<Key, T, Cost, Nat>::operator()(const_iterator it
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-const std::optional<Cost> graph<Key, T, Cost, Nat>::operator()(const key_type& k1, const key_type& k2) const {
+const std::optional<Cost> graph<Key, T, Cost, Nat>::operator()(const key_type &k1, const key_type &k2) const {
     return operator()(find(k1), find(k2));
 }
 #else
 template <class Key, class T, class Cost, Nature Nat>
 const Cost graph<Key, T, Cost, Nat>::operator()(const_iterator it1, const_iterator it2) const {
-    if (!existing_edge(it1, it2))
+    if (!existing_edge(it1, it2)) {
         GRAPH_THROW_WITH(invalid_argument, "Unexistant edge")
+    }
 
     return it1->second->get_cost(it2);
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-const Cost graph<Key, T, Cost, Nat>::operator()(const key_type& k1, const key_type& k2) const {
+const Cost graph<Key, T, Cost, Nat>::operator()(const key_type &k1, const key_type &k2) const {
     return operator()(find(k1), find(k2));
 }
 #endif
@@ -209,51 +213,51 @@ std::pair<typename graph<Key, T, Cost, Nat>::iterator, bool> graph<Key, T, Cost,
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-typename graph<Key, T, Cost, Nat>::iterator graph<Key, T, Cost, Nat>::insert(const_iterator position, const value_type& val) {
+typename graph<Key, T, Cost, Nat>::iterator graph<Key, T, Cost, Nat>::insert(const_iterator position, const value_type &val) {
     iterator it{_nodes.insert(position, val)};
     it->second->set_iterator_values(it, end(), cend());
     return it;
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-typename graph<Key, T, Cost, Nat>::iterator graph<Key, T, Cost, Nat>::insert(const_iterator position, const key_type& k, graphed_type& x) {
+typename graph<Key, T, Cost, Nat>::iterator graph<Key, T, Cost, Nat>::insert(const_iterator position, const key_type &k, graphed_type &x) {
     return insert(position, std::make_pair(k, std::make_shared<node>(x)));
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-typename graph<Key, T, Cost, Nat>::iterator graph<Key, T, Cost, Nat>::insert(const_iterator position, const key_type& k, const node& n) {
+typename graph<Key, T, Cost, Nat>::iterator graph<Key, T, Cost, Nat>::insert(const_iterator position, const key_type &k, const node &n) {
     return insert(position, std::make_pair(k, std::make_shared<node>(n)));
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-std::pair<typename graph<Key, T, Cost, Nat>::iterator, bool> graph<Key, T, Cost, Nat>::emplace(const key_type& k) {
+std::pair<typename graph<Key, T, Cost, Nat>::iterator, bool> graph<Key, T, Cost, Nat>::emplace(const key_type &k) {
     return emplace(k, node());
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-std::pair<typename graph<Key, T, Cost, Nat>::iterator, bool> graph<Key, T, Cost, Nat>::emplace(const key_type& k, const graphed_type& x) {
+std::pair<typename graph<Key, T, Cost, Nat>::iterator, bool> graph<Key, T, Cost, Nat>::emplace(const key_type &k, const graphed_type &x) {
     return emplace(k, node(x));
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-std::pair<typename graph<Key, T, Cost, Nat>::iterator, bool> graph<Key, T, Cost, Nat>::emplace(const key_type& k, const node& n) {
+std::pair<typename graph<Key, T, Cost, Nat>::iterator, bool> graph<Key, T, Cost, Nat>::emplace(const key_type &k, const node &n) {
     std::pair<iterator, bool> p{_nodes.emplace(k, std::make_shared<node>(n))};
     p.first->second->set_iterator_values(p.first, end(), cend());
     return p;
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-std::pair<typename graph<Key, T, Cost, Nat>::iterator, bool> graph<Key, T, Cost, Nat>::add_node(const key_type& k) {
+std::pair<typename graph<Key, T, Cost, Nat>::iterator, bool> graph<Key, T, Cost, Nat>::add_node(const key_type &k) {
     return emplace(k);
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-std::pair<typename graph<Key, T, Cost, Nat>::iterator, bool> graph<Key, T, Cost, Nat>::add_node(const key_type& k, const graphed_type& x) {
+std::pair<typename graph<Key, T, Cost, Nat>::iterator, bool> graph<Key, T, Cost, Nat>::add_node(const key_type &k, const graphed_type &x) {
     return emplace(k, x);
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-std::pair<typename graph<Key, T, Cost, Nat>::iterator, bool> graph<Key, T, Cost, Nat>::add_node(const key_type& k, const node& n) {
+std::pair<typename graph<Key, T, Cost, Nat>::iterator, bool> graph<Key, T, Cost, Nat>::add_node(const key_type &k, const node &n) {
     return emplace(k, n);
 }
 
@@ -263,17 +267,19 @@ template <class Key, class T, class Cost, Nature Nat>
 bool graph<Key, T, Cost, Nat>::add_edge(const_iterator it1, const_iterator it2, Cost cost) {
     auto new_edge = it1->second->add_edge(it2, cost);
 
-    if (get_nature() == UNDIRECTED)
+    if (get_nature() == UNDIRECTED) {
         it2->second->set_edge(it1, (new_edge.first->cost));
+    }
 
-    if (new_edge.second)
+    if (new_edge.second) {
         _num_edges++;
+    }
 
     return true;
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-bool graph<Key, T, Cost, Nat>::add_edge(const key_type& k1, const key_type& k2, Cost cost) {
+bool graph<Key, T, Cost, Nat>::add_edge(const key_type &k1, const key_type &k2, Cost cost) {
     return add_edge(emplace(k1).first, emplace(k2).first, cost);
 }
 
@@ -284,8 +290,9 @@ void graph<Key, T, Cost, Nat>::link_all_nodes(Cost cost) {
     if (cost != infinity)
         for (iterator it1 = begin(); it1 != end(); ++it1)
             for (iterator it2 = begin(); it2 != end(); ++it2)
-                if (it1 != it2)
+                if (it1 != it2) {
                     add_edge(it1, it2, cost);
+                }
 }
 
 template <class Key, class T, class Cost, Nature Nat>
@@ -297,17 +304,19 @@ typename graph<Key, T, Cost, Nat>::iterator graph<Key, T, Cost, Nat>::erase(cons
 
 template <class Key, class T, class Cost, Nature Nat>
 typename graph<Key, T, Cost, Nat>::iterator graph<Key, T, Cost, Nat>::erase(const_iterator first, const_iterator last) {
-    for (const_iterator it{first}; it != last && it != cend(); ++it)
+    for (const_iterator it{first}; it != last && it != cend(); ++it) {
         clear_edges(it);
+    }
 
     return _nodes.erase(first, last);
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-std::size_t graph<Key, T, Cost, Nat>::erase(const key_type& k) {
+std::size_t graph<Key, T, Cost, Nat>::erase(const key_type &k) {
     const_iterator it{find(k)};
-    if (it == cend())
+    if (it == cend()) {
         return 0;
+    }
 
     clear_edges(it);
     return _nodes.erase(k);
@@ -324,7 +333,7 @@ typename graph<Key, T, Cost, Nat>::iterator graph<Key, T, Cost, Nat>::del_nodes(
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-std::size_t graph<Key, T, Cost, Nat>::del_node(const key_type& k) {
+std::size_t graph<Key, T, Cost, Nat>::del_node(const key_type &k) {
     return erase(k);
 }
 template <class Key, class T, class Cost, Nature Nat>
@@ -339,8 +348,9 @@ std::size_t graph<Key, T, Cost, Nat>::del_edge(const_iterator it1, const_iterato
     if (it1 != end() && it2 != end()) {
         result = static_cast<size_type>(it1->second->del_edge(it2));
 
-        if (get_nature() == UNDIRECTED)
+        if (get_nature() == UNDIRECTED) {
             it2->second->del_edge(it1);
+        }
 
         _num_edges -= result;
     }
@@ -348,14 +358,15 @@ std::size_t graph<Key, T, Cost, Nat>::del_edge(const_iterator it1, const_iterato
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-std::size_t graph<Key, T, Cost, Nat>::del_edge(const key_type& k1, const key_type& k2) {
+std::size_t graph<Key, T, Cost, Nat>::del_edge(const key_type &k1, const key_type &k2) {
     return del_edge(find(k1), find(k2));
 }
 
 template <class Key, class T, class Cost, Nature Nat>
 void graph<Key, T, Cost, Nat>::clear_edges() {
-    for (const_iterator it{cbegin()}; it != cend(); ++it)
+    for (const_iterator it{cbegin()}; it != cend(); ++it) {
         clear_edges(it);
+    }
     _num_edges = 0;
 }
 
@@ -363,11 +374,13 @@ template <class Key, class T, class Cost, Nature Nat>
 std::size_t graph<Key, T, Cost, Nat>::clear_edges(const_iterator it) {
     size_type result{0};
     if (it != cend()) {
-        for (const_iterator it1{cbegin()}; it1 != cend(); ++it1)
+        for (const_iterator it1{cbegin()}; it1 != cend(); ++it1) {
             del_edge(it1, it);
+        }
 
-        if (get_nature() == DIRECTED)
+        if (get_nature() == DIRECTED) {
             result += it->second->clear_edges();
+        }
 
         _num_edges -= result;
     }
@@ -375,12 +388,12 @@ std::size_t graph<Key, T, Cost, Nat>::clear_edges(const_iterator it) {
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-std::size_t graph<Key, T, Cost, Nat>::clear_edges(const key_type& k) {
+std::size_t graph<Key, T, Cost, Nat>::clear_edges(const key_type &k) {
     return clear_edges(find(k));
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-void graph<Key, T, Cost, Nat>::swap(graph& other) {
+void graph<Key, T, Cost, Nat>::swap(graph &other) {
     std::swap(_nodes,     other._nodes);
     std::swap(_num_edges, other._num_edges);
 }
@@ -388,10 +401,7 @@ void graph<Key, T, Cost, Nat>::swap(graph& other) {
 /// specialisation of std::swap
 namespace std {
     template <class Key, class T, class Cost, Nature Nat>
-    inline void swap(graph<Key, T, Cost, Nat>& g1, graph<Key, T, Cost, Nat>& g2) noexcept
-    /// (is_nothrow_move_constructible<graph<Key, T, Cost, Nat> >::value and
-    /// constructor is_nothrow_move_assignable<graph<Key, T, Cost, Nat> >::value)
-    {
+    inline void swap(graph<Key, T, Cost, Nat> &g1, graph<Key, T, Cost, Nat> &g2) noexcept {
         g1.swap(g2);
     }
 }
@@ -399,17 +409,17 @@ namespace std {
 /// Operations
 
 template <class Key, class T, class Cost, Nature Nat>
-std::size_t graph<Key, T, Cost, Nat>::count(const key_type& k) const {
+std::size_t graph<Key, T, Cost, Nat>::count(const key_type &k) const {
     return _nodes.count(k);
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-typename graph<Key, T, Cost, Nat>::iterator graph<Key, T, Cost, Nat>::find(const key_type& k) {
+typename graph<Key, T, Cost, Nat>::iterator graph<Key, T, Cost, Nat>::find(const key_type &k) {
     return _nodes.find(k);
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-typename graph<Key, T, Cost, Nat>::const_iterator graph<Key, T, Cost, Nat>::find(const key_type& k) const {
+typename graph<Key, T, Cost, Nat>::const_iterator graph<Key, T, Cost, Nat>::find(const key_type &k) const {
     return _nodes.find(k);
 }
 
@@ -419,24 +429,25 @@ bool graph<Key, T, Cost, Nat>::existing_node(const_iterator it) const {
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-bool graph<Key, T, Cost, Nat>::existing_node(const key_type& k) const {
+bool graph<Key, T, Cost, Nat>::existing_node(const key_type &k) const {
     return existing_node(find(k));
 }
 
 template <class Key, class T, class Cost, Nature Nat>
 bool graph<Key, T, Cost, Nat>::existing_edge(const_iterator it1, const_iterator it2) const {
     if (it1 != cend() && it2 != cend()) {
-        if (get_nature() == DIRECTED)
+        if (get_nature() == DIRECTED) {
             return it1->second->existing_adjacent_node(it2);
-        else
+        } else {
             return it1->second->existing_adjacent_node(it2) && it2->second->existing_adjacent_node(it1);
+        }
     }
 
     return false;
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-bool graph<Key, T, Cost, Nat>::existing_edge(const key_type& k1, const key_type& k2) const {
+bool graph<Key, T, Cost, Nat>::existing_edge(const key_type &k1, const key_type &k2) const {
     return existing_edge(find(k1), find(k2));
 }
 
@@ -485,19 +496,22 @@ inline Nature graph<Key, T, Cost, Nat>::get_nature() const {
 
 template <class Key, class T, class Cost, Nature Nat>
 typename graph<Key, T, Cost, Nat>::Degree graph<Key, T, Cost, Nat>::degree(const_iterator position) const {
-    if (get_nature() == DIRECTED)
+    if (get_nature() == DIRECTED) {
         return position == cend() ? Degree::min() : Degree(position->second->degree().first, position->second->degree().second);
+    }
     return position == cend() ? Degree::min() : Degree(position->second->degree().first, 0);
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-typename graph<Key, T, Cost, Nat>::Degree graph<Key, T, Cost, Nat>::degree(const key_type& k) const {
+typename graph<Key, T, Cost, Nat>::Degree graph<Key, T, Cost, Nat>::degree(const key_type &k) const {
     return degree(find(k));
 }
 
 template <class Key, class T, class Cost, Nature Nat>
 std::pair<typename graph<Key, T, Cost, Nat>::const_iterator, typename graph<Key, T, Cost, Nat>::Degree> graph<Key, T, Cost, Nat>::degree_max() const {
-    if (empty()) return std::make_pair(cend(), Degree::min());
+    if (empty()) {
+        return std::make_pair(cend(), Degree::min());
+    }
 
     Degree max{Degree::min()};
     const_iterator cit;
@@ -515,7 +529,9 @@ std::pair<typename graph<Key, T, Cost, Nat>::const_iterator, typename graph<Key,
 
 template <class Key, class T, class Cost, Nature Nat>
 std::pair<typename graph<Key, T, Cost, Nat>::const_iterator, typename graph<Key, T, Cost, Nat>::Degree> graph<Key, T, Cost, Nat>::degree_min() const {
-    if (empty()) return std::make_pair(cend(), Degree::min());
+    if (empty()) {
+        return std::make_pair(cend(), Degree::min());
+    }
 
     Degree min{Degree::max()};
     const_iterator cit;
@@ -535,14 +551,15 @@ template <class Key, class T, class Cost, Nature Nat>
 std::map<Key, typename graph<Key, T, Cost, Nat>::Degree> graph<Key, T, Cost, Nat>::degrees() const {
     std::map<key_type, Degree> result;
 
-    for (const_iterator it{cbegin()}; it != cend(); ++it)
+    for (const_iterator it{cbegin()}; it != cend(); ++it) {
         result.insert(std::make_pair(it->first, degree(it)));
+    }
 
     return result;
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-std::ostream& graph<Key, T, Cost, Nat>::print(std::ostream &os) const {
+std::ostream &graph<Key, T, Cost, Nat>::print(std::ostream &os) const {
     using std::setw;
     using std::ostringstream;
 
@@ -550,22 +567,25 @@ std::ostream& graph<Key, T, Cost, Nat>::print(std::ostream &os) const {
     const std::string separator{","};
 
     //! Displaying nature + graph types
-    if (get_nature() == DIRECTED)
+    if (get_nature() == DIRECTED) {
         os << "di";
+    }
+
     os << "graph<" << detail::type_name<Key>()  << ", "
-                   << detail::type_name<T>()    << ", "
-                   << detail::type_name<Cost>() << "> {\n"
+       << detail::type_name<T>()    << ", "
+       << detail::type_name<Cost>() << "> {\n"
        << tab << "nodes: {\n";
 
     //! Displaying nodes:  "<name>"; "<value>",
     size_type max_size{3};
-    for_each(cbegin(), cend(), [&max_size](const value_type &element) {
+    for_each(cbegin(), cend(), [&max_size](const value_type & element) {
         ostringstream out;
         out << element.first;
         size_type size{static_cast<size_type>(out.tellp())};
 
-        if (size > max_size)
+        if (size > max_size) {
             max_size = size;
+        }
     });
 
     for (const_iterator it{cbegin()}; it != cend(); ++it) {
@@ -576,22 +596,23 @@ std::ostream& graph<Key, T, Cost, Nat>::print(std::ostream &os) const {
            << '"' << std::left << setw(static_cast<int>(max_size + 2 + separator.size())) << out.str()
            << '"' << it->second->get() << '"';
 
-        if (it != --cend())
+        if (it != --cend()) {
             os << ';';
+        }
         os << '\n';
     }
     os << tab << '}';
 
     //! Displaying edges:  "<node 1>"; "<node 2>"; "<cost>",
-    if (get_nbr_edges() == 0)
+    if (get_nbr_edges() == 0) {
         os << "\n}";
-    else {
+    } else {
         os << ",\n" << tab << "edges: {\n";
         size_type max_size_1{0}, max_size_2{0};
 
-        for_each(cbegin(), cend(), [&max_size_1, &max_size_2, this](const value_type &element) {
+        for_each(cbegin(), cend(), [&max_size_1, &max_size_2, this](const value_type & element) {
             auto child = element.second->get_edges();
-            for_each(child.cbegin(), child.cend(), [&, this](const auto &i) {
+            for_each(child.cbegin(), child.cend(), [ &, this](const auto & i) {
                 ostringstream out_1, out_2;
                 out_1 << element.first;
                 out_2 << i.target.lock()->container_from_this->first;
@@ -599,18 +620,20 @@ std::ostream& graph<Key, T, Cost, Nat>::print(std::ostream &os) const {
                 size_type size_1{static_cast<size_type>(out_1.tellp())},
                           size_2{static_cast<size_type>(out_2.tellp())};
 
-                if (size_1 > max_size_1)
+                if (size_1 > max_size_1) {
                     max_size_1 = size_1;
+                }
 
-                if (size_2 > max_size_2)
+                if (size_2 > max_size_2) {
                     max_size_2 = size_2;
+                }
             });
         });
 
         size_type p{0};
-        for_each(cbegin(), cend(), [=, &os, &p](const value_type &element) {
+        for_each(cbegin(), cend(), [ =, &os, &p](const value_type & element) {
             auto child = element.second->get_edges();
-            for_each(child.cbegin(), child.cend(), [=, &os, &p](const auto &i) {
+            for_each(child.cbegin(), child.cend(), [ =, &os, &p](const auto & i) {
                 ostringstream out_1, out_2;
                 out_1 << element.first << '"' << separator;
                 out_2 << i.target.lock()->container_from_this->first << '"' << separator;
@@ -618,14 +641,16 @@ std::ostream& graph<Key, T, Cost, Nat>::print(std::ostream &os) const {
                 os << tab << tab
                    << '"' << setw(static_cast<int>(max_size_1 + 2 + separator.size())) << out_1.str()
                    << '"' << setw(static_cast<int>(max_size_2 + 2 + separator.size())) << out_2.str();
-                if (*i.cost == infinity)
+                if (*i.cost == infinity) {
                     os << "infinity";
-                else
-                   os << '"' << *i.cost << '"';
+                } else {
+                    os << '"' << *i.cost << '"';
+                }
 
                 if (p < (this->get_nature() == DIRECTED ?
-                         this->get_nbr_edges() : 2 * this->get_nbr_edges()) - 1)
+                         this->get_nbr_edges() : 2 * this->get_nbr_edges()) - 1) {
                     os << ';';
+                }
                 os << '\n';
                 p++;
             });
@@ -637,30 +662,34 @@ std::ostream& graph<Key, T, Cost, Nat>::print(std::ostream &os) const {
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-std::ostream& operator<<(std::ostream& os, const graph<Key, T, Cost, Nat>& g) {
+std::ostream &operator<<(std::ostream &os, const graph<Key, T, Cost, Nat> &g) {
     return g.print(os) << std::endl;
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-std::istream& operator>>(std::istream& is, graph<Key, T, Cost, Nat>& g) {
+std::istream &operator>>(std::istream &is, graph<Key, T, Cost, Nat> &g) {
     g.clear();
 
     //! Nature
     std::string line;
     getline(is, line);
     if (line.substr(0, 5) == "graph") {
-        if (g.get_nature() != UNDIRECTED)
+        if (g.get_nature() != UNDIRECTED) {
             GRAPH_THROW_WITH(invalid_argument, "Bad graph nature (expected UNDIRECTED)")
+        }
     } else if (line.substr(0, 7) == "digraph") {
-        if (g.get_nature() != DIRECTED)
+        if (g.get_nature() != DIRECTED) {
             GRAPH_THROW_WITH(invalid_argument, "Bad graph nature (expected DIRECTED)")
-    } else
+        }
+    } else {
         GRAPH_THROW_WITH(parse_error, static_cast<std::size_t>(is.tellg()), "Bad graph nature")
+    }
 
     //! Nodes
     getline(is, line);
-    if (line != "    nodes: {")
+    if (line != "    nodes: {") {
         GRAPH_THROW_WITH(parse_error, static_cast<std::size_t>(is.tellg()), "Bad format for nodes")
+    }
     while (getline(is, line) && line.find("}") == std::string::npos) {
         std::istringstream iss{line};
         Key key;
@@ -674,9 +703,9 @@ std::istream& operator>>(std::istream& is, graph<Key, T, Cost, Nat>& g) {
     //! Edges
     getline(is, line);
     if (line == "}") {}
-    else if (line != "    edges: {")
+    else if (line != "    edges: {") {
         GRAPH_THROW_WITH(parse_error, static_cast<std::size_t>(is.tellg()), "Bad format for edges")
-    else {
+    } else {
         while (getline(is, line) && line.find("}") == std::string::npos) {
             std::istringstream iss{line};
             Key from;
@@ -691,21 +720,21 @@ std::istream& operator>>(std::istream& is, graph<Key, T, Cost, Nat>& g) {
     }
 
     getline(is, line);
-    if (line != "}")
+    if (line != "}") {
         GRAPH_THROW_WITH(parse_error, static_cast<std::size_t>(is.tellg()), "Bad format at the end of the graph")
-
+    }
     return is;
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-void graph<Key, T, Cost, Nat>::save(const char *filepath) const {
+void graph<Key, T, Cost, Nat>::save(const char* filepath) const {
     std::ofstream out(filepath);
     out << *this << std::endl;
     out.close();
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-graph<Key, T, Cost, Nat>& graph<Key, T, Cost, Nat>::load(const char *filepath) {
+graph<Key, T, Cost, Nat> &graph<Key, T, Cost, Nat>::load(const char* filepath) {
     std::ifstream in(filepath);
     if (in) {
         in >> *this;
@@ -723,20 +752,22 @@ bool graph<Key, T, Cost, Nat>::operator==(const graph<K, D, C, N> &other) const 
     typedef std::list<typename basic_node<T, Cost, typename graph<Key, T, Cost, Nat>::iterator, Iterator1>::edge> Set1;
     typedef std::list<typename basic_node<D,    C, typename graph<K,   D, C,      N>::iterator, Iterator2>::edge> Set2;
 
-    if (get_nature()    != other.get_nature()    ||
-        get_nbr_nodes() != other.get_nbr_nodes() ||
-        get_nbr_edges() != other.get_nbr_edges())
+    if (get_nature()    != other.get_nature()        ||
+            get_nbr_nodes() != other.get_nbr_nodes() ||
+            get_nbr_edges() != other.get_nbr_edges()) {
         return false;
+    }
 
     Iterator1 it1{cbegin()};
     Iterator2 it2{other.cbegin()};
 
     for (; (it1 != cend() || it2 != other.cend()); ++it1, ++it2) {
         /// Test nodes value
-        if (!(it1->first            == it2->first)         ||
-            !(it1->second->get()    == it2->second->get()) ||
-            !(it1->second->degree() == it2->second->degree()))
+        if (!(it1->first                == it2->first)         ||
+                !(it1->second->get()    == it2->second->get()) ||
+                !(it1->second->degree() == it2->second->degree())) {
             return false;
+        }
 
         /// Test out edges
         Set1 child1{it1->second->get_edges()};
@@ -748,8 +779,9 @@ bool graph<Key, T, Cost, Nat>::operator==(const graph<K, D, C, N> &other) const 
             Iterator1 target1{edge1->get_container()};
             Iterator2 target2{edge2->get_container()};
 
-            if (!(target1->first == target2->first && *edge1->cost == *edge2->cost))
+            if (!(target1->first == target2->first && *edge1->cost == *edge2->cost)) {
                 return false;
+            }
         }
     }
 
@@ -775,7 +807,7 @@ graph<Key, T, Cost, Nat>::node::node(const graphed_type &d) {
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-typename graph<Key, T, Cost, Nat>::node& graph<Key, T, Cost, Nat>::node::operator=(const graphed_type &d) {
+typename graph<Key, T, Cost, Nat>::node &graph<Key, T, Cost, Nat>::node::operator=(const graphed_type &d) {
     this->set(d);
     return *this;
 }

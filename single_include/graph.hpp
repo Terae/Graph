@@ -97,9 +97,9 @@ enum Nature {
  This namespace collects some functions that could not be defined inside the @ref graph class.
  */
 namespace detail {
-//!
-//! @section exceptions
-//!
+    //!
+    //! @section exceptions
+    //!
 
     /*!
      @brief general exception of the @ref graph class
@@ -116,18 +116,18 @@ namespace detail {
      - @ref bad_graph for exceptions indicating a logical error in the usage of the @ref graph class
      */
     struct exception : public std::exception {
-        const char *what() const noexcept override {
+        const char* what() const noexcept override {
             return m.what();
         }
 
-    protected:
-        explicit exception(const char *what_arg) : m(what_arg) {}
+      protected:
+        explicit exception(const char* what_arg) : m(what_arg) {}
 
         static std::string name(const std::string &exception_type) {
             return "[graph.exception." + exception_type + "] ";
         }
 
-    private:
+      private:
         std::logic_error m;
     };
 
@@ -138,8 +138,8 @@ namespace detail {
             return invalid_argument(w.c_str());
         }
 
-    private:
-        explicit invalid_argument(const char *what_arg) : exception(what_arg) {}
+      private:
+        explicit invalid_argument(const char* what_arg) : exception(what_arg) {}
     };
 
     struct unexpected_nullptr final : public exception {
@@ -149,8 +149,8 @@ namespace detail {
             return unexpected_nullptr(w.c_str());
         }
 
-    private:
-        explicit unexpected_nullptr(const char *what_arg) : exception(what_arg) {}
+      private:
+        explicit unexpected_nullptr(const char* what_arg) : exception(what_arg) {}
     };
 
     struct parse_error final : public exception {
@@ -165,8 +165,8 @@ namespace detail {
 
         const std::size_t byte;
 
-    private:
-        explicit parse_error(const char *what_arg, std::size_t b) : exception(what_arg), byte(b) {}
+      private:
+        explicit parse_error(const char* what_arg, std::size_t b) : exception(what_arg), byte(b) {}
     };
 
     /*!
@@ -177,8 +177,8 @@ namespace detail {
      - @ref not_complete for exceptions indicating a non-complete graph error
      */
     struct bad_graph : public exception {
-    protected:
-        explicit bad_graph(const char *what_arg) : exception(what_arg) {}
+      protected:
+        explicit bad_graph(const char* what_arg) : exception(what_arg) {}
 
         static std::string name(const std::string &exception_type) {
             return "[graph.exception.bad_graph." + exception_type + "] ";
@@ -192,8 +192,8 @@ namespace detail {
             return negative_edge(w.c_str());
         }
 
-    private:
-        explicit negative_edge(const char *what_arg) : bad_graph(what_arg) {}
+      private:
+        explicit negative_edge(const char* what_arg) : bad_graph(what_arg) {}
     };
 
     struct not_complete final : public bad_graph {
@@ -203,60 +203,84 @@ namespace detail {
             return not_complete(w.c_str());
         }
 
-    private:
-        explicit not_complete(const char *what_arg) : bad_graph(what_arg) {}
+      private:
+        explicit not_complete(const char* what_arg) : bad_graph(what_arg) {}
     };
 
-//!
-//! @section degree
-//!
+    //!
+    //! @section degree
+    //!
     template <Nature N> class basic_degree;
 
     template <> class basic_degree<DIRECTED> {
-    public:
+      public:
         using value_type = std::pair<std::size_t, std::size_t>;
 
-        basic_degree(const value_type& degree) : _deg(degree) {};
+        basic_degree(const value_type &degree) : _deg(degree) {};
         basic_degree(std::size_t in, std::size_t out) : basic_degree(std::make_pair(in, out)) {};
 
-        inline value_type get_degree() const { return _deg; }
+        inline value_type get_degree() const {
+            return _deg;
+        }
 
-        bool operator==(const basic_degree& d) const { return _deg == d._deg; }
-        bool operator==(const value_type& v)   const { return _deg == v; }
+        bool operator==(const basic_degree &d) const {
+            return _deg == d._deg;
+        }
+        bool operator==(const value_type &v)   const {
+            return _deg == v;
+        }
 
-        bool operator< (const basic_degree& d) const { return _deg < d._deg; }
+        bool operator< (const basic_degree &d) const {
+            return _deg < d._deg;
+        }
 
-        static basic_degree max() { return basic_degree(std::numeric_limits<std::size_t>::max(), std::numeric_limits<std::size_t>::max()); }
-        static basic_degree min() { return basic_degree(std::numeric_limits<std::size_t>::min(), std::numeric_limits<std::size_t>::min()); }
+        static basic_degree max() {
+            return basic_degree(std::numeric_limits<std::size_t>::max(), std::numeric_limits<std::size_t>::max());
+        }
+        static basic_degree min() {
+            return basic_degree(std::numeric_limits<std::size_t>::min(), std::numeric_limits<std::size_t>::min());
+        }
 
-    private:
+      private:
         value_type _deg;
     };
 
     template <> class basic_degree<UNDIRECTED> {
-    public:
+      public:
         using value_type = std::size_t;
 
-        basic_degree(const value_type& d) : _deg(d) {}
+        basic_degree(const value_type &d) : _deg(d) {}
         basic_degree(std::size_t in, std::size_t) : basic_degree(in) {}
 
-        inline value_type get_degree() const { return _deg; }
+        inline value_type get_degree() const {
+            return _deg;
+        }
 
-        bool operator==(const basic_degree& d) const { return _deg == d._deg; }
-        bool operator==(const value_type& v)   const { return _deg == v; }
+        bool operator==(const basic_degree &d) const {
+            return _deg == d._deg;
+        }
+        bool operator==(const value_type &v)   const {
+            return _deg == v;
+        }
 
-        bool operator< (const basic_degree& d) const { return _deg < d._deg; }
+        bool operator< (const basic_degree &d) const {
+            return _deg < d._deg;
+        }
 
-        static basic_degree max() { return basic_degree(std::numeric_limits<std::size_t>::max()); }
-        static basic_degree min() { return basic_degree(std::numeric_limits<std::size_t>::min()); }
+        static basic_degree max() {
+            return basic_degree(std::numeric_limits<std::size_t>::max());
+        }
+        static basic_degree min() {
+            return basic_degree(std::numeric_limits<std::size_t>::min());
+        }
 
-    private:
+      private:
         value_type _deg;
     };
 
-//!
-//! @section helpers
-//!
+    //!
+    //! @section helpers
+    //!
 #include <memory>
     //! distinguish value type between map::iterator and shared_ptr: @see https://stackoverflow.com/a/31409532
     template <typename... >
@@ -275,8 +299,9 @@ namespace detail {
 
     template <class V, class = typename std::enable_if<is_map_iterator<V>::value>::type>
     inline typename std::iterator_traits<V>::value_type::second_type get_value(const V &v, const V &end) {
-        if (v == end)
+        if (v == end) {
             return static_cast<typename std::iterator_traits<V>::value_type::second_type>(nullptr);
+        }
         return (*v).second;
     }
 
@@ -288,19 +313,20 @@ namespace detail {
     std::string type_name() {
         int status;
         std::string tname{typeid(T).name()};
-        char *demangled_name{abi::__cxa_demangle(tname.c_str(), NULL, NULL, &status)};
+        char* demangled_name{abi::__cxa_demangle(tname.c_str(), NULL, NULL, &status)};
 
-        if (status == 0)
+        if (status == 0) {
             tname = demangled_name;
+        }
         std::free(demangled_name);
 
-        std::function<void(std::string&, std::string, std::string)> replace_all =
-                [](std::string& base, std::string to_replace, std::string replacement) {
-                    for (std::string::size_type i{0}; (i = base.find(to_replace, i)) != std::string::npos; ) {
-                        base.replace(i, to_replace.length(), replacement);
-                        i += replacement.length();
-                    }
-                };
+        std::function<void(std::string &, std::string, std::string)> replace_all =
+        [](std::string & base, std::string to_replace, std::string replacement) {
+            for (std::string::size_type i{0}; (i = base.find(to_replace, i)) != std::string::npos; ) {
+                base.replace(i, to_replace.length(), replacement);
+                i += replacement.length();
+            }
+        };
 
         replace_all(tname, "std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >", "std::string>");
         replace_all(tname, "std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >",   "std::string");
@@ -308,31 +334,32 @@ namespace detail {
     }
 
     template <class T>
-    std::istream& read_T(std::istream& is, T& t) {
+    std::istream &read_T(std::istream &is, T &t) {
         is.ignore(std::numeric_limits<std::streamsize>::max(), '"');
 
         std::string str;
         std::getline(is, str, '"');
         std::stringstream ss;
         ss << str;
-        if (!(ss >> t))
+        if (!(ss >> t)) {
             GRAPH_THROW_WITH(parse_error, 5, "Bad type");
+        }
 
         return is;
     }
     template<> inline
-    std::istream& read_T<std::string>(std::istream& is, std::string& str) {
+    std::istream &read_T<std::string>(std::istream &is, std::string &str) {
         is.ignore(std::numeric_limits<std::streamsize>::max(), '"');
         std::getline(is, str, '"');
         return is;
     }
 
     template <class C>
-    std::istream& read_cost(std::istream& is, C& c) {
+    std::istream &read_cost(std::istream &is, C &c) {
         std::string str = std::string(std::istreambuf_iterator<char>(is),
                                       std::istreambuf_iterator<char>());
         if (str.find_first_of("\"") == std::string::npos &&
-            str.find_first_of("infinity") != std::string::npos)
+                str.find_first_of("infinity") != std::string::npos)
             c = std::numeric_limits<C>::has_infinity ? std::numeric_limits<C>::infinity() :
                 std::numeric_limits<C>::max();
         else {
@@ -346,7 +373,7 @@ namespace detail {
 
 template <class Data, class Cost, class Container, class constContainer>
 class basic_node {
-private:
+  private:
     template <class K, class T, class C, Nature N>
     friend class graph;
 
@@ -362,12 +389,12 @@ private:
     std::size_t _in_degree{0};
 
     struct edge {
-        std::weak_ptr<basic_node<Data, Cost, Container, constContainer> > target;
+        std::weak_ptr<basic_node<Data, Cost, Container, constContainer>> target;
         std::shared_ptr<Cost> cost;
 
-        edge(const std::weak_ptr<basic_node<Data, Cost, Container, constContainer> > &ptr, Cost c);
+        edge(const std::weak_ptr<basic_node<Data, Cost, Container, constContainer>> &ptr, Cost c);
 
-        std::tuple<Cost, basic_node<Data, Cost, Container, constContainer> > tie() const;
+        std::tuple<Cost, basic_node<Data, Cost, Container, constContainer>> tie() const;
 
         bool operator< (const edge &other) const;
 
@@ -387,35 +414,35 @@ private:
     inline ListEdges get_edges() const;
 
     template <class T, class C, class X, class Y>
-    friend constexpr bool operator==(const basic_node<T, C, X, Y>& n1, const basic_node<T, C, X, Y>& n2) noexcept;
+    friend constexpr bool operator==(const basic_node<T, C, X, Y> &n1, const basic_node<T, C, X, Y> &n2) noexcept;
 
     template <class T, class C, class X, class Y>
-    friend constexpr bool operator!=(const basic_node<T, C, X, Y>& n1, const basic_node<T, C, X, Y>& n2) noexcept;
+    friend constexpr bool operator!=(const basic_node<T, C, X, Y> &n1, const basic_node<T, C, X, Y> &n2) noexcept;
 
     template <class T, class C, class X, class Y>
-    friend constexpr bool operator<(const basic_node<T, C, X, Y>& n1, const basic_node<T, C, X, Y>& n2) noexcept;
+    friend constexpr bool operator<(const basic_node<T, C, X, Y> &n1, const basic_node<T, C, X, Y> &n2) noexcept;
 
     template <class T, class C, class X, class Y>
-    friend constexpr bool operator<=(const basic_node<T, C, X, Y>& n1, const basic_node<T, C, X, Y>& n2) noexcept;
+    friend constexpr bool operator<=(const basic_node<T, C, X, Y> &n1, const basic_node<T, C, X, Y> &n2) noexcept;
 
     template <class T, class C, class X, class Y>
-    friend constexpr bool operator>(const basic_node<T, C, X, Y>& n1, const basic_node<T, C, X, Y>& n2) noexcept;
+    friend constexpr bool operator>(const basic_node<T, C, X, Y> &n1, const basic_node<T, C, X, Y> &n2) noexcept;
 
     template <class T, class C, class X, class Y>
-    friend constexpr bool operator>=(const basic_node<T, C, X, Y>& n1, const basic_node<T, C, X, Y>& n2) noexcept;
+    friend constexpr bool operator>=(const basic_node<T, C, X, Y> &n1, const basic_node<T, C, X, Y> &n2) noexcept;
 
     basic_node(const basic_node &n);
 
     basic_node &operator=(const basic_node &n);
 
-protected:
+  protected:
     Data _data;
 
     Container      container_from_this;
     Container      end_container;
     constContainer cend_container;
 
-public:
+  public:
     //!
     //! @section exceptions
     //!
@@ -430,7 +457,7 @@ public:
 
     explicit basic_node(const Data &d);
 
-    basic_node &operator=(basic_node&& n) = delete;
+    basic_node &operator=(basic_node &&n) = delete;
 
     ~basic_node();
 
@@ -442,10 +469,10 @@ public:
 
     inline Data get() const;
 
-          Cost &get_cost(const Container &other);
+    Cost &get_cost(const Container &other);
     const Cost  get_cost(constContainer   other) const;
 
-          Cost &operator[](Container      other);
+    Cost &operator[](Container      other);
     const Cost  operator[](constContainer other) const;
 
     //!
@@ -460,20 +487,20 @@ public:
     //! Adders
 
     std::pair<EdgesIterator, bool> add_edge(constContainer other, Cost cost = Cost(1)) {
-        std::shared_ptr<basic_node<Data, Cost, Container, constContainer> > ptr{detail::get_value(other, cend_container)};
+        std::shared_ptr<basic_node<Data, Cost, Container, constContainer>> ptr{detail::get_value(other, cend_container)};
 
         if (ptr == nullptr)
             GRAPH_THROW(unexpected_nullptr)
 
-        for (EdgesIterator it{_out_edges.begin()}; it != _out_edges.end(); ++it)
-            if (it->target.lock() == ptr) {
-                *it->cost = cost;
-                return std::make_pair(it, false);
-            }
+            for (EdgesIterator it{_out_edges.begin()}; it != _out_edges.end(); ++it)
+                if (it->target.lock() == ptr) {
+                    *it->cost = cost;
+                    return std::make_pair(it, false);
+                }
 
         //! Link doesn't exist
         ptr->increment_in_degree();
-        _out_edges.emplace_back(std::weak_ptr<basic_node<Data, Cost, Container, constContainer> >(ptr), cost);
+        _out_edges.emplace_back(std::weak_ptr<basic_node<Data, Cost, Container, constContainer>>(ptr), cost);
         std::pair<EdgesIterator, bool> result{std::make_pair(--_out_edges.end(), true)};
         return result;
     }
@@ -502,11 +529,11 @@ public:
  */
 template <class Key, class T, class Cost = std::size_t, Nature Nat = UNDIRECTED>
 class graph {
-public:
+  public:
     class node;
     using Degree = detail::basic_degree<Nat>;
 
-private:
+  private:
     using PtrNode  = std::shared_ptr<node>;
     using MapNodes = std::map<Key, PtrNode>;
 
@@ -514,11 +541,11 @@ private:
     std::size_t _num_edges = 0;
 
     const Cost infinity = std::numeric_limits<Cost>::has_infinity ? std::numeric_limits<Cost>::infinity() :
-                                                                    std::numeric_limits<Cost>::max();
+                          std::numeric_limits<Cost>::max();
 
     std::ostream &print(std::ostream &os) const;
 
-public:
+  public:
 
     //!
     //! @section exceptions
@@ -712,8 +739,8 @@ public:
     template<class K, class D, class C, Nature N> friend std::ostream &operator<<(std::ostream &os, const graph<K, D, C, N> &g);
     template<class K, class D, class C, Nature N> friend std::istream &operator>>(std::istream &is,       graph<K, D, C, N> &g);
 
-    void save  (const char *filepath) const;
-    graph &load(const char *filepath);
+    void save  (const char* filepath) const;
+    graph &load(const char* filepath);
 
     //!
     //! @section Bool operators
@@ -723,14 +750,14 @@ public:
     template<class K, class D, class C, Nature N> bool operator!=(const graph<K, D, C, N> &other) const noexcept;
 
     class node : public basic_node<T, Cost, iterator, const_iterator> {
-    public:
+      public:
         explicit node();
 
         explicit node(const T &);
 
         node &operator=(const T &);
 
-    private:
+      private:
         friend class graph;
 
         void set_iterator_values(iterator this_, iterator end, const_iterator cend);
@@ -744,11 +771,11 @@ template <class Key, class T, class Cost = std::size_t>
 using graph_undirected = graph<Key, T, Cost, UNDIRECTED>;
 
 template <class Data, class Cost, class Container, class constContainer>
-basic_node<Data, Cost, Container, constContainer>::edge::edge(const std::weak_ptr<basic_node<Data, Cost, Container, constContainer> > &ptr, Cost c) : target(ptr),
-                                                                                   cost(std::make_shared<Cost>(c)) {}
+basic_node<Data, Cost, Container, constContainer>::edge::edge(const std::weak_ptr<basic_node<Data, Cost, Container, constContainer>> &ptr, Cost c) : target(ptr),
+    cost(std::make_shared<Cost>(c)) {}
 
 template <class Data, class Cost, class Container, class constContainer>
-std::tuple<Cost, basic_node<Data, Cost, Container, constContainer> > basic_node<Data, Cost, Container, constContainer>::edge::tie() const {
+std::tuple<Cost, basic_node<Data, Cost, Container, constContainer>> basic_node<Data, Cost, Container, constContainer>::edge::tie() const {
     return std::tie(*cost, *target.lock().get());
 }
 
@@ -768,7 +795,7 @@ constContainer basic_node<Data, Cost, Container, constContainer>::edge::get_cont
 }
 
 template <class Data, class Cost, class Container, class constContainer>
-std::tuple<Data, std::size_t, std::list<typename basic_node<Data, Cost, Container, constContainer>::edge> > basic_node<Data, Cost, Container, constContainer>::tie() const {
+std::tuple<Data, std::size_t, std::list<typename basic_node<Data, Cost, Container, constContainer>::edge>> basic_node<Data, Cost, Container, constContainer>::tie() const {
     return std::tie(_data, _in_degree, _out_edges);
 }
 
@@ -800,15 +827,15 @@ template <class Data, class Cost, class Container, class constContainer>
 basic_node<Data, Cost, Container, constContainer>::basic_node() : basic_node(Data()) {}
 
 template <class Data, class Cost, class Container, class constContainer>
-basic_node<Data, Cost, Container, constContainer>::basic_node(const Data& d) : _data(d) {}
+basic_node<Data, Cost, Container, constContainer>::basic_node(const Data &d) : _data(d) {}
 
 template <class Data, class Cost, class Container, class constContainer>
-basic_node<Data, Cost, Container, constContainer>::basic_node(const basic_node& n) {
+basic_node<Data, Cost, Container, constContainer>::basic_node(const basic_node &n) {
     *this = n;
 }
 
 template <class Data, class Cost, class Container, class constContainer>
-basic_node<Data, Cost, Container, constContainer>& basic_node<Data, Cost, Container, constContainer>::operator=(const basic_node& n) {
+basic_node<Data, Cost, Container, constContainer> &basic_node<Data, Cost, Container, constContainer>::operator=(const basic_node &n) {
     _data               = n._data;
     _out_edges          = n._out_edges;
     _in_degree          = n._in_degree;
@@ -823,7 +850,7 @@ basic_node<Data, Cost, Container, constContainer>::~basic_node() {
 }
 
 template <class Data, class Cost, class Container, class constContainer>
-inline Data& basic_node<Data, Cost, Container, constContainer>::get() {
+inline Data &basic_node<Data, Cost, Container, constContainer>::get() {
     return _data;
 }
 
@@ -833,39 +860,43 @@ inline Data basic_node<Data, Cost, Container, constContainer>::get() const {
 }
 
 template <class Data, class Cost, class Container, class constContainer>
-Cost& basic_node<Data, Cost, Container, constContainer>::get_cost(const Container &other) {
-    std::shared_ptr<basic_node<Data, Cost, Container, constContainer> > ptr(detail::get_value(other, end_container));
+Cost &basic_node<Data, Cost, Container, constContainer>::get_cost(const Container &other) {
+    std::shared_ptr<basic_node<Data, Cost, Container, constContainer>> ptr(detail::get_value(other, end_container));
 
-    if (ptr == nullptr)
+    if (ptr == nullptr) {
         GRAPH_THROW(unexpected_nullptr)
+    }
 
     for (EdgesIterator it{_out_edges.begin()}; it != _out_edges.end(); ++it)
-        if (it->target.lock() == ptr)
+        if (it->target.lock() == ptr) {
             return *(it->cost);
+        }
 
     //! Link doesn't exist
-    _out_edges.emplace_back(std::weak_ptr<basic_node<Data, Cost, Container, constContainer> >(detail::get_value(other, end_container)), infinity);
+    _out_edges.emplace_back(std::weak_ptr<basic_node<Data, Cost, Container, constContainer>>(detail::get_value(other, end_container)), infinity);
     ptr->increment_in_degree();
     return *((--_out_edges.end())->cost);
 }
 
 template <class Data, class Cost, class Container, class constContainer>
 const Cost basic_node<Data, Cost, Container, constContainer>::get_cost(constContainer other) const {
-    std::shared_ptr<basic_node<Data, Cost, Container, constContainer> > ptr(detail::get_value(other, cend_container));
+    std::shared_ptr<basic_node<Data, Cost, Container, constContainer>> ptr(detail::get_value(other, cend_container));
 
-    if (ptr == nullptr)
+    if (ptr == nullptr) {
         GRAPH_THROW(unexpected_nullptr)
+    }
 
     for (auto/*EdgesIterator*/ it = _out_edges.begin(); it != _out_edges.end(); ++it)
-        if (it->target.lock() == ptr)
+        if (it->target.lock() == ptr) {
             return *(it->cost);
+        }
 
     //! Link doesn't exist
     return infinity;
 }
 
 template <class Data, class Cost, class Container, class constContainer>
-Cost& basic_node<Data, Cost, Container, constContainer>::operator[](Container other) {
+Cost &basic_node<Data, Cost, Container, constContainer>::operator[](Container other) {
     return get_cost(other);
 }
 
@@ -876,20 +907,20 @@ const Cost basic_node<Data, Cost, Container, constContainer>::operator[](constCo
 
 template <class Data, class Cost, class Container, class constContainer>
 template <class T_data>
-inline void basic_node<Data, Cost, Container, constContainer>::set(const T_data& d) {
+inline void basic_node<Data, Cost, Container, constContainer>::set(const T_data &d) {
     _data = static_cast<Data>(d);
 }
 
 template <class Data, class Cost, class Container, class constContainer>
 template <class T_cost>
-void basic_node<Data, Cost, Container, constContainer>::set_cost(Container other, const T_cost& c) {
-    std::shared_ptr<basic_node<Data, Cost, Container, constContainer> > ptr(detail::get_value(other, end_container));
+void basic_node<Data, Cost, Container, constContainer>::set_cost(Container other, const T_cost &c) {
+    std::shared_ptr<basic_node<Data, Cost, Container, constContainer>> ptr(detail::get_value(other, end_container));
 
-    if (ptr == nullptr)
+    if (ptr == nullptr) {
         GRAPH_THROW(unexpected_nullptr)
+    }
 
     Cost new_cost{static_cast<Cost>(c)};
-
     bool existing_edge{false};
 
     for (EdgesIterator it{_out_edges.begin()}; it != _out_edges.end(); ++it)
@@ -898,13 +929,16 @@ void basic_node<Data, Cost, Container, constContainer>::set_cost(Container other
             existing_edge = true;
         }
 
-    if (!existing_edge)
+    if (!existing_edge) {
         this->add_edge(other, new_cost);
+    }
 }
 
 template <class Data, class Cost, class Container, class constContainer>
 bool basic_node<Data, Cost, Container, constContainer>::del_edge(constContainer other) {
-    return del_edge_if(other, [](edge){ return true;} );
+    return del_edge_if(other, [](edge) {
+        return true;
+    } );
 }
 
 template <class Data, class Cost, class Container, class constContainer>
@@ -917,8 +951,9 @@ bool basic_node<Data, Cost, Container, constContainer>::del_edge_if(constContain
                 return true;
             }
             break;
-        } else
+        } else {
             ++it;
+        }
 
     return false;
 }
@@ -942,46 +977,48 @@ inline std::pair<std::size_t, std::size_t> basic_node<Data, Cost, Container, con
 
 template <class Data, class Cost, class Container, class constContainer>
 bool basic_node<Data, Cost, Container, constContainer>::existing_adjacent_node(constContainer other) const {
-    std::shared_ptr<basic_node<Data, Cost, Container, constContainer> > ptr(detail::get_value(other, cend_container));
+    std::shared_ptr<basic_node<Data, Cost, Container, constContainer>> ptr(detail::get_value(other, cend_container));
 
-    if (ptr == nullptr)
+    if (ptr == nullptr) {
         return false;
+    }
 
     for (auto/*EdgesIterator*/ it = _out_edges.begin(); it != _out_edges.end(); ++it)
-        if (it->target.lock() == ptr)
+        if (it->target.lock() == ptr) {
             return true;
+        }
 
     //! Link doesn't exist
     return false;
 }
 
 template <class Data, class Cost, class Container, class constContainer>
-constexpr bool operator==(const basic_node<Data, Cost, Container, constContainer>& n1, const basic_node<Data, Cost, Container, constContainer>& n2) noexcept {
+constexpr bool operator==(const basic_node<Data, Cost, Container, constContainer> &n1, const basic_node<Data, Cost, Container, constContainer> &n2) noexcept {
     return n1.tie() == n2.tie();
 }
 
 template <class Data, class Cost, class Container, class constContainer>
-constexpr bool operator!=(const basic_node<Data, Cost, Container, constContainer>& n1, const basic_node<Data, Cost, Container, constContainer>& n2) noexcept {
+constexpr bool operator!=(const basic_node<Data, Cost, Container, constContainer> &n1, const basic_node<Data, Cost, Container, constContainer> &n2) noexcept {
     return !(n1 == n2);
 }
 
 template <class Data, class Cost, class Container, class constContainer>
-constexpr bool operator<(const basic_node<Data, Cost, Container, constContainer>& n1, const basic_node<Data, Cost, Container, constContainer>& n2) noexcept {
+constexpr bool operator<(const basic_node<Data, Cost, Container, constContainer> &n1, const basic_node<Data, Cost, Container, constContainer> &n2) noexcept {
     return n1.tie() < n2.tie();
 }
 
 template <class Data, class Cost, class Container, class constContainer>
-constexpr bool operator>(const basic_node<Data, Cost, Container, constContainer>& n1, const basic_node<Data, Cost, Container, constContainer>& n2) noexcept {
+constexpr bool operator>(const basic_node<Data, Cost, Container, constContainer> &n1, const basic_node<Data, Cost, Container, constContainer> &n2) noexcept {
     return n2 < n1;
 }
 
 template <class Data, class Cost, class Container, class constContainer>
-constexpr bool operator<=(const basic_node<Data, Cost, Container, constContainer>& n1, const basic_node<Data, Cost, Container, constContainer>& n2) noexcept {
+constexpr bool operator<=(const basic_node<Data, Cost, Container, constContainer> &n1, const basic_node<Data, Cost, Container, constContainer> &n2) noexcept {
     return !(n2 < n1);
 }
 
 template <class Data, class Cost, class Container, class constContainer>
-constexpr bool operator>=(const basic_node<Data, Cost, Container, constContainer>& n1, const basic_node<Data, Cost, Container, constContainer>& n2) noexcept {
+constexpr bool operator>=(const basic_node<Data, Cost, Container, constContainer> &n1, const basic_node<Data, Cost, Container, constContainer> &n2) noexcept {
     return !(n1 < n2);
 }
 
@@ -1061,11 +1098,12 @@ graph<Key, T, Cost, Nat>::graph(graph &&g) noexcept {
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-graph<Key, T, Cost, Nat>& graph<Key, T, Cost, Nat>::operator=(const graph &g) {
+graph<Key, T, Cost, Nat> &graph<Key, T, Cost, Nat>::operator=(const graph &g) {
     clear();
 
-    for (const_iterator it{g.cbegin()}; it != g.cend(); ++it)
+    for (const_iterator it{g.cbegin()}; it != g.cend(); ++it) {
         add_node(it->first, it->second->get());
+    }
 
     for (const_iterator it{g.cbegin()}; it != g.cend(); ++it) {
         auto list = it->second->get_edges();
@@ -1079,11 +1117,11 @@ graph<Key, T, Cost, Nat>& graph<Key, T, Cost, Nat>::operator=(const graph &g) {
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-graph<Key, T, Cost, Nat>& graph<Key, T, Cost, Nat>::operator=(graph &&g) {
+graph<Key, T, Cost, Nat> &graph<Key, T, Cost, Nat>::operator=(graph &&g) {
     //! If there is a self-reference: bug in the client part that should be fixed
-    if (this == &g)
+    if (this == &g) {
         GRAPH_THROW_WITH(invalid_argument, "Self-reference in the client part")
-
+    }
     swap(g);
     return *this;
 }
@@ -1109,42 +1147,44 @@ std::size_t graph<Key, T, Cost, Nat>::max_size() const noexcept {
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-T& graph<Key, T, Cost, Nat>::operator[](const key_type& k) {
+T &graph<Key, T, Cost, Nat>::operator[](const key_type &k) {
     return add_node(k).first->second->get();
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-T& graph<Key, T, Cost, Nat>::operator[](key_type&& k) {
+T &graph<Key, T, Cost, Nat>::operator[](key_type &&k) {
     return add_node(k).first->second->get();
 }
 
 #if defined(GRAPH_HAS_CPP_17)
 template <class Key, class T, class Cost, Nature Nat>
-const std::optional<T> graph<Key, T, Cost, Nat>::operator[](key_type&& k) const {
+const std::optional<T> graph<Key, T, Cost, Nat>::operator[](key_type &&k) const {
     const_iterator it{find(k)};
     return it == cend() ? std::nullopt : std::optional<T>(it->second->get());
 }
 #else
 template <class Key, class T, class Cost, Nature Nat>
-const T graph<Key, T, Cost, Nat>::operator[](key_type&& k) const {
+const T graph<Key, T, Cost, Nat>::operator[](key_type &&k) const {
     const_iterator it{find(k)};
-    if (it == cend())
+    if (it == cend()) {
         GRAPH_THROW_WITH(invalid_argument, "Unexistant node")
+    }
 
     return it->second->get();
 }
 #endif
 
 template <class Key, class T, class Cost, Nature Nat>
-Cost& graph<Key, T, Cost, Nat>::operator()(iterator it1, iterator it2) {
-    if (!existing_edge(it1, it2))
+Cost &graph<Key, T, Cost, Nat>::operator()(iterator it1, iterator it2) {
+    if (!existing_edge(it1, it2)) {
         add_edge(it1, it2, infinity);
+    }
 
     return it1->second->get_cost(it2);
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-Cost& graph<Key, T, Cost, Nat>::operator()(const key_type& k1, const key_type& k2) {
+Cost &graph<Key, T, Cost, Nat>::operator()(const key_type &k1, const key_type &k2) {
     iterator it1{add_node(k1).first};
     iterator it2{add_node(k2).first};
 
@@ -1158,20 +1198,21 @@ const std::optional<Cost> graph<Key, T, Cost, Nat>::operator()(const_iterator it
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-const std::optional<Cost> graph<Key, T, Cost, Nat>::operator()(const key_type& k1, const key_type& k2) const {
+const std::optional<Cost> graph<Key, T, Cost, Nat>::operator()(const key_type &k1, const key_type &k2) const {
     return operator()(find(k1), find(k2));
 }
 #else
 template <class Key, class T, class Cost, Nature Nat>
 const Cost graph<Key, T, Cost, Nat>::operator()(const_iterator it1, const_iterator it2) const {
-    if (!existing_edge(it1, it2))
+    if (!existing_edge(it1, it2)) {
         GRAPH_THROW_WITH(invalid_argument, "Unexistant edge")
+    }
 
     return it1->second->get_cost(it2);
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-const Cost graph<Key, T, Cost, Nat>::operator()(const key_type& k1, const key_type& k2) const {
+const Cost graph<Key, T, Cost, Nat>::operator()(const key_type &k1, const key_type &k2) const {
     return operator()(find(k1), find(k2));
 }
 #endif
@@ -1184,51 +1225,51 @@ std::pair<typename graph<Key, T, Cost, Nat>::iterator, bool> graph<Key, T, Cost,
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-typename graph<Key, T, Cost, Nat>::iterator graph<Key, T, Cost, Nat>::insert(const_iterator position, const value_type& val) {
+typename graph<Key, T, Cost, Nat>::iterator graph<Key, T, Cost, Nat>::insert(const_iterator position, const value_type &val) {
     iterator it{_nodes.insert(position, val)};
     it->second->set_iterator_values(it, end(), cend());
     return it;
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-typename graph<Key, T, Cost, Nat>::iterator graph<Key, T, Cost, Nat>::insert(const_iterator position, const key_type& k, graphed_type& x) {
+typename graph<Key, T, Cost, Nat>::iterator graph<Key, T, Cost, Nat>::insert(const_iterator position, const key_type &k, graphed_type &x) {
     return insert(position, std::make_pair(k, std::make_shared<node>(x)));
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-typename graph<Key, T, Cost, Nat>::iterator graph<Key, T, Cost, Nat>::insert(const_iterator position, const key_type& k, const node& n) {
+typename graph<Key, T, Cost, Nat>::iterator graph<Key, T, Cost, Nat>::insert(const_iterator position, const key_type &k, const node &n) {
     return insert(position, std::make_pair(k, std::make_shared<node>(n)));
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-std::pair<typename graph<Key, T, Cost, Nat>::iterator, bool> graph<Key, T, Cost, Nat>::emplace(const key_type& k) {
+std::pair<typename graph<Key, T, Cost, Nat>::iterator, bool> graph<Key, T, Cost, Nat>::emplace(const key_type &k) {
     return emplace(k, node());
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-std::pair<typename graph<Key, T, Cost, Nat>::iterator, bool> graph<Key, T, Cost, Nat>::emplace(const key_type& k, const graphed_type& x) {
+std::pair<typename graph<Key, T, Cost, Nat>::iterator, bool> graph<Key, T, Cost, Nat>::emplace(const key_type &k, const graphed_type &x) {
     return emplace(k, node(x));
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-std::pair<typename graph<Key, T, Cost, Nat>::iterator, bool> graph<Key, T, Cost, Nat>::emplace(const key_type& k, const node& n) {
+std::pair<typename graph<Key, T, Cost, Nat>::iterator, bool> graph<Key, T, Cost, Nat>::emplace(const key_type &k, const node &n) {
     std::pair<iterator, bool> p{_nodes.emplace(k, std::make_shared<node>(n))};
     p.first->second->set_iterator_values(p.first, end(), cend());
     return p;
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-std::pair<typename graph<Key, T, Cost, Nat>::iterator, bool> graph<Key, T, Cost, Nat>::add_node(const key_type& k) {
+std::pair<typename graph<Key, T, Cost, Nat>::iterator, bool> graph<Key, T, Cost, Nat>::add_node(const key_type &k) {
     return emplace(k);
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-std::pair<typename graph<Key, T, Cost, Nat>::iterator, bool> graph<Key, T, Cost, Nat>::add_node(const key_type& k, const graphed_type& x) {
+std::pair<typename graph<Key, T, Cost, Nat>::iterator, bool> graph<Key, T, Cost, Nat>::add_node(const key_type &k, const graphed_type &x) {
     return emplace(k, x);
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-std::pair<typename graph<Key, T, Cost, Nat>::iterator, bool> graph<Key, T, Cost, Nat>::add_node(const key_type& k, const node& n) {
+std::pair<typename graph<Key, T, Cost, Nat>::iterator, bool> graph<Key, T, Cost, Nat>::add_node(const key_type &k, const node &n) {
     return emplace(k, n);
 }
 
@@ -1236,17 +1277,19 @@ template <class Key, class T, class Cost, Nature Nat>
 bool graph<Key, T, Cost, Nat>::add_edge(const_iterator it1, const_iterator it2, Cost cost) {
     auto new_edge = it1->second->add_edge(it2, cost);
 
-    if (get_nature() == UNDIRECTED)
+    if (get_nature() == UNDIRECTED) {
         it2->second->set_edge(it1, (new_edge.first->cost));
+    }
 
-    if (new_edge.second)
+    if (new_edge.second) {
         _num_edges++;
+    }
 
     return true;
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-bool graph<Key, T, Cost, Nat>::add_edge(const key_type& k1, const key_type& k2, Cost cost) {
+bool graph<Key, T, Cost, Nat>::add_edge(const key_type &k1, const key_type &k2, Cost cost) {
     return add_edge(emplace(k1).first, emplace(k2).first, cost);
 }
 
@@ -1257,8 +1300,9 @@ void graph<Key, T, Cost, Nat>::link_all_nodes(Cost cost) {
     if (cost != infinity)
         for (iterator it1 = begin(); it1 != end(); ++it1)
             for (iterator it2 = begin(); it2 != end(); ++it2)
-                if (it1 != it2)
+                if (it1 != it2) {
                     add_edge(it1, it2, cost);
+                }
 }
 
 template <class Key, class T, class Cost, Nature Nat>
@@ -1270,17 +1314,19 @@ typename graph<Key, T, Cost, Nat>::iterator graph<Key, T, Cost, Nat>::erase(cons
 
 template <class Key, class T, class Cost, Nature Nat>
 typename graph<Key, T, Cost, Nat>::iterator graph<Key, T, Cost, Nat>::erase(const_iterator first, const_iterator last) {
-    for (const_iterator it{first}; it != last && it != cend(); ++it)
+    for (const_iterator it{first}; it != last && it != cend(); ++it) {
         clear_edges(it);
+    }
 
     return _nodes.erase(first, last);
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-std::size_t graph<Key, T, Cost, Nat>::erase(const key_type& k) {
+std::size_t graph<Key, T, Cost, Nat>::erase(const key_type &k) {
     const_iterator it{find(k)};
-    if (it == cend())
+    if (it == cend()) {
         return 0;
+    }
 
     clear_edges(it);
     return _nodes.erase(k);
@@ -1297,7 +1343,7 @@ typename graph<Key, T, Cost, Nat>::iterator graph<Key, T, Cost, Nat>::del_nodes(
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-std::size_t graph<Key, T, Cost, Nat>::del_node(const key_type& k) {
+std::size_t graph<Key, T, Cost, Nat>::del_node(const key_type &k) {
     return erase(k);
 }
 template <class Key, class T, class Cost, Nature Nat>
@@ -1312,8 +1358,9 @@ std::size_t graph<Key, T, Cost, Nat>::del_edge(const_iterator it1, const_iterato
     if (it1 != end() && it2 != end()) {
         result = static_cast<size_type>(it1->second->del_edge(it2));
 
-        if (get_nature() == UNDIRECTED)
+        if (get_nature() == UNDIRECTED) {
             it2->second->del_edge(it1);
+        }
 
         _num_edges -= result;
     }
@@ -1321,14 +1368,15 @@ std::size_t graph<Key, T, Cost, Nat>::del_edge(const_iterator it1, const_iterato
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-std::size_t graph<Key, T, Cost, Nat>::del_edge(const key_type& k1, const key_type& k2) {
+std::size_t graph<Key, T, Cost, Nat>::del_edge(const key_type &k1, const key_type &k2) {
     return del_edge(find(k1), find(k2));
 }
 
 template <class Key, class T, class Cost, Nature Nat>
 void graph<Key, T, Cost, Nat>::clear_edges() {
-    for (const_iterator it{cbegin()}; it != cend(); ++it)
+    for (const_iterator it{cbegin()}; it != cend(); ++it) {
         clear_edges(it);
+    }
     _num_edges = 0;
 }
 
@@ -1336,11 +1384,13 @@ template <class Key, class T, class Cost, Nature Nat>
 std::size_t graph<Key, T, Cost, Nat>::clear_edges(const_iterator it) {
     size_type result{0};
     if (it != cend()) {
-        for (const_iterator it1{cbegin()}; it1 != cend(); ++it1)
+        for (const_iterator it1{cbegin()}; it1 != cend(); ++it1) {
             del_edge(it1, it);
+        }
 
-        if (get_nature() == DIRECTED)
+        if (get_nature() == DIRECTED) {
             result += it->second->clear_edges();
+        }
 
         _num_edges -= result;
     }
@@ -1348,37 +1398,35 @@ std::size_t graph<Key, T, Cost, Nat>::clear_edges(const_iterator it) {
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-std::size_t graph<Key, T, Cost, Nat>::clear_edges(const key_type& k) {
+std::size_t graph<Key, T, Cost, Nat>::clear_edges(const key_type &k) {
     return clear_edges(find(k));
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-void graph<Key, T, Cost, Nat>::swap(graph& other) {
+void graph<Key, T, Cost, Nat>::swap(graph &other) {
     std::swap(_nodes,     other._nodes);
     std::swap(_num_edges, other._num_edges);
 }
 
 namespace std {
     template <class Key, class T, class Cost, Nature Nat>
-    inline void swap(graph<Key, T, Cost, Nat>& g1, graph<Key, T, Cost, Nat>& g2) noexcept
-
-    {
+    inline void swap(graph<Key, T, Cost, Nat> &g1, graph<Key, T, Cost, Nat> &g2) noexcept {
         g1.swap(g2);
     }
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-std::size_t graph<Key, T, Cost, Nat>::count(const key_type& k) const {
+std::size_t graph<Key, T, Cost, Nat>::count(const key_type &k) const {
     return _nodes.count(k);
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-typename graph<Key, T, Cost, Nat>::iterator graph<Key, T, Cost, Nat>::find(const key_type& k) {
+typename graph<Key, T, Cost, Nat>::iterator graph<Key, T, Cost, Nat>::find(const key_type &k) {
     return _nodes.find(k);
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-typename graph<Key, T, Cost, Nat>::const_iterator graph<Key, T, Cost, Nat>::find(const key_type& k) const {
+typename graph<Key, T, Cost, Nat>::const_iterator graph<Key, T, Cost, Nat>::find(const key_type &k) const {
     return _nodes.find(k);
 }
 
@@ -1388,24 +1436,25 @@ bool graph<Key, T, Cost, Nat>::existing_node(const_iterator it) const {
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-bool graph<Key, T, Cost, Nat>::existing_node(const key_type& k) const {
+bool graph<Key, T, Cost, Nat>::existing_node(const key_type &k) const {
     return existing_node(find(k));
 }
 
 template <class Key, class T, class Cost, Nature Nat>
 bool graph<Key, T, Cost, Nat>::existing_edge(const_iterator it1, const_iterator it2) const {
     if (it1 != cend() && it2 != cend()) {
-        if (get_nature() == DIRECTED)
+        if (get_nature() == DIRECTED) {
             return it1->second->existing_adjacent_node(it2);
-        else
+        } else {
             return it1->second->existing_adjacent_node(it2) && it2->second->existing_adjacent_node(it1);
+        }
     }
 
     return false;
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-bool graph<Key, T, Cost, Nat>::existing_edge(const key_type& k1, const key_type& k2) const {
+bool graph<Key, T, Cost, Nat>::existing_edge(const key_type &k1, const key_type &k2) const {
     return existing_edge(find(k1), find(k2));
 }
 
@@ -1426,19 +1475,22 @@ inline Nature graph<Key, T, Cost, Nat>::get_nature() const {
 
 template <class Key, class T, class Cost, Nature Nat>
 typename graph<Key, T, Cost, Nat>::Degree graph<Key, T, Cost, Nat>::degree(const_iterator position) const {
-    if (get_nature() == DIRECTED)
+    if (get_nature() == DIRECTED) {
         return position == cend() ? Degree::min() : Degree(position->second->degree().first, position->second->degree().second);
+    }
     return position == cend() ? Degree::min() : Degree(position->second->degree().first, 0);
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-typename graph<Key, T, Cost, Nat>::Degree graph<Key, T, Cost, Nat>::degree(const key_type& k) const {
+typename graph<Key, T, Cost, Nat>::Degree graph<Key, T, Cost, Nat>::degree(const key_type &k) const {
     return degree(find(k));
 }
 
 template <class Key, class T, class Cost, Nature Nat>
 std::pair<typename graph<Key, T, Cost, Nat>::const_iterator, typename graph<Key, T, Cost, Nat>::Degree> graph<Key, T, Cost, Nat>::degree_max() const {
-    if (empty()) return std::make_pair(cend(), Degree::min());
+    if (empty()) {
+        return std::make_pair(cend(), Degree::min());
+    }
 
     Degree max{Degree::min()};
     const_iterator cit;
@@ -1456,7 +1508,9 @@ std::pair<typename graph<Key, T, Cost, Nat>::const_iterator, typename graph<Key,
 
 template <class Key, class T, class Cost, Nature Nat>
 std::pair<typename graph<Key, T, Cost, Nat>::const_iterator, typename graph<Key, T, Cost, Nat>::Degree> graph<Key, T, Cost, Nat>::degree_min() const {
-    if (empty()) return std::make_pair(cend(), Degree::min());
+    if (empty()) {
+        return std::make_pair(cend(), Degree::min());
+    }
 
     Degree min{Degree::max()};
     const_iterator cit;
@@ -1476,14 +1530,15 @@ template <class Key, class T, class Cost, Nature Nat>
 std::map<Key, typename graph<Key, T, Cost, Nat>::Degree> graph<Key, T, Cost, Nat>::degrees() const {
     std::map<key_type, Degree> result;
 
-    for (const_iterator it{cbegin()}; it != cend(); ++it)
+    for (const_iterator it{cbegin()}; it != cend(); ++it) {
         result.insert(std::make_pair(it->first, degree(it)));
+    }
 
     return result;
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-std::ostream& graph<Key, T, Cost, Nat>::print(std::ostream &os) const {
+std::ostream &graph<Key, T, Cost, Nat>::print(std::ostream &os) const {
     using std::setw;
     using std::ostringstream;
 
@@ -1491,22 +1546,25 @@ std::ostream& graph<Key, T, Cost, Nat>::print(std::ostream &os) const {
     const std::string separator{","};
 
     //! Displaying nature + graph types
-    if (get_nature() == DIRECTED)
+    if (get_nature() == DIRECTED) {
         os << "di";
+    }
+
     os << "graph<" << detail::type_name<Key>()  << ", "
-                   << detail::type_name<T>()    << ", "
-                   << detail::type_name<Cost>() << "> {\n"
+       << detail::type_name<T>()    << ", "
+       << detail::type_name<Cost>() << "> {\n"
        << tab << "nodes: {\n";
 
     //! Displaying nodes:  "<name>"; "<value>",
     size_type max_size{3};
-    for_each(cbegin(), cend(), [&max_size](const value_type &element) {
+    for_each(cbegin(), cend(), [&max_size](const value_type & element) {
         ostringstream out;
         out << element.first;
         size_type size{static_cast<size_type>(out.tellp())};
 
-        if (size > max_size)
+        if (size > max_size) {
             max_size = size;
+        }
     });
 
     for (const_iterator it{cbegin()}; it != cend(); ++it) {
@@ -1517,22 +1575,23 @@ std::ostream& graph<Key, T, Cost, Nat>::print(std::ostream &os) const {
            << '"' << std::left << setw(static_cast<int>(max_size + 2 + separator.size())) << out.str()
            << '"' << it->second->get() << '"';
 
-        if (it != --cend())
+        if (it != --cend()) {
             os << ';';
+        }
         os << '\n';
     }
     os << tab << '}';
 
     //! Displaying edges:  "<node 1>"; "<node 2>"; "<cost>",
-    if (get_nbr_edges() == 0)
+    if (get_nbr_edges() == 0) {
         os << "\n}";
-    else {
+    } else {
         os << ",\n" << tab << "edges: {\n";
         size_type max_size_1{0}, max_size_2{0};
 
-        for_each(cbegin(), cend(), [&max_size_1, &max_size_2, this](const value_type &element) {
+        for_each(cbegin(), cend(), [&max_size_1, &max_size_2, this](const value_type & element) {
             auto child = element.second->get_edges();
-            for_each(child.cbegin(), child.cend(), [&, this](const auto &i) {
+            for_each(child.cbegin(), child.cend(), [ &, this](const auto & i) {
                 ostringstream out_1, out_2;
                 out_1 << element.first;
                 out_2 << i.target.lock()->container_from_this->first;
@@ -1540,18 +1599,20 @@ std::ostream& graph<Key, T, Cost, Nat>::print(std::ostream &os) const {
                 size_type size_1{static_cast<size_type>(out_1.tellp())},
                           size_2{static_cast<size_type>(out_2.tellp())};
 
-                if (size_1 > max_size_1)
+                if (size_1 > max_size_1) {
                     max_size_1 = size_1;
+                }
 
-                if (size_2 > max_size_2)
+                if (size_2 > max_size_2) {
                     max_size_2 = size_2;
+                }
             });
         });
 
         size_type p{0};
-        for_each(cbegin(), cend(), [=, &os, &p](const value_type &element) {
+        for_each(cbegin(), cend(), [ =, &os, &p](const value_type & element) {
             auto child = element.second->get_edges();
-            for_each(child.cbegin(), child.cend(), [=, &os, &p](const auto &i) {
+            for_each(child.cbegin(), child.cend(), [ =, &os, &p](const auto & i) {
                 ostringstream out_1, out_2;
                 out_1 << element.first << '"' << separator;
                 out_2 << i.target.lock()->container_from_this->first << '"' << separator;
@@ -1559,14 +1620,16 @@ std::ostream& graph<Key, T, Cost, Nat>::print(std::ostream &os) const {
                 os << tab << tab
                    << '"' << setw(static_cast<int>(max_size_1 + 2 + separator.size())) << out_1.str()
                    << '"' << setw(static_cast<int>(max_size_2 + 2 + separator.size())) << out_2.str();
-                if (*i.cost == infinity)
+                if (*i.cost == infinity) {
                     os << "infinity";
-                else
-                   os << '"' << *i.cost << '"';
+                } else {
+                    os << '"' << *i.cost << '"';
+                }
 
                 if (p < (this->get_nature() == DIRECTED ?
-                         this->get_nbr_edges() : 2 * this->get_nbr_edges()) - 1)
+                         this->get_nbr_edges() : 2 * this->get_nbr_edges()) - 1) {
                     os << ';';
+                }
                 os << '\n';
                 p++;
             });
@@ -1578,30 +1641,34 @@ std::ostream& graph<Key, T, Cost, Nat>::print(std::ostream &os) const {
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-std::ostream& operator<<(std::ostream& os, const graph<Key, T, Cost, Nat>& g) {
+std::ostream &operator<<(std::ostream &os, const graph<Key, T, Cost, Nat> &g) {
     return g.print(os) << std::endl;
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-std::istream& operator>>(std::istream& is, graph<Key, T, Cost, Nat>& g) {
+std::istream &operator>>(std::istream &is, graph<Key, T, Cost, Nat> &g) {
     g.clear();
 
     //! Nature
     std::string line;
     getline(is, line);
     if (line.substr(0, 5) == "graph") {
-        if (g.get_nature() != UNDIRECTED)
+        if (g.get_nature() != UNDIRECTED) {
             GRAPH_THROW_WITH(invalid_argument, "Bad graph nature (expected UNDIRECTED)")
+        }
     } else if (line.substr(0, 7) == "digraph") {
-        if (g.get_nature() != DIRECTED)
+        if (g.get_nature() != DIRECTED) {
             GRAPH_THROW_WITH(invalid_argument, "Bad graph nature (expected DIRECTED)")
-    } else
+        }
+    } else {
         GRAPH_THROW_WITH(parse_error, static_cast<std::size_t>(is.tellg()), "Bad graph nature")
+    }
 
     //! Nodes
     getline(is, line);
-    if (line != "    nodes: {")
+    if (line != "    nodes: {") {
         GRAPH_THROW_WITH(parse_error, static_cast<std::size_t>(is.tellg()), "Bad format for nodes")
+    }
     while (getline(is, line) && line.find("}") == std::string::npos) {
         std::istringstream iss{line};
         Key key;
@@ -1615,9 +1682,9 @@ std::istream& operator>>(std::istream& is, graph<Key, T, Cost, Nat>& g) {
     //! Edges
     getline(is, line);
     if (line == "}") {}
-    else if (line != "    edges: {")
+    else if (line != "    edges: {") {
         GRAPH_THROW_WITH(parse_error, static_cast<std::size_t>(is.tellg()), "Bad format for edges")
-    else {
+    } else {
         while (getline(is, line) && line.find("}") == std::string::npos) {
             std::istringstream iss{line};
             Key from;
@@ -1632,21 +1699,21 @@ std::istream& operator>>(std::istream& is, graph<Key, T, Cost, Nat>& g) {
     }
 
     getline(is, line);
-    if (line != "}")
+    if (line != "}") {
         GRAPH_THROW_WITH(parse_error, static_cast<std::size_t>(is.tellg()), "Bad format at the end of the graph")
-
+    }
     return is;
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-void graph<Key, T, Cost, Nat>::save(const char *filepath) const {
+void graph<Key, T, Cost, Nat>::save(const char* filepath) const {
     std::ofstream out(filepath);
     out << *this << std::endl;
     out.close();
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-graph<Key, T, Cost, Nat>& graph<Key, T, Cost, Nat>::load(const char *filepath) {
+graph<Key, T, Cost, Nat> &graph<Key, T, Cost, Nat>::load(const char* filepath) {
     std::ifstream in(filepath);
     if (in) {
         in >> *this;
@@ -1664,20 +1731,22 @@ bool graph<Key, T, Cost, Nat>::operator==(const graph<K, D, C, N> &other) const 
     typedef std::list<typename basic_node<T, Cost, typename graph<Key, T, Cost, Nat>::iterator, Iterator1>::edge> Set1;
     typedef std::list<typename basic_node<D,    C, typename graph<K,   D, C,      N>::iterator, Iterator2>::edge> Set2;
 
-    if (get_nature()    != other.get_nature()    ||
-        get_nbr_nodes() != other.get_nbr_nodes() ||
-        get_nbr_edges() != other.get_nbr_edges())
+    if (get_nature()    != other.get_nature()        ||
+            get_nbr_nodes() != other.get_nbr_nodes() ||
+            get_nbr_edges() != other.get_nbr_edges()) {
         return false;
+    }
 
     Iterator1 it1{cbegin()};
     Iterator2 it2{other.cbegin()};
 
     for (; (it1 != cend() || it2 != other.cend()); ++it1, ++it2) {
 
-        if (!(it1->first            == it2->first)         ||
-            !(it1->second->get()    == it2->second->get()) ||
-            !(it1->second->degree() == it2->second->degree()))
+        if (!(it1->first                == it2->first)         ||
+                !(it1->second->get()    == it2->second->get()) ||
+                !(it1->second->degree() == it2->second->degree())) {
             return false;
+        }
 
         Set1 child1{it1->second->get_edges()};
         Set2 child2{it2->second->get_edges()};
@@ -1688,8 +1757,9 @@ bool graph<Key, T, Cost, Nat>::operator==(const graph<K, D, C, N> &other) const 
             Iterator1 target1{edge1->get_container()};
             Iterator2 target2{edge2->get_container()};
 
-            if (!(target1->first == target2->first && *edge1->cost == *edge2->cost))
+            if (!(target1->first == target2->first && *edge1->cost == *edge2->cost)) {
                 return false;
+            }
         }
     }
 
@@ -1711,7 +1781,7 @@ graph<Key, T, Cost, Nat>::node::node(const graphed_type &d) {
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-typename graph<Key, T, Cost, Nat>::node& graph<Key, T, Cost, Nat>::node::operator=(const graphed_type &d) {
+typename graph<Key, T, Cost, Nat>::node &graph<Key, T, Cost, Nat>::node::operator=(const graphed_type &d) {
     this->set(d);
     return *this;
 }
