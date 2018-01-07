@@ -9,7 +9,7 @@ fi
 
 version=$1
 
-echo -n "Changing version to $version ... "
+echo "Changing version to $version ... "
 
 # /scripts/generate_single_header.sh
 sed -i "s/Version [^0-9.]*\([0-9.]*\).*/Version $version/" \
@@ -20,4 +20,10 @@ sed -i "s/Version [^0-9.]*\([0-9.]*\).*/Version $version/" \
 sed -i "s/ VERSION [^0-9.]*\([0-9.]*\).*/ VERSION $version)/" \
 		"$dir/CMakeLists.txt" || exit 3
 
-echo "Done."
+echo "Done. Generation of CHANGELOG.md ..."
+echo ""
+
+cd ${dir}
+github_changelog_generator terae/graph
+git add CHANGELOG.md
+git add CMakeLists.txt
