@@ -5,7 +5,6 @@
 #ifndef ROOT_NODE_H
 #define ROOT_NODE_H
 
-#include <functional> /// function
 #include <iostream>   /// cerr, cout
 #include <list>       /// list
 #include <memory>     /// make_shared, shared_ptr, weak_ptr
@@ -86,16 +85,16 @@ class basic_node {
     constContainer cend_container;      /// last position of the container (nullptr or cend())
 
   public:
-    //!
+    ///
     //! @section exceptions
-    //!
+    ///
     using exception          = detail::exception;
     using invalid_argument   = detail::invalid_argument;
     using unexpected_nullptr = detail::unexpected_nullptr;
 
-    //!
+    ///
     //! @section Constructors
-    //!
+    ///
     explicit basic_node();
 
     explicit basic_node(const Data &d);
@@ -104,9 +103,9 @@ class basic_node {
 
     ~basic_node();
 
-    //!
+    ///
     //! @section Element access
-    //!
+    ///
 
     inline Data &get();
 
@@ -118,9 +117,9 @@ class basic_node {
     Cost &operator[](Container      other);
     const Cost  operator[](constContainer other) const;
 
-    //!
+    ///
     //! @section Modifiers
-    //!
+    ///
     template<class T_data>
     inline void set(const T_data &d);
 
@@ -154,9 +153,9 @@ class basic_node {
 
     std::size_t clear_edges();
 
-    //!
+    ///
     //! @section Operations
-    //!
+    ///
 
     /// @return pair<in degree, out degree>
     inline std::pair<std::size_t, std::size_t> degree() const;

@@ -3,7 +3,7 @@
 HOME=`git rev-parse --show-toplevel`
 
 echo -n "Formating the code with Artistic Style ... "
-astyle --style=google --indent=spaces=4 --indent-modifiers --indent-switches --indent-preproc-block --indent-preproc-define --indent-namespaces --indent-col1-comments --pad-oper --pad-comma --pad-header --align-pointer=type --align-reference=name --add-brackets --convert-tabs --close-templates --lineend=linux --preserve-date --suffix=none --formatted ${HOME}/src/* ${HOME}/test/src/unit-*.cpp ${HOME}/examples/*.cpp ${HOME}/benchmarks/*/*.cpp > /tmp/out.log 2>&1 || exit 1
+astyle --style=google --indent=spaces=4 --indent-modifiers --indent-switches --indent-preproc-block --indent-preproc-define --indent-namespaces --indent-col1-comments --pad-oper --pad-comma --pad-header --align-pointer=type --align-reference=name --add-brackets --convert-tabs --close-templates --lineend=linux --preserve-date --suffix=none --formatted ${HOME}/src/* ${HOME}/test/src/unit-*.cpp ${HOME}/doc/examples/*.cpp ${HOME}/benchmarks/*/*.cpp > /tmp/out.log 2>&1 || exit 1
 echo "Done."
 
 [ -s /tmp/out.log ]
@@ -35,23 +35,22 @@ cat > "$FILE" << EOF
  * Licensed under the MIT License <https://opensource.org/licenses/MIT>.
  * Copyright (c) 2017 Benjamin BIGEY
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to wholm the Software is
+ * Permission is hereby  granted, free of charge, to any  person obtaining a copy
+ * of this software and associated  documentation files (the "Software"), to deal
+ * in the Software  without restriction, including without  limitation the rights
+ * to  use, copy,  modify, merge,  publish, distribute,  sublicense, and/or  sell
+ * copies  of the Software,  and  to  permit persons  to  wholm  the Software  is
  * furnished to do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included in all
- *
  * copies or substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * THE SOFTWARE  IS PROVIDED "AS  IS", WITHOUT WARRANTY  OF ANY KIND,  EXPRESS OR
+ * IMPLIED,  INCLUDING BUT  NOT  LIMITED TO  THE  WARRANTIES OF  MERCHANTABILITY,
+ * FITNESS FOR  A PARTICULAR PURPOSE AND  NONINFRINGEMENT. IN NO EVENT  SHALL THE
+ * AUTHORS  OR COPYRIGHT  HOLDERS  BE  LIABLE FOR  ANY  CLAIM,  DAMAGES OR  OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF  CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE  OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
 
@@ -64,7 +63,7 @@ sed -i -e '/#include "Node.h"/ {' -e "r ${HOME}/src/Node.h" -e 'd' -e '}' "$FILE
 sed -i '/#include "Node.cpp"/,+2d' "$FILE" || exit 2
 sed -i 's/#include <Node.h>//' "$FILE" || exit 2
 sed -i 's/#include <Graph.h>//' "$FILE" || exit 2
-# Copying exception.hpp into graph.hpp
+# Copying detail.hpp into graph.hpp
 sed -i -e '/#include "detail.hpp"/ {' -e "r ${HOME}/src/detail.hpp" -e 'd' -e '}' "$FILE" || exit 2
 # Modifying #ifndef/#define values
 sed -i 's/ROOT_GRAPH_H/ROOT_GRAPH_FINAL_H/' "$FILE" || exit 2
@@ -76,6 +75,8 @@ sed -i 's/\/\/\/.*//' "$FILE" || exit 2
 sed -i 's/[ \t]*$//' "$FILE" || exit 2
 # Remove unnecessary EOF
 sed -i '/^$/N;/\n$/D' "$FILE" || exit 2
+# Change '//!' into '//'
+sed -i 's/\/\/!/\/\/\//' "$FILE" || exit 2
 
 git add ${HOME}/single_include/graph.hpp
 

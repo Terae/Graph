@@ -126,7 +126,7 @@ endfunction()
 
 if(ENABLE_EXAMPLES)
     include_directories(${LIBRARY_SOURCE_DIR})
-    add_subdirectory(examples)
+    add_subdirectory(doc/examples)
 endif()
 
 ##

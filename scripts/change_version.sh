@@ -20,6 +20,10 @@ sed -i "s/Version [^0-9.]*\([0-9.]*\).*/Version $version/" \
 sed -i "s/ VERSION [^0-9.]*\([0-9.]*\).*/ VERSION $version)/" \
 		"$dir/CMakeLists.txt" || exit 3
 
+# /doc/Doxyfile
+sed -i "s/PROJECT_NUMBER         = [^0-9.]*\([0-9.]*\).*/PROJECT_NUMBER         = $version/" \
+        "$dir/doc/Doxyfile" || exit 4
+
 echo "Done. Generation of CHANGELOG.md ..."
 echo ""
 

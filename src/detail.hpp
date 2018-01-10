@@ -31,31 +31,38 @@ enum Nature {
     UNDIRECTED = 'u'
 };
 
-/*!
- @brief unnamed namespace with internal helper functions
-
- This namespace collects some functions that could not be defined inside the @ref graph class.
- */
+///
+/// @brief unnamed namespace with internal helper functions
+///
+/// This namespace collects some functions that could not be defined inside the @ref graph class.
+///
+/// @since version 1.0.0
+///
 namespace detail {
-    //!
-    //! @section exceptions
-    //!
+    ///
+    //! SECTION exceptions
+    ///
 
-    /*!
-     @brief general exception of the @ref graph class
-
-     This class is an extension of `std::exception` objects.
-     It is used as the base class for all exceptions thrown
-     by the @ref graph class for logical errors.
-     This class can hence be used as "wildcard" to catch exceptions.
-
-     Subclasses:
-     - @ref invalid_argument for exceptions indicating invalid arguments given to some function
-     - @ref unexpected_nullptr for exceptions indicating an unexpected nullptr in entry
-     - @ref parse_error for exceptions indicating a parse error
-     - @ref bad_graph for exceptions indicating a logical error in the usage of the @ref graph class
-     */
+    ///
+    /// @brief general exception of the @ref graph class
+    ///
+    /// This class is an extension of `std::exception` objects.
+    /// It is used as the base class for all exceptions thrown
+    /// by the @ref graph class for logical errors.
+    /// This class can hence be used as "wildcard" to catch exceptions.
+    ///
+    /// Subclasses:
+    /// - @ref invalid_argument for exceptions indicating invalid arguments given to some function
+    /// - @ref unexpected_nullptr for exceptions indicating an unexpected nullptr in entry
+    /// - @ref parse_error for exceptions indicating a parse error
+    /// - @ref bad_graph for exceptions indicating a graph-logical error in the usage of the @ref graph class
+    /// - @ref negative_edge for exceptions indicating a negative edge error, throwable in some search algorithms
+    /// - @ref not_complete for exceptions indicating a non-complete graph error, throwable in some search algorithms
+    ///
+    /// @since version 1.0.0
+    ///
     struct exception : public std::exception {
+        //! returns the explanatory string
         const char* what() const noexcept override {
             return m.what();
         }
@@ -71,9 +78,30 @@ namespace detail {
         std::logic_error m;
     };
 
+    ///
+    /// @brief exception indicating an invalid argument
+    ///
+    /// This exception is thrown by the library when an invalid argument occurs.
+    /// Invalid argument can occur when calling a function with a bad [template] argument.
+    ///
+    /// @sa @ref exception for the base class of the library exceptions
+    /// @sa @ref unexpected_nullptr for exceptions indicating an unexpected nullptr in entry
+    /// @sa @ref parse_error for exceptions indicating a parse error
+    /// @sa @ref bad_graph for exceptions indicating a graph-logical error in the usage of the @ref graph class
+    /// @sa @ref negative_edge for exceptions indicating a negative edge error, throwable in some search algorithms
+    /// @sa @ref not_complete for exceptions indicating a non-complete graph error, throwable in some search algorithms
+    ///
+    /// @since version 1.0.0
+    ///
     struct invalid_argument final : public exception {
-        static invalid_argument
-        create(const std::string &function_name, const std::string &what_arg = "Invalid argument") {
+        ///
+        /// @brief create an invalid argument exception
+        /// @param[in] function_name the function from which the exceptions occurs (returned by the __FUNCTION__ macro)
+        /// @param[in] what_arg the explanatory string
+        /// @return invalid_argument object
+        ///
+        static invalid_argument create(const std::string &function_name,
+                                       const std::string &what_arg = "Invalid argument") {
             std::string w{exception::name("invalid_argument") + what_arg + " when calling '" + function_name + "'."};
             return invalid_argument(w.c_str());
         }
@@ -82,7 +110,29 @@ namespace detail {
         explicit invalid_argument(const char* what_arg) : exception(what_arg) {}
     };
 
+    ///
+    /// @brief exception indicating an unexpected nullptr
+    ///
+    /// This exception is thrown by the library when an unexpected nullptr is used.
+    /// Unexpected nullptr can appear in entry of a @ref basic_node function,
+    /// as a nullptr, a `std::shared_ptr` type or else as an empty iterator.
+    ///
+    /// @sa @ref exception for the base class of the library exceptions
+    /// @sa @ref invalid_argument for exceptions indicating invalid arguments given to some function
+    /// @sa @ref parse_error for exceptions indicating a parse error
+    /// @sa @ref bad_graph for exceptions indicating a graph-logical error in the usage of the @ref graph class
+    /// @sa @ref negative_edge for exceptions indicating a negative edge error, throwable in some search algorithms
+    /// @sa @ref not_complete for exceptions indicating a non-complete graph error, throwable in some search algorithms
+    ///
+    /// @since version 1.0.0
+    ///
     struct unexpected_nullptr final : public exception {
+        ///
+        /// @brief create an unexpected nullptr exception
+        /// @param[in] function_name the function from which the exceptions occurs (returned by the __FUNCTION__ macro)
+        /// @param[in] what_arg the explanatory string
+        /// @return unexpected_nullptr object
+        ///
         static unexpected_nullptr create(const std::string &function_name,
                                          const std::string &what_arg = "Unexpected nullptr") {
             std::string w{exception::name("unexpected_nullptr") + what_arg + " when calling '" + function_name + "'."};
@@ -93,8 +143,35 @@ namespace detail {
         explicit unexpected_nullptr(const char* what_arg) : exception(what_arg) {}
     };
 
-    /// @param[in] byte The byte index where the error occured (or 0 if the position cannot be determined)
+    ///
+    /// @brief exception indicating a parse error
+    ///
+    /// This exception is thrown by the library when a parse error occurs.
+    /// Parse errors can occur during a call of `graph::operator>>` function.
+    ///
+    /// Member @a byte holds the byte index of the last read character in the input file
+    ///
+    /// @note For an input with n bytes, 1 is the index of the first character and n+1
+    ///       is the index of the terminating null byte or the end of file. This also
+    ///       holds true when reading a byte vector or any stream.
+    ///
+    /// @sa @ref exception for the base class of the library exceptions
+    /// @sa @ref invalid_argument for exceptions indicating invalid arguments given to some function
+    /// @sa @ref unexpected_nullptr for exceptions indicating an unexpected nullptr in entry
+    /// @sa @ref bad_graph for exceptions indicating a graph-logical error in the usage of the @ref graph class
+    /// @sa @ref negative_edge for exceptions indicating a negative edge error, throwable in some search algorithms
+    /// @sa @ref not_complete for exceptions indicating a non-complete graph error, throwable in some search algorithms
+    ///
+    /// @since version 1.0.0
+    ///
     struct parse_error final : public exception {
+        ///
+        /// @brief create a parse error exception
+        /// @param[in] function_name the function from which the exceptions occurs (returned by the __FUNCTION__ macro)
+        /// @param[in] byte the byte index where the error occured (or 0 if the position cannot be determined)
+        /// @param[in] what_arg the explanatory string
+        /// @return unexpected_nullptr object
+        ///
         static parse_error create(const std::string &function_name,
                                   std::size_t byte,
                                   const std::string &what_arg = "Bad format") {
@@ -104,20 +181,40 @@ namespace detail {
             return parse_error(w.c_str(), byte);
         }
 
+        ///
+        /// @brief byte index of the parse error
+        ///
         /// The byte index of the last read character in the input file
+        ///
+        /// @note For an input with n bytes, 1 is the index of the first character and n+1
+        ///       is the index of the terminating null byte or the end of file. This also
+        ///       holds true when reading a byte vector or any stream.
         const std::size_t byte;
 
       private:
         explicit parse_error(const char* what_arg, std::size_t b) : exception(what_arg), byte(b) {}
     };
 
-    /*!
-     @brief specialized logical exception of the @ref graph class
-
-     Subclasses:
-     - @ref negative_edge for exceptions indicating a negative edge error, throwable in some search algorithms
-     - @ref not_complete for exceptions indicating a non-complete graph error
-     */
+    ///
+    /// @brief specialized logical exception of the @ref graph class
+    ///
+    /// This class is an extension of @ref exception objects.
+    /// It is used as the base class for all exceptions thrown by the
+    /// @ref graph class for logical errors especially for graph logic.
+    ///
+    /// Subclasses:
+    /// - @ref negative_edge for exceptions indicating a negative edge error, throwable in some search algorithms
+    /// - @ref not_complete for exceptions indicating a non-complete graph error, throwable in some search algorithms
+    ///
+    /// @sa @ref exception for the base class of the library exceptions
+    /// @sa @ref invalid_argument for exceptions indicating invalid arguments given to some function
+    /// @sa @ref unexpected_nullptr for exceptions indicating an unexpected nullptr in entry
+    /// @sa @ref parse_error for exceptions indicating a parse error
+    /// @sa @ref negative_edge for exceptions indicating a negative edge error, throwable in some search algorithms
+    /// @sa @ref not_complete for exceptions indicating a non-complete graph error, throwable in some search algorithms
+    ///
+    /// @since version 1.0.0
+    ///
     struct bad_graph : public exception {
       protected:
         explicit bad_graph(const char* what_arg) : exception(what_arg) {}
@@ -127,7 +224,28 @@ namespace detail {
         }
     };
 
+    ///
+    /// @brief exception indicating a negative edge error
+    ///
+    /// This exception is thrown by the library when a graph has at least a negative edge.
+    /// Negative edges are a problem in some search algorithms.
+    ///
+    /// @sa @ref exception for the base class of the library exceptions
+    /// @sa @ref invalid_argument for exceptions indicating invalid arguments given to some function
+    /// @sa @ref unexpected_nullptr for exceptions indicating an unexpected nullptr in entry
+    /// @sa @ref parse_error for exceptions indicating a parse error
+    /// @sa @ref bad_graph for exceptions indicating a graph-logical error in the usage of the @ref graph class
+    /// @sa @ref not_complete for exceptions indicating a non-complete graph error, throwable in some search algorithms
+    ///
+    /// @since version 1.0.0
+    ///
     struct negative_edge final : public bad_graph {
+        ///
+        /// @brief create a negative_edge exception
+        /// @param[in] function_name the function from which the exceptions occurs (returned by the __FUNCTION__ macro)
+        /// @param[in] what_arg the explanatory string
+        /// @return unexpected_nullptr object
+        ///
         static negative_edge create(const std::string &function_name,
                                     const std::string &what_arg = "Edge with negative weight") {
             std::string w{bad_graph::name("negative_edge") + what_arg + " when calling '" + function_name + "'."};
@@ -138,7 +256,28 @@ namespace detail {
         explicit negative_edge(const char* what_arg) : bad_graph(what_arg) {}
     };
 
+    ///
+    /// @brief exception indicating a not-complete graph error
+    ///
+    /// This exception is thrown by the library when a graph is not complete.
+    /// A non-complete graph is a problem in some search algorithms.
+    ///
+    /// @sa @ref exception for the base class of the library exceptions
+    /// @sa @ref invalid_argument for exceptions indicating invalid arguments given to some function
+    /// @sa @ref unexpected_nullptr for exceptions indicating an unexpected nullptr in entry
+    /// @sa @ref parse_error for exceptions indicating a parse error
+    /// @sa @ref bad_graph for exceptions indicating a graph-logical error in the usage of the @ref graph class
+    /// @sa @ref negative_edge for exceptions indicating a negative edge error, throwable in some search algorithms
+    ///
+    /// @since version 1.0.0
+    ///
     struct not_complete final : public bad_graph {
+        ///
+        /// @brief create a not_complete exception
+        /// @param[in] function_name the function from which the exceptions occurs (returned by the __FUNCTION__ macro)
+        /// @param[in] what_arg the explanatory string
+        /// @return unexpected_nullptr object
+        ///
         static not_complete create(const std::string &function_name,
                                    const std::string &what_arg = "Not complete graph") {
             std::string w{bad_graph::name("not_complete") + what_arg + " when calling '" + function_name + "'."};
@@ -149,9 +288,21 @@ namespace detail {
         explicit not_complete(const char* what_arg) : bad_graph(what_arg) {}
     };
 
-    //!
-    //! @section degree
-    //!
+    ///
+    //! SECTION degree
+    ///
+
+    ///
+    /// @brief the graph::Degree object
+    ///
+    /// This object represents the degree type for a graph directed or undirected,
+    /// which is respectively a `std::pair<size_type, size_type>` and `size_type`.
+    ///
+    /// @tparam N nature of the specialized degree. It is internally used to
+    /// distinguish between both possible natures of a graph.
+    ///
+    /// @since version 1.0.0
+    ///
     template <Nature N> class basic_degree;
 
     template <> class basic_degree<DIRECTED> {
@@ -220,9 +371,9 @@ namespace detail {
         value_type _deg;
     };
 
-    //!
-    //! @section helpers
-    //!
+    ///
+    //! SECTION helpers
+    ///
 #include <memory>
     //! distinguish value type between map::iterator and shared_ptr: @see https://stackoverflow.com/a/31409532
     template <typename... >
@@ -255,8 +406,15 @@ namespace detail {
 
 #include <cxxabi.h> /// demangled_name, abi::__cxa_demangle
 
-    //! @return the name of the @tparam T
+    ///
+    /// @brief return the name of a type
+    ///
+    /// @tparam T object type to extract the name
+    ///
     /// @example type_name(4.2f) == "float"
+    ///
+    //! @return the human readable name of @tparam T
+    ///
     template <class T>
     std::string type_name() {
         int status;
@@ -271,7 +429,7 @@ namespace detail {
         /// Replace all occurences of 'to_replace' by 'replacement' in 'base'
         /// Usefull to get an human readable 'std::string'
         std::function<void(std::string &, std::string, std::string)> replace_all =
-        [](std::string & base, std::string to_replace, std::string replacement) {
+        [](std::string & base, const std::string & to_replace, const std::string & replacement) {
             for (std::string::size_type i{0}; (i = base.find(to_replace, i)) != std::string::npos; ) {
                 base.replace(i, to_replace.length(), replacement);
                 i += replacement.length();

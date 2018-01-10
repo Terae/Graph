@@ -10,23 +10,22 @@
  * Licensed under the MIT License <https://opensource.org/licenses/MIT>.
  * Copyright (c) 2017 Benjamin BIGEY
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to wholm the Software is
+ * Permission is hereby  granted, free of charge, to any  person obtaining a copy
+ * of this software and associated  documentation files (the "Software"), to deal
+ * in the Software  without restriction, including without  limitation the rights
+ * to  use, copy,  modify, merge,  publish, distribute,  sublicense, and/or  sell
+ * copies  of the Software,  and  to  permit persons  to  wholm  the Software  is
  * furnished to do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included in all
- *
  * copies or substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * THE SOFTWARE  IS PROVIDED "AS  IS", WITHOUT WARRANTY  OF ANY KIND,  EXPRESS OR
+ * IMPLIED,  INCLUDING BUT  NOT  LIMITED TO  THE  WARRANTIES OF  MERCHANTABILITY,
+ * FITNESS FOR  A PARTICULAR PURPOSE AND  NONINFRINGEMENT. IN NO EVENT  SHALL THE
+ * AUTHORS  OR COPYRIGHT  HOLDERS  BE  LIABLE FOR  ANY  CLAIM,  DAMAGES OR  OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF  CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE  OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
 
@@ -60,14 +59,13 @@
     #endif
 #endif
 
-#include <functional>
 #include <iostream>
 #include <list>
 #include <memory>
 #include <tuple>
 #include <utility>
 
-//! allow to disable exceptions
+/// allow to disable exceptions
 #if (defined(__cpp_exceptions) || defined(__EXCEPTIONS) || defined(_CPPUNWIND)) && not defined(GRAPH_NOEXCEPTION)
     #define GRAPH_THROW(exception_name) throw detail::exception_name::create(__FUNCTION__);
     #if defined(__clang__)
@@ -91,31 +89,12 @@ enum Nature {
     UNDIRECTED = 'u'
 };
 
-/*!
- @brief unnamed namespace with internal helper functions
-
- This namespace collects some functions that could not be defined inside the @ref graph class.
- */
 namespace detail {
-    //!
-    //! @section exceptions
-    //!
 
-    /*!
-     @brief general exception of the @ref graph class
+    /// SECTION exceptions
 
-     This class is an extension of `std::exception` objects.
-     It is used as the base class for all exceptions thrown
-     by the @ref graph class for logical errors.
-     This class can hence be used as "wildcard" to catch exceptions.
-
-     Subclasses:
-     - @ref invalid_argument for exceptions indicating invalid arguments given to some function
-     - @ref unexpected_nullptr for exceptions indicating an unexpected nullptr in entry
-     - @ref parse_error for exceptions indicating a parse error
-     - @ref bad_graph for exceptions indicating a logical error in the usage of the @ref graph class
-     */
     struct exception : public std::exception {
+        /// returns the explanatory string
         const char* what() const noexcept override {
             return m.what();
         }
@@ -132,8 +111,9 @@ namespace detail {
     };
 
     struct invalid_argument final : public exception {
-        static invalid_argument
-        create(const std::string &function_name, const std::string &what_arg = "Invalid argument") {
+
+        static invalid_argument create(const std::string &function_name,
+                                       const std::string &what_arg = "Invalid argument") {
             std::string w{exception::name("invalid_argument") + what_arg + " when calling '" + function_name + "'."};
             return invalid_argument(w.c_str());
         }
@@ -143,6 +123,7 @@ namespace detail {
     };
 
     struct unexpected_nullptr final : public exception {
+
         static unexpected_nullptr create(const std::string &function_name,
                                          const std::string &what_arg = "Unexpected nullptr") {
             std::string w{exception::name("unexpected_nullptr") + what_arg + " when calling '" + function_name + "'."};
@@ -154,6 +135,7 @@ namespace detail {
     };
 
     struct parse_error final : public exception {
+
         static parse_error create(const std::string &function_name,
                                   std::size_t byte,
                                   const std::string &what_arg = "Bad format") {
@@ -169,13 +151,6 @@ namespace detail {
         explicit parse_error(const char* what_arg, std::size_t b) : exception(what_arg), byte(b) {}
     };
 
-    /*!
-     @brief specialized logical exception of the @ref graph class
-
-     Subclasses:
-     - @ref negative_edge for exceptions indicating a negative edge error, throwable in some search algorithms
-     - @ref not_complete for exceptions indicating a non-complete graph error
-     */
     struct bad_graph : public exception {
       protected:
         explicit bad_graph(const char* what_arg) : exception(what_arg) {}
@@ -186,6 +161,7 @@ namespace detail {
     };
 
     struct negative_edge final : public bad_graph {
+
         static negative_edge create(const std::string &function_name,
                                     const std::string &what_arg = "Edge with negative weight") {
             std::string w{bad_graph::name("negative_edge") + what_arg + " when calling '" + function_name + "'."};
@@ -197,6 +173,7 @@ namespace detail {
     };
 
     struct not_complete final : public bad_graph {
+
         static not_complete create(const std::string &function_name,
                                    const std::string &what_arg = "Not complete graph") {
             std::string w{bad_graph::name("not_complete") + what_arg + " when calling '" + function_name + "'."};
@@ -207,9 +184,8 @@ namespace detail {
         explicit not_complete(const char* what_arg) : bad_graph(what_arg) {}
     };
 
-    //!
-    //! @section degree
-    //!
+    /// SECTION degree
+
     template <Nature N> class basic_degree;
 
     template <> class basic_degree<DIRECTED> {
@@ -278,11 +254,10 @@ namespace detail {
         value_type _deg;
     };
 
-    //!
-    //! @section helpers
-    //!
+    /// SECTION helpers
+
 #include <memory>
-    //! distinguish value type between map::iterator and shared_ptr: @see https://stackoverflow.com/a/31409532
+    /// distinguish value type between map::iterator and shared_ptr: @see https://stackoverflow.com/a/31409532
     template <typename... >
     using void_t = void;
 
@@ -307,7 +282,7 @@ namespace detail {
 
 #include <cxxabi.h>
 
-    //! @return the name of the @tparam T
+    /// @return the human readable name of @tparam T
 
     template <class T>
     std::string type_name() {
@@ -321,7 +296,7 @@ namespace detail {
         std::free(demangled_name);
 
         std::function<void(std::string &, std::string, std::string)> replace_all =
-        [](std::string & base, std::string to_replace, std::string replacement) {
+        [](std::string & base, const std::string & to_replace, const std::string & replacement) {
             for (std::string::size_type i{0}; (i = base.find(to_replace, i)) != std::string::npos; ) {
                 base.replace(i, to_replace.length(), replacement);
                 i += replacement.length();
@@ -406,7 +381,7 @@ class basic_node {
     inline void increment_in_degree(int n = 1);
     inline void decrement_in_degree(int n = 1);
 
-    //! used for UNDIRECTED graphs: same Cost in memory for both directions
+    /// used for UNDIRECTED graphs: same Cost in memory for both directions
     bool set_edge(constContainer other, std::shared_ptr<Cost> cost);
 
     std::tuple<Data, std::size_t, ListEdges> tie() const;
@@ -443,16 +418,15 @@ class basic_node {
     constContainer cend_container;
 
   public:
-    //!
-    //! @section exceptions
-    //!
+
+    /// @section exceptions
+
     using exception          = detail::exception;
     using invalid_argument   = detail::invalid_argument;
     using unexpected_nullptr = detail::unexpected_nullptr;
 
-    //!
-    //! @section Constructors
-    //!
+    /// @section Constructors
+
     explicit basic_node();
 
     explicit basic_node(const Data &d);
@@ -461,9 +435,7 @@ class basic_node {
 
     ~basic_node();
 
-    //!
-    //! @section Element access
-    //!
+    /// @section Element access
 
     inline Data &get();
 
@@ -475,16 +447,15 @@ class basic_node {
     Cost &operator[](Container      other);
     const Cost  operator[](constContainer other) const;
 
-    //!
-    //! @section Modifiers
-    //!
+    /// @section Modifiers
+
     template<class T_data>
     inline void set(const T_data &d);
 
     template<class T_cost>
     void set_cost(Container other, const T_cost &c);
 
-    //! Adders
+    /// Adders
 
     std::pair<EdgesIterator, bool> add_edge(constContainer other, Cost cost = Cost(1)) {
         std::shared_ptr<basic_node<Data, Cost, Container, constContainer>> ptr{detail::get_value(other, cend_container)};
@@ -498,35 +469,26 @@ class basic_node {
                     return std::make_pair(it, false);
                 }
 
-        //! Link doesn't exist
+        /// Link doesn't exist
         ptr->increment_in_degree();
         _out_edges.emplace_back(std::weak_ptr<basic_node<Data, Cost, Container, constContainer>>(ptr), cost);
         std::pair<EdgesIterator, bool> result{std::make_pair(--_out_edges.end(), true)};
         return result;
     }
 
-    //! Deleters
+    /// Deleters
     bool del_edge   (constContainer other);
     bool del_edge_if(constContainer other, std::function<bool(edge)> predicate);
 
     std::size_t clear_edges();
 
-    //!
-    //! @section Operations
-    //!
+    /// @section Operations
 
     inline std::pair<std::size_t, std::size_t> degree() const;
 
     bool existing_adjacent_node(constContainer other) const;
 };
 
-/*!
- * @brief a generalized class of Graph
- *
- * @tparam Key type of the keys. Each element in a Graph is uniquely identified by its key value. Aliased as member type Graph::key_type
- * @tparam T type of graphed value stored into a node. Aliased as member type Graph::graphed_type
- * @tparam Cost type of the cost between nodes.
- */
 template <class Key, class T, class Cost = std::size_t, Nature Nat = UNDIRECTED>
 class graph {
   public:
@@ -547,9 +509,7 @@ class graph {
 
   public:
 
-    //!
-    //! @section exceptions
-    //!
+    /// @section exceptions
 
     using bad_graph          = detail::bad_graph;
     using exception          = detail::exception;
@@ -559,9 +519,7 @@ class graph {
     using parse_error        = detail::parse_error;
     using unexpected_nullptr = detail::unexpected_nullptr;
 
-    //!
-    //! @section container types
-    //!
+    /// @section container types
 
     using value_type   = std::pair<const Key, PtrNode>;
 
@@ -581,9 +539,7 @@ class graph {
 
     using const_reverse_iterator = typename MapNodes::const_reverse_iterator;
 
-    //!
-    //! @section Iterators
-    //!
+    /// @section Iterators
 
     iterator begin() noexcept;
     iterator end()   noexcept;
@@ -603,9 +559,7 @@ class graph {
     const_reverse_iterator rend()  const noexcept;
     const_reverse_iterator crend() const noexcept;
 
-    //!
-    //! @section Constructors
-    //!
+    /// @section Constructors
 
     explicit graph();
 
@@ -619,9 +573,7 @@ class graph {
 
     virtual ~graph();
 
-    //!
-    //! @section Capacity
-    //!
+    /// @section Capacity
 
     bool empty() const noexcept;
 
@@ -629,9 +581,7 @@ class graph {
 
     size_type max_size() const noexcept;
 
-    //!
-    //! @section Element access
-    //!
+    /// @section Element access
 
     graphed_type &operator[](const key_type &);
     graphed_type &operator[](key_type &&);
@@ -652,11 +602,10 @@ class graph {
     const Cost operator()(const_iterator it1, const_iterator it2)  const;
     const Cost operator()(const key_type &k1, const key_type &k2)  const;
 #endif
-    //!
-    //! @section Modifiers
-    //!
 
-    //! Adders
+    /// @section Modifiers
+
+    /// Adders
 
     [[deprecated]] std::pair<iterator, bool> insert(const value_type &);
 
@@ -677,7 +626,7 @@ class graph {
 
     void link_all_nodes(Cost cost);
 
-    //! Deleters
+    /// Deleters
 
     iterator  erase(const_iterator);
     iterator  erase(const_iterator first, const_iterator last);
@@ -697,21 +646,17 @@ class graph {
     size_type clear_edges(const_iterator);
     size_type clear_edges(const key_type &);
 
-    //! Others
+    /// Others
     void swap(graph &);
 
-    //!
-    //! @section Functions
-    //!
+    /// @section Functions
 
     size_type count(const key_type &) const;
 
     iterator       find(const key_type &);
     const_iterator find(const key_type &) const;
 
-    //!
-    //! @section Operations
-    //!
+    /// @section Operations
 
     bool existing_node(const_iterator)   const;
     bool existing_node(const key_type &) const;
@@ -732,9 +677,7 @@ class graph {
 
     std::map<key_type, Degree> degrees() const;
 
-    //!
-    //! @section Text functions
-    //!
+    /// @section Text functions
 
     template<class K, class D, class C, Nature N> friend std::ostream &operator<<(std::ostream &os, const graph<K, D, C, N> &g);
     template<class K, class D, class C, Nature N> friend std::istream &operator>>(std::istream &is,       graph<K, D, C, N> &g);
@@ -742,9 +685,7 @@ class graph {
     void save  (const char* filepath) const;
     graph &load(const char* filepath);
 
-    //!
-    //! @section Bool operators
-    //!
+    /// @section Bool operators
 
     template<class K, class D, class C, Nature N> bool operator==(const graph<K, D, C, N> &other) const noexcept;
     template<class K, class D, class C, Nature N> bool operator!=(const graph<K, D, C, N> &other) const noexcept;
@@ -870,7 +811,7 @@ Cost &basic_node<Data, Cost, Container, constContainer>::get_cost(const Containe
             return *(it->cost);
         }
 
-    //! Link doesn't exist
+    /// Link doesn't exist
     _out_edges.emplace_back(std::weak_ptr<basic_node<Data, Cost, Container, constContainer>>(detail::get_value(other, end_container)), infinity);
     ptr->increment_in_degree();
     return *((--_out_edges.end())->cost);
@@ -889,7 +830,7 @@ const Cost basic_node<Data, Cost, Container, constContainer>::get_cost(constCont
             return *(it->cost);
         }
 
-    //! Link doesn't exist
+    /// Link doesn't exist
     return infinity;
 }
 
@@ -986,7 +927,7 @@ bool basic_node<Data, Cost, Container, constContainer>::existing_adjacent_node(c
             return true;
         }
 
-    //! Link doesn't exist
+    /// Link doesn't exist
     return false;
 }
 
@@ -1116,7 +1057,7 @@ graph<Key, T, Cost, Nat> &graph<Key, T, Cost, Nat>::operator=(const graph &g) {
 
 template <class Key, class T, class Cost, Nature Nat>
 graph<Key, T, Cost, Nat> &graph<Key, T, Cost, Nat>::operator=(graph &&g) {
-    //! If there is a self-reference: bug in the client part that should be fixed
+    /// If there is a self-reference: bug in the client part that should be fixed
     if (this == &g) {
         GRAPH_THROW_WITH(invalid_argument, "Self-reference in the client part")
     }
@@ -1540,7 +1481,7 @@ std::ostream &graph<Key, T, Cost, Nat>::print(std::ostream &os) const {
     const std::string tab{"    "};
     const std::string separator{","};
 
-    //! Displaying nature + graph types
+    /// Displaying nature + graph types
     if (get_nature() == DIRECTED) {
         os << "di";
     }
@@ -1550,7 +1491,7 @@ std::ostream &graph<Key, T, Cost, Nat>::print(std::ostream &os) const {
        << detail::type_name<Cost>() << "> {\n"
        << tab << "nodes: {\n";
 
-    //! Displaying nodes:  "<name>"; "<value>",
+    /// Displaying nodes:  "<name>"; "<value>",
     size_type max_size{3};
     for_each(cbegin(), cend(), [&max_size](const value_type & element) {
         ostringstream out;
@@ -1577,7 +1518,7 @@ std::ostream &graph<Key, T, Cost, Nat>::print(std::ostream &os) const {
     }
     os << tab << '}';
 
-    //! Displaying edges:  "<node 1>"; "<node 2>"; "<cost>",
+    /// Displaying edges:  "<node 1>"; "<node 2>"; "<cost>",
     if (get_nbr_edges() == 0) {
         os << "\n}";
     } else {
@@ -1644,7 +1585,7 @@ template <class Key, class T, class Cost, Nature Nat>
 std::istream &operator>>(std::istream &is, graph<Key, T, Cost, Nat> &g) {
     g.clear();
 
-    //! Nature
+    /// Nature
     std::string line;
     getline(is, line);
     if (line.substr(0, 5) == "graph") {
@@ -1659,7 +1600,7 @@ std::istream &operator>>(std::istream &is, graph<Key, T, Cost, Nat> &g) {
         GRAPH_THROW_WITH(parse_error, static_cast<std::size_t>(is.tellg()), "Bad graph nature (expected '[di]graph')")
     }
 
-    //! Nodes
+    /// Nodes
     getline(is, line);
     if (line != "    nodes: {") {
         GRAPH_THROW_WITH(parse_error, static_cast<std::size_t>(is.tellg()), "Bad format for nodes")
@@ -1674,7 +1615,7 @@ std::istream &operator>>(std::istream &is, graph<Key, T, Cost, Nat> &g) {
         g[key] = value;
     }
 
-    //! Edges
+    /// Edges
     getline(is, line);
     if (line == "}") {}
     else if (line != "    edges: {") {

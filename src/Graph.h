@@ -11,6 +11,7 @@
 #include <map>       /// map
 #include <vector>    /// vector
 
+/// C++ language standard detection
 #if (defined(__cplusplus) && __cplusplus >= 201703L) || (defined(_MSC_VER) && _MSC_VER > 1900 && defined(_HAS_CXX17) && _HAS_CXX17 == 1)
     #define GRAPH_HAS_CPP_17
     #define GRAPH_HAS_CPP_14
@@ -39,13 +40,14 @@
 ///// ADJACENCY GRAPH /////
 ///////////////////////////
 
-/*!
- * @brief a generalized class of Graph
- *
- * @tparam Key type of the keys. Each element in a Graph is uniquely identified by its key value. Aliased as member type Graph::key_type
- * @tparam T type of graphed value stored into a node. Aliased as member type Graph::graphed_type
- * @tparam Cost type of the cost between nodes.
- */
+///
+/// @brief a generalized class of Graph
+///
+/// @tparam Key type of the keys. Each element in a Graph is uniquely identified by its key value. Aliased as member type Graph::key_type
+/// @tparam T type of graphed value stored into a node. Aliased as member type Graph::graphed_type
+/// @tparam Cost type of the cost between nodes.
+/// @since version 1.0.0
+///
 template <class Key, class T, class Cost = std::size_t, Nature Nat = UNDIRECTED>
 class graph {
   public:
@@ -66,9 +68,9 @@ class graph {
 
   public:
 
-    //!
+    ///
     //! @section exceptions
-    //!
+    ///
 
     using bad_graph          = detail::bad_graph;
     using exception          = detail::exception;
@@ -78,9 +80,9 @@ class graph {
     using parse_error        = detail::parse_error;
     using unexpected_nullptr = detail::unexpected_nullptr;
 
-    //!
+    ///
     //! @section container types
-    //!
+    ///
 
     /// @name container types
     /// The canonic container types to use @ref Graph like any other STL container
@@ -108,9 +110,9 @@ class graph {
 
     /// @}
 
-    //!
+    ///
     //! @section Iterators
-    //!
+    ///
 
     iterator begin() noexcept;
     iterator end()   noexcept;
@@ -130,9 +132,9 @@ class graph {
     const_reverse_iterator rend()  const noexcept;
     const_reverse_iterator crend() const noexcept;
 
-    //!
+    ///
     //! @section Constructors
-    //!
+    ///
 
     /// default constructor
     explicit graph();
@@ -151,9 +153,9 @@ class graph {
 
     virtual ~graph();
 
-    //!
+    ///
     //! @section Capacity
-    //!
+    ///
 
     bool empty() const noexcept;
 
@@ -161,9 +163,9 @@ class graph {
 
     size_type max_size() const noexcept;
 
-    //!
+    ///
     //! @section Element access
-    //!
+    ///
 
     graphed_type &operator[](const key_type &);
     graphed_type &operator[](key_type &&);
@@ -184,9 +186,9 @@ class graph {
     const Cost operator()(const_iterator it1, const_iterator it2)  const;
     const Cost operator()(const key_type &k1, const key_type &k2)  const;
 #endif
-    //!
+    ///
     //! @section Modifiers
-    //!
+    ///
 
     //! Adders
     /// @return pair<position, new node> insertion
@@ -233,9 +235,9 @@ class graph {
     //! Others
     void swap(graph &);
 
-    //!
+    ///
     //! @section Functions
-    //!
+    ///
 
     /// Non-modifying sequence operations
     size_type count(const key_type &) const;
@@ -243,9 +245,9 @@ class graph {
     iterator       find(const key_type &);
     const_iterator find(const key_type &) const;
 
-    //!
+    ///
     //! @section Operations
-    //!
+    ///
 
     bool existing_node(const_iterator)   const;
     bool existing_node(const key_type &) const;
@@ -268,9 +270,9 @@ class graph {
 
     std::map<key_type, Degree> degrees() const;
 
-    //!
+    ///
     //! @section Text functions
-    //!
+    ///
 
     template<class K, class D, class C, Nature N> friend std::ostream &operator<<(std::ostream &os, const graph<K, D, C, N> &g);
     template<class K, class D, class C, Nature N> friend std::istream &operator>>(std::istream &is,       graph<K, D, C, N> &g);
@@ -278,9 +280,9 @@ class graph {
     void save  (const char* filepath) const;
     graph &load(const char* filepath);
 
-    //!
+    ///
     //! @section Bool operators
-    //!
+    ///
 
     template<class K, class D, class C, Nature N> bool operator==(const graph<K, D, C, N> &other) const noexcept;
     template<class K, class D, class C, Nature N> bool operator!=(const graph<K, D, C, N> &other) const noexcept;

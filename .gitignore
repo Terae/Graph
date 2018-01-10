@@ -1,7 +1,8 @@
 /.idea
 /build
-/docs
 appveyor.yml.cached
 codecov.yml
 benchmarks/files/grid_graph.txt
 benchmarks/graph_benchmarks
+doc/html/*
+doc/xml/*
