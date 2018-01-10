@@ -98,7 +98,7 @@ class graph {
     using size_type    = std::size_t;
 
     /// an iterator for a graph container
-    using iterator               = typename std::map<Key, PtrNode>::iterator;
+    using iterator               = typename MapNodes::iterator;
     /// a const iterator for a graph container
     using const_iterator         = typename MapNodes::const_iterator;
     /// a reverse iterator for a graph container

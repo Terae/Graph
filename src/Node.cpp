@@ -87,9 +87,7 @@ basic_node<Data, Cost, Container, constContainer> &basic_node<Data, Cost, Contai
 }
 
 template <class Data, class Cost, class Container, class constContainer>
-basic_node<Data, Cost, Container, constContainer>::~basic_node() {
-    clear_edges();
-}
+basic_node<Data, Cost, Container, constContainer>::~basic_node() {}
 
 /// Element access
 

@@ -91,10 +91,10 @@ graph<Key, T, Cost, Nat> &graph<Key, T, Cost, Nat>::operator=(const graph &g) {
     }
 
     for (const_iterator it{g.cbegin()}; it != g.cend(); ++it) {
-        auto list = it->second->get_edges();
-        for (auto edge : list) {
-            graph::const_iterator i{edge.get_container()};
-            add_edge(it->first, i->first, *edge.cost);
+        std::list<typename node::edge> list = it->second->get_edges();
+        for (typename node::edge e : list) {
+            graph::const_iterator i{e.get_container()};
+            add_edge(it->first, i->first, *e.cost);
         }
     }
 
@@ -112,9 +112,7 @@ graph<Key, T, Cost, Nat> &graph<Key, T, Cost, Nat>::operator=(graph &&g) {
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-graph<Key, T, Cost, Nat>::~graph() {
-    clear();
-}
+graph<Key, T, Cost, Nat>::~graph() {}
 
 /// Capacity
 
@@ -265,7 +263,7 @@ std::pair<typename graph<Key, T, Cost, Nat>::iterator, bool> graph<Key, T, Cost,
 
 template <class Key, class T, class Cost, Nature Nat>
 bool graph<Key, T, Cost, Nat>::add_edge(const_iterator it1, const_iterator it2, Cost cost) {
-    auto new_edge = it1->second->add_edge(it2, cost);
+    std::pair<typename std::list<typename node::edge>::iterator, bool> new_edge = it1->second->add_edge(it2, cost);
 
     if (get_nature() == UNDIRECTED) {
         it2->second->set_edge(it1, (new_edge.first->cost));
@@ -338,8 +336,7 @@ std::size_t graph<Key, T, Cost, Nat>::del_node(const key_type &k) {
 }
 template <class Key, class T, class Cost, Nature Nat>
 void graph<Key, T, Cost, Nat>::clear() noexcept {
-    clear_edges();
-    _nodes.clear();
+    *this = std::move(graph());
 }
 
 template <class Key, class T, class Cost, Nature Nat>
@@ -611,8 +608,8 @@ std::ostream &graph<Key, T, Cost, Nat>::print(std::ostream &os) const {
         size_type max_size_1{0}, max_size_2{0};
 
         for_each(cbegin(), cend(), [&max_size_1, &max_size_2, this](const value_type & element) {
-            auto child = element.second->get_edges();
-            for_each(child.cbegin(), child.cend(), [ &, this](const auto & i) {
+            std::list<typename node::edge> child = element.second->get_edges();
+            for_each(child.cbegin(), child.cend(), [ &, this](const typename node::edge & i) {
                 ostringstream out_1, out_2;
                 out_1 << element.first;
                 out_2 << i.target.lock()->container_from_this->first;
@@ -632,8 +629,8 @@ std::ostream &graph<Key, T, Cost, Nat>::print(std::ostream &os) const {
 
         size_type p{0};
         for_each(cbegin(), cend(), [ =, &os, &p](const value_type & element) {
-            auto child = element.second->get_edges();
-            for_each(child.cbegin(), child.cend(), [ =, &os, &p](const auto & i) {
+            std::list<typename node::edge> child = element.second->get_edges();
+            for_each(child.cbegin(), child.cend(), [ =, &os, &p](const typename node::edge & i) {
                 ostringstream out_1, out_2;
                 out_1 << element.first << '"' << separator;
                 out_2 << i.target.lock()->container_from_this->first << '"' << separator;
@@ -675,14 +672,14 @@ std::istream &operator>>(std::istream &is, graph<Key, T, Cost, Nat> &g) {
     getline(is, line);
     if (line.substr(0, 5) == "graph") {
         if (g.get_nature() != UNDIRECTED) {
-            GRAPH_THROW_WITH(invalid_argument, "Bad graph nature (expected UNDIRECTED)")
+            GRAPH_THROW_WITH(invalid_argument, "Bad graph nature (expected 'graph')")
         }
     } else if (line.substr(0, 7) == "digraph") {
         if (g.get_nature() != DIRECTED) {
-            GRAPH_THROW_WITH(invalid_argument, "Bad graph nature (expected DIRECTED)")
+            GRAPH_THROW_WITH(invalid_argument, "Bad graph nature (expected 'digraph')")
         }
     } else {
-        GRAPH_THROW_WITH(parse_error, static_cast<std::size_t>(is.tellg()), "Bad graph nature")
+        GRAPH_THROW_WITH(parse_error, static_cast<std::size_t>(is.tellg()), "Bad graph nature (expected '[di]graph')")
     }
 
     //! Nodes

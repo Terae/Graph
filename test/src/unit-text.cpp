@@ -282,13 +282,13 @@ TEST_CASE("text") {
             std::stringstream ss1, ss2, ss3, ss4, ss5, ss6, ss7, ss8;
 
             ss1 << "badgraph<string, int, float> {\n    nodes: {\n    }\n}";
-            CHECK_THROWS_WITH(ss1 >> g1, "[graph.exception.parse_error] parse error at 31: Bad graph nature when calling 'operator>>'.");
+            CHECK_THROWS_WITH(ss1 >> g1, "[graph.exception.parse_error] parse error at 31: Bad graph nature (expected '[di]graph') when calling 'operator>>'.");
 
             ss2 << "graph<string, int, float> {\n    nodes: {\n    }\n}";
-            CHECK_THROWS_WITH(ss2 >> g2, "[graph.exception.invalid_argument] Bad graph nature (expected UNDIRECTED) when calling 'operator>>'.");
+            CHECK_THROWS_WITH(ss2 >> g2, "[graph.exception.invalid_argument] Bad graph nature (expected 'graph') when calling 'operator>>'.");
 
             ss3 << "digraph<string, int, float> {\n    nodes: {\n    }\n}";
-            CHECK_THROWS_WITH(ss3 >> g3, "[graph.exception.invalid_argument] Bad graph nature (expected DIRECTED) when calling 'operator>>'.");
+            CHECK_THROWS_WITH(ss3 >> g3, "[graph.exception.invalid_argument] Bad graph nature (expected 'digraph') when calling 'operator>>'.");
 
             ss4 << "graph<string, int, float> {\n badnodes: {\n    }\n}";
             CHECK_THROWS_WITH(ss4 >> g1, "[graph.exception.parse_error] parse error at 41: Bad format for nodes when calling 'operator>>'.");
@@ -332,7 +332,7 @@ TEST_CASE("text") {
             std::stringstream ss2;
             ss2 << GRAPH_2;
             Graph_undirected g3;
-            CHECK_THROWS_WITH(ss2 >> g3, "[graph.exception.invalid_argument] Bad graph nature (expected DIRECTED) when calling 'operator>>'.");
+            CHECK_THROWS_WITH(ss2 >> g3, "[graph.exception.invalid_argument] Bad graph nature (expected 'digraph') when calling 'operator>>'.");
         }
     }
 
@@ -361,6 +361,6 @@ TEST_CASE("text") {
         CHECK(g1 == g2);
 
         Graph_undirected g3;
-        CHECK_THROWS_WITH(g3.load("/tmp/graph.txt"), "[graph.exception.invalid_argument] Bad graph nature (expected DIRECTED) when calling 'operator>>'.");
+        CHECK_THROWS_WITH(g3.load("/tmp/graph.txt"), "[graph.exception.invalid_argument] Bad graph nature (expected 'digraph') when calling 'operator>>'.");
     }
 }
