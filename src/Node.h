@@ -5,23 +5,44 @@
 #ifndef ROOT_NODE_H
 #define ROOT_NODE_H
 
-#include <iostream>   /// cerr, cout
-#include <list>       /// list
-#include <memory>     /// make_shared, shared_ptr, weak_ptr
-#include <tuple>      /// tie, tuple
-#include <utility>    /// make_pair, move, pair, swap
+#include <iostream> /// cerr, cout
+#include <list>     /// list
+#include <memory>   /// make_shared, shared_ptr, weak_ptr
+#include <tuple>    /// tie, tuple
+#include <utility>  /// make_pair, move, pair, swap
 
 #include "detail.hpp"
 
 template <class Data, class Cost, class Container, class constContainer>
 class basic_node {
-  private:
-    template <class K, class T, class C, Nature N>
-    friend class graph;
+  public:
+    class edge {
+      private:
+        template <class T, class C, class c1, class c2> friend class basic_node;
+        template <class K, class T, class C,  Nature N> friend class graph;
 
-    struct edge;
+        std::weak_ptr<basic_node<Data, Cost, Container, constContainer>> _target;
+        std::shared_ptr<Cost> _cost;
+
+        std::tuple<Cost, basic_node<Data, Cost, Container, constContainer>> tie() const;
+
+      public:
+        edge(const std::weak_ptr<basic_node<Data, Cost, Container, constContainer>> &ptr, Cost C);
+        edge(const edge &);
+
+        bool operator< (const edge &other) const;
+        bool operator==(const edge &other) const;
+
+        inline constContainer target() const;
+
+        inline Cost &cost() const;
+    };
+
     typedef std::list<edge> ListEdges;
     typedef typename ListEdges::iterator EdgesIterator;
+
+  private:
+    template <class K, class T, class C, Nature N> friend class graph;
 
     ListEdges _out_edges;
 
@@ -29,21 +50,6 @@ class basic_node {
                           std::numeric_limits<Cost>::max();
 
     std::size_t _in_degree{0};
-
-    struct edge {
-        std::weak_ptr<basic_node<Data, Cost, Container, constContainer>> target;
-        std::shared_ptr<Cost> cost;
-
-        edge(const std::weak_ptr<basic_node<Data, Cost, Container, constContainer>> &ptr, Cost c);
-
-        std::tuple<Cost, basic_node<Data, Cost, Container, constContainer>> tie() const;
-
-        bool operator< (const edge &other) const;
-
-        bool operator==(const edge &other) const;
-
-        constContainer get_container() const;
-    };
 
     inline void increment_in_degree(int n = 1);
     inline void decrement_in_degree(int n = 1);
@@ -62,13 +68,13 @@ class basic_node {
     friend constexpr bool operator!=(const basic_node<T, C, X, Y> &n1, const basic_node<T, C, X, Y> &n2) noexcept;
 
     template <class T, class C, class X, class Y>
-    friend constexpr bool operator<(const basic_node<T, C, X, Y> &n1, const basic_node<T, C, X, Y> &n2) noexcept;
+    friend constexpr bool operator< (const basic_node<T, C, X, Y> &n1, const basic_node<T, C, X, Y> &n2) noexcept;
 
     template <class T, class C, class X, class Y>
     friend constexpr bool operator<=(const basic_node<T, C, X, Y> &n1, const basic_node<T, C, X, Y> &n2) noexcept;
 
     template <class T, class C, class X, class Y>
-    friend constexpr bool operator>(const basic_node<T, C, X, Y> &n1, const basic_node<T, C, X, Y> &n2) noexcept;
+    friend constexpr bool operator> (const basic_node<T, C, X, Y> &n1, const basic_node<T, C, X, Y> &n2) noexcept;
 
     template <class T, class C, class X, class Y>
     friend constexpr bool operator>=(const basic_node<T, C, X, Y> &n1, const basic_node<T, C, X, Y> &n2) noexcept;
@@ -131,14 +137,16 @@ class basic_node {
     std::pair<EdgesIterator, bool> add_edge(constContainer other, Cost cost = Cost(1)) {
         std::shared_ptr<basic_node<Data, Cost, Container, constContainer>> ptr{detail::get_value(other, cend_container)};
 
-        if (ptr == nullptr)
+        if (ptr == nullptr) {
             GRAPH_THROW(unexpected_nullptr)
+        }
 
-            for (EdgesIterator it{_out_edges.begin()}; it != _out_edges.end(); ++it)
-                if (it->target.lock() == ptr) {
-                    *it->cost = cost;
-                    return std::make_pair(it, false);
-                }
+        for (EdgesIterator it{_out_edges.begin()}; it != _out_edges.end(); ++it) {
+            if (it->_target.lock() == ptr) {
+                it->cost() = cost;
+                return std::make_pair(it, false);
+            }
+        }
 
         //! Link doesn't exist
         ptr->increment_in_degree();

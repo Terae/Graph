@@ -8,7 +8,7 @@
     #pragma clang diagnostic push
     #pragma clang diagnostic ignored "-Wkeyword-macro"
 #endif
-#define private public
+#define private   public
 #define protected public
 #if defined(TEST_SINGLE_HEADER_FILE)
     #include "graph.hpp"
@@ -58,7 +58,7 @@ TEST_CASE("nodes") {
             std::shared_ptr<node<int, int>> ptr1{it1->second};
             std::shared_ptr<node<int, int>> ptr2{it2->second};
             ptr1->add_edge(it2, 15);
-            CHECK(ptr1->get_edges().begin()->target.lock()->get() == 10);
+            CHECK(ptr1->get_edges().begin()->target()->second->get() == 10);
             ptr2->add_edge(it2, 1);
             CHECK(ptr1->get() == 5);
         }
@@ -93,7 +93,7 @@ TEST_CASE("nodes") {
             node<int, int> n4(n3);
             CHECK(n4.degree() == n3.degree());
             CHECK(n4.get_edges().size() == 3);
-            CHECK(n4.get_edges().begin()->target.lock() == it2->second);
+            CHECK(n4.get_edges().begin()->_target.lock() == it2->second);
         }
 
         SECTION("assignment operator") {
@@ -116,7 +116,7 @@ TEST_CASE("nodes") {
 
             node<int, int> n4 = n3;
             CHECK(n4.degree() == n3.degree());
-            CHECK(n4.get_edges().begin()->target.lock() == it2->second);
+            CHECK(n4.get_edges().begin()->_target.lock() == it2->second);
             CHECK(n4.get_edges().size() == 3);
         }
     }
@@ -219,8 +219,8 @@ TEST_CASE("nodes") {
 
             auto edges = it1->second->get_edges();
             for (int i{2}; i < 4; ++i) {
-                CHECK(*next(edges.begin(), i - 2)->cost == i);
-                CHECK(next(edges.begin(), i - 2)->target.lock()->get() == i * 11);
+                CHECK(next(edges.begin(), i - 2)->cost() == i);
+                CHECK(next(edges.begin(), i - 2)->target()->second->get() == i * 11);
             }
             CHECK(it2->second->get_edges().empty());
         }
@@ -294,7 +294,7 @@ TEST_CASE("nodes") {
 
             node<int, int> n(42);
             n.add_edge(it, 111);
-            CHECK(*n.get_edges().begin()->cost == 111);
+            CHECK(n.get_edges().begin()->cost() == 111);
             CHECK(get<1>(n.get_edges().begin()->tie()).tie() == it->second->tie());
 
             CHECK_THROWS_WITH(it->second->add_edge(g.end(), 1),
@@ -308,16 +308,16 @@ TEST_CASE("nodes") {
 
             node<int, int> n(42);
             n.add_edge(it1, 111);
-            CHECK(*n.get_edges().begin()->cost == 111);
+            CHECK(n.get_edges().begin()->cost() == 111);
             n.set_cost(it1, 1.1);
-            CHECK(*n.get_edges().begin()->cost == 1);
+            CHECK(n.get_edges().begin()->cost() == 1);
 
             CHECK_THROWS_WITH(it1->second->set_cost(g.end(), 1),
                               "[graph.exception.unexpected_nullptr] Unexpected nullptr when calling 'set_cost'.");
 
             n.set_cost(it2, 1.5);
             CHECK(n.get_edges().size() == 2);
-            CHECK(*(++n.get_edges().begin())->cost == 1);
+            CHECK((++n.get_edges().begin())->cost() == 1);
         }
 
         SECTION("set_edge(shared_ptr<node<Data, Cost>> other, shared_ptr<Cost> cost)") {
@@ -328,9 +328,9 @@ TEST_CASE("nodes") {
             node<int, string> n(42);
             CHECK(n.set_edge(it, cost));
             CHECK_FALSE(n.set_edge(it, cost));
-            CHECK(n.get_edges().begin()->cost == cost);
+            CHECK(n.get_edges().begin()->_cost == cost);
             cost->push_back('s');
-            CHECK(*n.get_edges().begin()->cost == "edges");
+            CHECK(n.get_edges().begin()->cost() == "edges");
         }
 
         SECTION("deleters") {
@@ -367,11 +367,11 @@ TEST_CASE("nodes") {
                 n.add_edge(it3, 333);
                 it2->second->add_edge(it4, 444);
 
-                function<bool(node<int, int>::edge)> predicate = [](node<int, int>::edge e) -> bool { return *e.cost % 2 == 1; };
+                function<bool(node<int, int>::edge)> predicate = [](node<int, int>::edge e) -> bool { return e.cost() % 2 == 1; };
                 n.del_edge_if(it2, predicate);
                 CHECK(n.existing_adjacent_node(it2));
 
-                predicate = [](node<int, int>::edge e) -> bool { return *e.cost % 2 == 0; };
+                predicate = [](node<int, int>::edge e) -> bool { return e.cost() % 2 == 0; };
                 n.del_edge_if(it2, predicate);
                 CHECK_FALSE(n.existing_adjacent_node(it2));
             }

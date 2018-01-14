@@ -473,4 +473,73 @@ TEST_CASE("operations") {
             CHECK(m2.find(7)->second == 1);
         }
     }
+
+    SECTION("get_[in_|out_|]edges(const_iterator) const") {
+        SECTION("directed") {
+            Graph_directed g;
+            g("node 1", "node 2") = 12;
+            g("node 1", "node 3") = 13;
+            g("node 3", "node 4") = 34;
+            g("node 4", "node 1") = 41;
+
+            Graph_directed::const_iterator it{g.find("node 1")};
+
+            vector<Graph_directed::node::edge> in{g.get_in_edges(it)};
+            CHECK(in.size() == 1);
+            CHECK(in.cbegin()->cost() == 41);
+
+            vector<Graph_directed::node::edge> out{g.get_out_edges(it)};
+            CHECK(out.size() == 2);
+            CHECK(out[0].cost() == 12);
+        }
+
+        SECTION("undirected") {
+            Graph_undirected g;
+            g("node 1", "node 2") = 12;
+            g("node 1", "node 3") = 13;
+            g("node 3", "node 4") = 34;
+            g("node 4", "node 1") = 41;
+
+            Graph_undirected::const_iterator it1{g.find("node 1")};
+            Graph_undirected::const_iterator it4{g.find("node 4")};
+
+            vector<Graph_undirected::node::edge> edges{g.get_edges(it1)};
+            CHECK(edges.size() == 3);
+            CHECK(edges[0].cost() == 12);
+            CHECK(edges[1].cost() == 13);
+            CHECK(edges[2].target() == it4);
+        }
+    }
+
+    SECTION("get_[in_|out_|]edges(const key_type) const") {
+        SECTION("directed") {
+            Graph_directed g;
+            g("node 1", "node 2") = 12;
+            g("node 1", "node 3") = 13;
+            g("node 3", "node 4") = 34;
+            g("node 4", "node 1") = 41;
+
+            vector<Graph_directed::node::edge> in{g.get_in_edges("node 1")};
+            CHECK(in.size() == 1);
+            CHECK(in.cbegin()->cost() == 41);
+
+            vector<Graph_directed::node::edge> out{g.get_out_edges("node 1")};
+            CHECK(out.size() == 2);
+            CHECK(out[0].cost() == 12);
+        }
+
+        SECTION("undirected") {
+            Graph_undirected g;
+            g("node 1", "node 2") = 12;
+            g("node 1", "node 3") = 13;
+            g("node 3", "node 4") = 34;
+            g("node 4", "node 1") = 41;
+
+            vector<Graph_undirected::node::edge> edges{g.get_edges("node 1")};
+            CHECK(edges.size() == 3);
+            CHECK(edges[0].cost() == 12);
+            CHECK(edges[1].cost() == 13);
+            CHECK(edges[2].target() == g.find("node 4"));
+        }
+    }
 }

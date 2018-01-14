@@ -11,7 +11,7 @@ if [ $? -eq 0 ]; then
 	echo -e "\033[0;34m"
 	cat /tmp/out.log
 	echo ""
-	echo -e "\033[0;41mPlease commit (or not) these changes and run the script again.\033[0;0m"
+	echo -e "\033[0;41mPlease commit (or not) these changes and run the script again to generate header-only file.\033[0;0m"
 	echo ""
 	exit 1
 fi

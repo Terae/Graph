@@ -93,8 +93,8 @@ graph<Key, T, Cost, Nat> &graph<Key, T, Cost, Nat>::operator=(const graph &g) {
     for (const_iterator it{g.cbegin()}; it != g.cend(); ++it) {
         std::list<typename node::edge> list = it->second->get_edges();
         for (typename node::edge e : list) {
-            graph::const_iterator i{e.get_container()};
-            add_edge(it->first, i->first, *e.cost);
+            graph::const_iterator i{e.target()};
+            add_edge(it->first, i->first, e.cost());
         }
     }
 
@@ -263,10 +263,10 @@ std::pair<typename graph<Key, T, Cost, Nat>::iterator, bool> graph<Key, T, Cost,
 
 template <class Key, class T, class Cost, Nature Nat>
 bool graph<Key, T, Cost, Nat>::add_edge(const_iterator it1, const_iterator it2, Cost cost) {
-    std::pair<typename std::list<typename node::edge>::iterator, bool> new_edge = it1->second->add_edge(it2, cost);
+    std::pair<typename std::list<typename node::edge>::const_iterator, bool> new_edge{it1->second->add_edge(it2, cost)};
 
     if (get_nature() == UNDIRECTED) {
-        it2->second->set_edge(it1, (new_edge.first->cost));
+        it2->second->set_edge(it1, new_edge.first->_cost);
     }
 
     if (new_edge.second) {
@@ -285,12 +285,15 @@ template <class Key, class T, class Cost, Nature Nat>
 void graph<Key, T, Cost, Nat>::link_all_nodes(Cost cost) {
     clear_edges();
 
-    if (cost != infinity)
-        for (iterator it1 = begin(); it1 != end(); ++it1)
-            for (iterator it2 = begin(); it2 != end(); ++it2)
+    if (cost != infinity) {
+        for (iterator it1{begin()}; it1 != end(); ++it1) {
+            for (iterator it2{begin()}; it2 != end(); ++it2) {
                 if (it1 != it2) {
                     add_edge(it1, it2, cost);
                 }
+            }
+        }
+    }
 }
 
 template <class Key, class T, class Cost, Nature Nat>
@@ -556,6 +559,54 @@ std::map<Key, typename graph<Key, T, Cost, Nat>::Degree> graph<Key, T, Cost, Nat
 }
 
 template <class Key, class T, class Cost, Nature Nat>
+template <class> /// enable_if_t<DIRECTED>
+std::vector<typename graph<Key, T, Cost, Nat>::node::edge> graph<Key, T, Cost, Nat>::get_in_edges(const_iterator to) const {
+    std::vector<typename node::edge> result;
+
+    for (const_iterator it{cbegin()}; it != cend(); ++it) {
+        if (it != to) {
+            for (typename node::edge e : it->second->_out_edges) {
+                if (e.target() == to) {
+                    result.push_back(e);
+                }
+            }
+        }
+    }
+
+    return result;
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+template <class> /// enable_if_t<DIRECTED>
+std::vector<typename graph<Key, T, Cost, Nat>::node::edge> graph<Key, T, Cost, Nat>::get_in_edges(const key_type &to) const {
+    return get_in_edges(find(to));
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+template <class> /// enable_if_t<DIRECTED>
+std::vector<typename graph<Key, T, Cost, Nat>::node::edge> graph<Key, T, Cost, Nat>::get_out_edges(const_iterator from) const {
+    return std::vector<typename node::edge>(from->second->_out_edges.begin(), from->second->_out_edges.end());
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+template <class> /// enable_if_t<DIRECTED>
+std::vector<typename graph<Key, T, Cost, Nat>::node::edge> graph<Key, T, Cost, Nat>::get_out_edges(const key_type &from) const {
+    return get_out_edges(find(from));
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+template <class> /// enable_if_t<UNDIRECTED>
+std::vector<typename graph<Key, T, Cost, Nat>::node::edge> graph<Key, T, Cost, Nat>::get_edges(const_iterator i) const {
+    return std::vector<typename node::edge>(i->second->_out_edges.begin(), i->second->_out_edges.end());
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+template <class> /// enable_if_t<UNDIRECTED>
+std::vector<typename graph<Key, T, Cost, Nat>::node::edge> graph<Key, T, Cost, Nat>::get_edges(const key_type &i) const {
+    return get_edges(find(i));
+}
+
+template <class Key, class T, class Cost, Nature Nat>
 std::ostream &graph<Key, T, Cost, Nat>::print(std::ostream &os) const {
     using std::setw;
     using std::ostringstream;
@@ -612,7 +663,7 @@ std::ostream &graph<Key, T, Cost, Nat>::print(std::ostream &os) const {
             for_each(child.cbegin(), child.cend(), [ &, this](const typename node::edge & i) {
                 ostringstream out_1, out_2;
                 out_1 << element.first;
-                out_2 << i.target.lock()->container_from_this->first;
+                out_2 << i.target()->first;
 
                 size_type size_1{static_cast<size_type>(out_1.tellp())},
                           size_2{static_cast<size_type>(out_2.tellp())};
@@ -633,15 +684,15 @@ std::ostream &graph<Key, T, Cost, Nat>::print(std::ostream &os) const {
             for_each(child.cbegin(), child.cend(), [ =, &os, &p](const typename node::edge & i) {
                 ostringstream out_1, out_2;
                 out_1 << element.first << '"' << separator;
-                out_2 << i.target.lock()->container_from_this->first << '"' << separator;
+                out_2 << i.target()->first << '"' << separator;
 
                 os << tab << tab
                    << '"' << setw(static_cast<int>(max_size_1 + 2 + separator.size())) << out_1.str()
                    << '"' << setw(static_cast<int>(max_size_2 + 2 + separator.size())) << out_2.str();
-                if (*i.cost == infinity) {
+                if (i.cost() == infinity) {
                     os << "infinity";
                 } else {
-                    os << '"' << *i.cost << '"';
+                    os << '"' << i.cost() << '"';
                 }
 
                 if (p < (this->get_nature() == DIRECTED ?
@@ -773,10 +824,10 @@ bool graph<Key, T, Cost, Nat>::operator==(const graph<K, D, C, N> &other) const 
         typename Set2::const_iterator edge2{child2.cbegin()};
 
         for (; (edge1 != child1.cend() || edge2 != child2.cend()); ++edge1, ++edge2) {
-            Iterator1 target1{edge1->get_container()};
-            Iterator2 target2{edge2->get_container()};
+            Iterator1 target1{edge1->target()};
+            Iterator2 target2{edge2->target()};
 
-            if (!(target1->first == target2->first && *edge1->cost == *edge2->cost)) {
+            if (!(target1->first == target2->first && edge1->cost() == edge2->cost())) {
                 return false;
             }
         }

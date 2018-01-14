@@ -343,7 +343,7 @@ namespace detail {
         using value_type = std::size_t;
 
         basic_degree(const value_type &d) : _deg(d) {}
-        basic_degree(std::size_t in, std::size_t) : basic_degree(in) {}
+        basic_degree(std::size_t in, std::size_t out) : basic_degree(std::max(in, out)) {}
 
         inline value_type get_degree() const {
             return _deg;
@@ -370,6 +370,12 @@ namespace detail {
       private:
         value_type _deg;
     };
+
+    template <Nature> struct is_directed           : public std::false_type { };
+    template <>       struct is_directed<DIRECTED> : public std::true_type  { };
+
+    template <Nature> struct is_undirected             : public std::false_type { };
+    template <>       struct is_undirected<UNDIRECTED> : public std::true_type  { };
 
     ///
     //! SECTION helpers

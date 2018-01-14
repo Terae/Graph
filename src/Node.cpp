@@ -7,12 +7,15 @@
 ///////////////////////////////////
 
 template <class Data, class Cost, class Container, class constContainer>
-basic_node<Data, Cost, Container, constContainer>::edge::edge(const std::weak_ptr<basic_node<Data, Cost, Container, constContainer>> &ptr, Cost c) : target(ptr),
-    cost(std::make_shared<Cost>(c)) {}
+basic_node<Data, Cost, Container, constContainer>::edge::edge(const std::weak_ptr<basic_node<Data, Cost, Container, constContainer>> &ptr, Cost c) : _target(ptr),
+    _cost(std::make_shared<Cost>(c)) {}
+
+template <class Data, class Cost, class Container, class constContainer>
+basic_node<Data, Cost, Container, constContainer>::edge::edge(const edge &e) : _target(e._target), _cost(e._cost) {}
 
 template <class Data, class Cost, class Container, class constContainer>
 std::tuple<Cost, basic_node<Data, Cost, Container, constContainer>> basic_node<Data, Cost, Container, constContainer>::edge::tie() const {
-    return std::tie(*cost, *target.lock().get());
+    return std::tie(*_cost, *_target.lock().get());
 }
 
 template <class Data, class Cost, class Container, class constContainer>
@@ -26,8 +29,13 @@ bool basic_node<Data, Cost, Container, constContainer>::edge::operator==(const e
 }
 
 template <class Data, class Cost, class Container, class constContainer>
-constContainer basic_node<Data, Cost, Container, constContainer>::edge::get_container() const {
-    return target.lock()->container_from_this;
+constContainer basic_node<Data, Cost, Container, constContainer>::edge::target() const {
+    return _target.lock()->container_from_this;
+}
+
+template <class Data, class Cost, class Container, class constContainer>
+Cost &basic_node<Data, Cost, Container, constContainer>::edge::cost() const {
+    return *_cost;
 }
 
 ///////////////////////////////////
@@ -58,7 +66,7 @@ template <class Data, class Cost, class Container, class constContainer>
 bool basic_node<Data, Cost, Container, constContainer>::set_edge(constContainer other, std::shared_ptr<Cost> cost) {
     std::pair<basic_node<Data, Cost, Container, constContainer>::EdgesIterator, bool> new_edge{add_edge(other, *cost)};
 
-    new_edge.first->cost = cost;
+    new_edge.first->_cost = cost;
 
     return new_edge.second;
 }
@@ -110,14 +118,14 @@ Cost &basic_node<Data, Cost, Container, constContainer>::get_cost(const Containe
     }
 
     for (EdgesIterator it{_out_edges.begin()}; it != _out_edges.end(); ++it)
-        if (it->target.lock() == ptr) {
-            return *(it->cost);
+        if (it->_target.lock() == ptr) {
+            return it->cost();
         }
 
     //! Link doesn't exist
     _out_edges.emplace_back(std::weak_ptr<basic_node<Data, Cost, Container, constContainer>>(detail::get_value(other, end_container)), infinity);
     ptr->increment_in_degree();
-    return *((--_out_edges.end())->cost);
+    return (--_out_edges.end())->cost();
 }
 
 template <class Data, class Cost, class Container, class constContainer>
@@ -129,8 +137,8 @@ const Cost basic_node<Data, Cost, Container, constContainer>::get_cost(constCont
     }
 
     for (auto/*EdgesIterator*/ it = _out_edges.begin(); it != _out_edges.end(); ++it)
-        if (it->target.lock() == ptr) {
-            return *(it->cost);
+        if (it->_target.lock() == ptr) {
+            return it->cost();
         }
 
     //! Link doesn't exist
@@ -166,11 +174,12 @@ void basic_node<Data, Cost, Container, constContainer>::set_cost(Container other
     Cost new_cost{static_cast<Cost>(c)};
     bool existing_edge{false};
 
-    for (EdgesIterator it{_out_edges.begin()}; it != _out_edges.end(); ++it)
-        if (it->target.lock() == ptr) {
-            *(it->cost) = new_cost;
+    for (EdgesIterator it{_out_edges.begin()}; it != _out_edges.end(); ++it) {
+        if (it->_target.lock() == ptr) {
+            it->cost() = new_cost;
             existing_edge = true;
         }
+    }
 
     if (!existing_edge) {
         this->add_edge(other, new_cost);
@@ -207,8 +216,8 @@ bool basic_node<Data, Cost, Container, constContainer>::del_edge(constContainer 
 
 template <class Data, class Cost, class Container, class constContainer>
 bool basic_node<Data, Cost, Container, constContainer>::del_edge_if(constContainer other, std::function<bool(edge)> predicate) {
-    for (EdgesIterator it{_out_edges.begin()}; it != _out_edges.end();)
-        if (it->target.lock() == detail::get_value(other, cend_container)) {
+    for (EdgesIterator it{_out_edges.begin()}; it != _out_edges.end(); ) {
+        if (it->_target.lock() == detail::get_value(other, cend_container)) {
             if (predicate(*it)) {
                 it = _out_edges.erase(it);
                 other->second->decrement_in_degree();
@@ -218,6 +227,7 @@ bool basic_node<Data, Cost, Container, constContainer>::del_edge_if(constContain
         } else {
             ++it;
         }
+    }
 
     return false;
 }
@@ -227,7 +237,7 @@ std::size_t basic_node<Data, Cost, Container, constContainer>::clear_edges() {
     const std::size_t NUM{_out_edges.size()};
 
     for (EdgesIterator it{_out_edges.begin()}; it != _out_edges.end(); ) {
-        it->target.lock()->decrement_in_degree();
+        it->_target.lock()->decrement_in_degree();
         it = _out_edges.erase(it);
     }
 
@@ -249,10 +259,11 @@ bool basic_node<Data, Cost, Container, constContainer>::existing_adjacent_node(c
         return false;
     }
 
-    for (auto/*EdgesIterator*/ it = _out_edges.begin(); it != _out_edges.end(); ++it)
-        if (it->target.lock() == ptr) {
+    for (auto/*EdgesIterator*/ it = _out_edges.begin(); it != _out_edges.end(); ++it) {
+        if (it->_target.lock() == ptr) {
             return true;
         }
+    }
 
     //! Link doesn't exist
     return false;

@@ -270,6 +270,21 @@ class graph {
 
     std::map<key_type, Degree> degrees() const;
 
+    template <class = typename std::enable_if_t<detail::is_directed<Nat>::value>>
+    std::vector<typename node::edge> get_in_edges(const_iterator) const;
+    template <class = typename std::enable_if_t<detail::is_directed<Nat>::value>>
+    inline std::vector<typename node::edge> get_in_edges(const key_type &) const;
+
+    template <class = typename std::enable_if_t<detail::is_directed<Nat>::value>>
+    inline std::vector<typename node::edge> get_out_edges(const_iterator) const;
+    template <class = typename std::enable_if_t<detail::is_directed<Nat>::value>>
+    inline std::vector<typename node::edge> get_out_edges(const key_type &) const;
+
+    template <class = typename std::enable_if_t<detail::is_undirected<Nat>::value>>
+    inline std::vector<typename node::edge> get_edges(const_iterator) const;
+    template <class = typename std::enable_if_t<detail::is_undirected<Nat>::value>>
+    inline std::vector<typename node::edge> get_edges(const key_type &) const;
+
     ///
     //! @section Text functions
     ///
