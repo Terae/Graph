@@ -9,7 +9,7 @@ graph_benchmarks: src/benchmarks.cpp ../single_include/graph.hpp
 	$(CXX) -std=c++11 -pthread $(CXXFLAGS) -DNDEBUG -O3 -flto -I third-party/benchpress/src/benchpress -I ../single_include src/benchmarks.cpp $(LDFLAGS) -o $@
 
 generation_files:
-	(test -e files/grid_graph.txt) || (cd files; g++ generate_files.cpp -o exec; ./exec; rm exec)
+	(test -e files/grid_graph.txt && test -e files/complete_graph.txt) || (cd files; g++ generate_files.cpp -o exec; ./exec; rm exec)
 
 clean:
 	rm -f graph_benchmarks

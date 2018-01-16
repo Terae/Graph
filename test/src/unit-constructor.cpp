@@ -208,6 +208,20 @@ TEST_CASE("constructors") {
         }
     }
 
+    SECTION("istream constructor") {
+        using Graph = graph<string, int, int>;
+        Graph initial;
+        initial("node 1", "node 2") = 12;
+        initial("node 2", "node 1") = 21;
+        initial("node 2", "node 3") = 23;
+
+        stringstream ss;
+        ss << initial;
+        Graph final(ss);
+
+        CHECK(initial == final);
+    }
+
     SECTION("copy constructor") {
         using Graph            = graph           <string, int, int>;
         using Graph_directed   = graph_directed  <string, int, int>;

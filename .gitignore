@@ -2,6 +2,7 @@
 /build
 appveyor.yml.cached
 codecov.yml
+benchmarks/files/complete_graph.txt
 benchmarks/files/grid_graph.txt
 benchmarks/graph_benchmarks
 doc/html/*

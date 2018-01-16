@@ -28,8 +28,8 @@ struct Coord {
         return y < c.y;
     }
 };
-using Graph = graph<Coord, int, double, UNDIRECTED>;
-
+using Graph_grid = graph_undirected<Coord, int, double>;
+using Graph_directed = graph_directed  <std::string, int, double>;
 
 struct StartUp {
     StartUp() {
@@ -46,7 +46,7 @@ struct StartUp {
 };
 StartUp startup;
 
-enum class EMode { input, output/*, search*/ };
+enum class EMode { input, output, make_complete/*, search*/ };
 
 static void bench(benchpress::context &ctx,
                   const std::string &in_path,
@@ -85,7 +85,7 @@ static void bench(benchpress::context &ctx,
                 // clear flags and rewind
                 istr.clear();
                 istr.seekg(0);
-                Graph g;
+                Graph_grid g;
                 istr >> g;
             }
 
@@ -95,7 +95,7 @@ static void bench(benchpress::context &ctx,
         // benmarking output
         case EMode::output: {
             // create GRAPH value from input
-            Graph g;
+            Graph_grid g;
             istr >> g;
             std::stringstream ostr;
 
@@ -109,6 +109,18 @@ static void bench(benchpress::context &ctx,
 
             break;
         }
+
+        // benchmarking big amount of nodes and edges
+        case EMode::make_complete: {
+            Graph_directed g;
+            istr >> g;
+            std::stringstream ostr;
+
+            ctx.reset_timer();
+            g.link_all_nodes(42.0);
+
+            break;
+        }
     }
 }
 
@@ -117,8 +129,9 @@ static void bench(benchpress::context &ctx,
         bench(*ctx, (in_path), (mode));              \
     });
 
-BENCHMARKING_I(EMode::input,  "parse grid_graph.txt", "files/grid_graph.txt")
-BENCHMARKING_I(EMode::output, "dump  grid_graph.txt", "files/grid_graph.txt")
+BENCHMARKING_I(EMode::input,         "parse    grid_graph.txt",       "files/grid_graph.txt")
+BENCHMARKING_I(EMode::output,        "dump     grid_graph.txt",       "files/grid_graph.txt")
+BENCHMARKING_I(EMode::make_complete, "link_all complete_graph_9.txt", "files/complete_graph_9.txt")
 
 /*
 make all

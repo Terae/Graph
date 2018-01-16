@@ -27,7 +27,7 @@ class basic_node {
         std::tuple<Cost, basic_node<Data, Cost, Container, constContainer>> tie() const;
 
       public:
-        edge(const std::weak_ptr<basic_node<Data, Cost, Container, constContainer>> &ptr, Cost C);
+        explicit edge(const std::weak_ptr<basic_node<Data, Cost, Container, constContainer>> &ptr, Cost C);
         edge(const edge &);
 
         bool operator< (const edge &other) const;
@@ -157,7 +157,7 @@ class basic_node {
 
     //! Deleters
     bool del_edge   (constContainer other);
-    bool del_edge_if(constContainer other, std::function<bool(edge)> predicate);
+    bool del_edge_if(constContainer other, std::function<bool(const edge &)> predicate);
 
     std::size_t clear_edges();
 

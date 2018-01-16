@@ -279,7 +279,7 @@ TEST_CASE("text") {
             Graph g1;
             Graph_directed g2;
             Graph_undirected g3;
-            std::stringstream ss1, ss2, ss3, ss4, ss5, ss6, ss7, ss8;
+            std::stringstream ss1, ss2, ss3, ss4, ss5, ss6, ss7, ss8, ss9;
 
             ss1 << "badgraph<string, int, float> {\n    nodes: {\n    }\n}";
             CHECK_THROWS_WITH(ss1 >> g1, "[graph.exception.parse_error] parse error at 31: Bad graph nature (expected '[di]graph') when calling 'operator>>'.");
@@ -304,6 +304,9 @@ TEST_CASE("text") {
 
             ss8 << "graph<string, int, float> {\n    nodes: {\n    },\n    edges: {\n    }\n";
             CHECK_THROWS_WITH(ss8 >> g1, "[graph.exception.parse_error] parse error at 18446744073709551615: Bad format at the end of the graph when calling 'operator>>'.");
+
+            ss9 << "graph<string, int, float> {\n    nodes: {\n    }\n";
+            CHECK_THROWS_WITH(ss9 >> g1, "[graph.exception.parse_error] parse error at 18446744073709551615: Bad format for edges when calling 'operator>>'.");
         };
 
         SECTION("Reading from istream") {
@@ -333,6 +336,16 @@ TEST_CASE("text") {
             ss2 << GRAPH_2;
             Graph_undirected g3;
             CHECK_THROWS_WITH(ss2 >> g3, "[graph.exception.invalid_argument] Bad graph nature (expected 'digraph') when calling 'operator>>'.");
+
+            Graph_directed g4;
+            g4[1] = "node 1";
+            g4[2] = "node 2";
+            g4[3] = "node 3";
+            std::stringstream ss3;
+            ss3 << g4;
+            Graph_directed g5;
+            ss3 >> g5;
+            CHECK(g4 == g5);
         }
     }
 

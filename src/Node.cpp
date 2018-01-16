@@ -209,13 +209,13 @@ void basic_node<Data, Cost, Container, constContainer>::set_cost(Container other
 
 template <class Data, class Cost, class Container, class constContainer>
 bool basic_node<Data, Cost, Container, constContainer>::del_edge(constContainer other) {
-    return del_edge_if(other, [](edge) {
+    return del_edge_if(other, [](const edge &) {
         return true;
     } );
 }
 
 template <class Data, class Cost, class Container, class constContainer>
-bool basic_node<Data, Cost, Container, constContainer>::del_edge_if(constContainer other, std::function<bool(edge)> predicate) {
+bool basic_node<Data, Cost, Container, constContainer>::del_edge_if(constContainer other, std::function<bool(const edge &)> predicate) {
     for (EdgesIterator it{_out_edges.begin()}; it != _out_edges.end(); ) {
         if (it->_target.lock() == detail::get_value(other, cend_container)) {
             if (predicate(*it)) {

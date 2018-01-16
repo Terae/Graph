@@ -73,6 +73,11 @@ graph<Key, T, Cost, Nat>::graph() {
 }
 
 template <class Key, class T, class Cost, Nature Nat>
+graph<Key, T, Cost, Nat>::graph(std::istream &is) {
+    is >> *this;
+}
+
+template <class Key, class T, class Cost, Nature Nat>
 graph<Key, T, Cost, Nat>::graph(const graph &g) {
     *this = g;
 }
@@ -765,12 +770,13 @@ std::istream &operator>>(std::istream &is, graph<Key, T, Cost, Nat> &g) {
 
             g(from, to) = cost;
         }
+
+        getline(is, line);
+        if (line != "}") {
+            GRAPH_THROW_WITH(parse_error, static_cast<std::size_t>(is.tellg()), "Bad format at the end of the graph")
+        }
     }
 
-    getline(is, line);
-    if (line != "}") {
-        GRAPH_THROW_WITH(parse_error, static_cast<std::size_t>(is.tellg()), "Bad format at the end of the graph")
-    }
     return is;
 }
 

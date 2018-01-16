@@ -12,7 +12,7 @@
 #include <vector>    /// vector
 
 /// C++ language standard detection
-#if (defined(__cplusplus) && __cplusplus >= 201703L) || (defined(_MSC_VER) && _MSC_VER > 1900 && defined(_HAS_CXX17) && _HAS_CXX17 == 1)
+#if   (defined(__cplusplus) && __cplusplus >= 201703L) || (defined(_MSC_VER)   && _MSC_VER > 1900 && defined(_HAS_CXX17) && _HAS_CXX17 == 1)
     #define GRAPH_HAS_CPP_17
     #define GRAPH_HAS_CPP_14
 #elif (defined(__cplusplus) && __cplusplus >= 201402L) || (defined(_HAS_CXX14) && _HAS_CXX14 == 1)
@@ -29,7 +29,7 @@
         #error "unsupported Clang version - see https://github.com/terae/structure#supported-compilers"
     #endif
 #elif defined(__GNUC__) && !(defined(__ICC) || defined(__INTEL_COMPILER))
-    #if (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__) < 50000
+    #if (__GNUC__        * 10000 + __GNUC_MINOR__  * 100 + __GNUC_PATCHLEVEL__)  < 50000
         #error "unsupported GCC version - see https://github.com/terae/structure#supported-compilers"
     #endif
 #endif
@@ -138,6 +138,9 @@ class graph {
 
     /// default constructor
     explicit graph();
+
+    /// istream constructor
+    graph(std::istream &);
 
     /// copy constructor
     graph(const graph &);
@@ -260,8 +263,6 @@ class graph {
 
     inline Nature get_nature() const;
 
-    ///void set_nature(Nature new_nature);
-
     Degree degree(const_iterator)   const;
     Degree degree(const key_type &) const;
 
@@ -270,20 +271,20 @@ class graph {
 
     std::map<key_type, Degree> degrees() const;
 
-    template <class = typename std::enable_if_t<detail::is_directed<Nat>::value>>
-    std::vector<typename node::edge> get_in_edges(const_iterator) const;
-    template <class = typename std::enable_if_t<detail::is_directed<Nat>::value>>
-    inline std::vector<typename node::edge> get_in_edges(const key_type &) const;
+    template <class = typename std::enable_if<detail::is_directed  <Nat>::value>>
+    std::vector<typename node::edge> get_in_edges (const_iterator)   const;
+    template <class = typename std::enable_if<detail::is_directed  <Nat>::value>>
+    inline std::vector<typename node::edge> get_in_edges (const key_type &) const;
 
-    template <class = typename std::enable_if_t<detail::is_directed<Nat>::value>>
-    inline std::vector<typename node::edge> get_out_edges(const_iterator) const;
-    template <class = typename std::enable_if_t<detail::is_directed<Nat>::value>>
+    template <class = typename std::enable_if<detail::is_directed  <Nat>::value>>
+    inline std::vector<typename node::edge> get_out_edges(const_iterator)   const;
+    template <class = typename std::enable_if<detail::is_directed  <Nat>::value>>
     inline std::vector<typename node::edge> get_out_edges(const key_type &) const;
 
-    template <class = typename std::enable_if_t<detail::is_undirected<Nat>::value>>
-    inline std::vector<typename node::edge> get_edges(const_iterator) const;
-    template <class = typename std::enable_if_t<detail::is_undirected<Nat>::value>>
-    inline std::vector<typename node::edge> get_edges(const key_type &) const;
+    template <class = typename std::enable_if<detail::is_undirected<Nat>::value>>
+    inline std::vector<typename node::edge> get_edges    (const_iterator)   const;
+    template <class = typename std::enable_if<detail::is_undirected<Nat>::value>>
+    inline std::vector<typename node::edge> get_edges    (const key_type &) const;
 
     ///
     //! @section Text functions
@@ -292,7 +293,7 @@ class graph {
     template<class K, class D, class C, Nature N> friend std::ostream &operator<<(std::ostream &os, const graph<K, D, C, N> &g);
     template<class K, class D, class C, Nature N> friend std::istream &operator>>(std::istream &is,       graph<K, D, C, N> &g);
 
-    void save  (const char* filepath) const;
+    void   save(const char* filepath) const;
     graph &load(const char* filepath);
 
     ///
@@ -319,7 +320,7 @@ class graph {
 };
 
 template <class Key, class T, class Cost = std::size_t>
-using graph_directed = graph<Key, T, Cost, DIRECTED>;
+using graph_directed   = graph<Key, T, Cost, DIRECTED>;
 
 template <class Key, class T, class Cost = std::size_t>
 using graph_undirected = graph<Key, T, Cost, UNDIRECTED>;
