@@ -29,6 +29,6 @@ echo ""
 
 cd ${dir}
 
-github_changelog_generator terae/graph --simple-list --release-url https://github.com/terae/graph/releases/tag/v${version}
+github_changelog_generator terae/graph # --simple-list --release-url https://github.com/terae/graph/releases/tag/v${version}
 git add CHANGELOG.md
 git add CMakeLists.txt

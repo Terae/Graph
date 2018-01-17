@@ -92,14 +92,14 @@ In essence, a graph is a set of _nodes_ with any number of _edges_ in between. E
 ## Common algorithms
 One of the most common things to do with graphs is running algorithms to solve common graph problems. Therefore this library is being used as the basis for implementations for a number of commonly used graph algorithms:
 
-    |                                                      Name                                                      |  Initial  | Complete? | Optimal? | Time complexity |     Space complexity     |                     Description                     |
-    |:--------------------------------------------------------------------------------------------------------------:|:---------:|:---------:|:--------:|:---------------:|:------------------------:|:---------------------------------------------------:|
-    |                   [Breadth-First Search](https://en.wikipedia.org/wiki/breadth-first_search)                   |  **BFS**  |    YES    |    YES   |      O(b^d)     |          O(b^d)          |                  Uses a FIFO queue                  |
-    |                      [Deep-First Search](https://en.wikipedia.org/wiki/depth-first_search)                     |  **DFS**  |     NO    |    NO    |      O(b^m)     |           O(bm)          |                  Uses a LIFO queue                  |
-    |          [Depth-Limited Search](https://en.wikipedia.org/wiki/iterative_deepening_depth-first_search)          |  **DLS**  |     NO    |    NO    |      O(b^l)     |           O(bl)          |   Same as **DFS** with a predetermined depth limit  |
-    | [Iterative-Deepening Depth-First Search](https://en.wikipedia.org/wiki/iterative_deepening_depth-first_search) | **IDDFS** |    YES    |    YES   |      O(b^d)     |           O(bd)          |     Benefits combination of **BFS** and **DFS**     |
-    |                  [Uniform-Cost Search](https://en.wikipedia.org/wiki/Talk:uniform-cost_search)                 |  **UCS**  |    YES    |    YES   |  O(b^(1+C\*/E)) |      O(b^(1+C\*/E))      | Uses a queue ordered by the lowest path cost `g(n)` |
-    |                             [A*](https://en.wikipedia.org/wiki/A*_search_algorithm)                            |  **A\***  |    YES    |    YES   |                 | O((\|V\|+\|E\|)log\|V\|) |          **Optimally efficient algorithm**          |
+|                                                      Name                                                      |  Initial  | Complete? | Optimal? | Time complexity |     Space complexity     |                     Description                     |
+|:--------------------------------------------------------------------------------------------------------------:|:---------:|:---------:|:--------:|:---------------:|:------------------------:|:---------------------------------------------------:|
+|                   [Breadth-First Search](https://en.wikipedia.org/wiki/breadth-first_search)                   |  **BFS**  |    YES    |    YES   |      O(b^d)     |          O(b^d)          |                  Uses a FIFO queue                  |
+|                      [Deep-First Search](https://en.wikipedia.org/wiki/depth-first_search)                     |  **DFS**  |     NO    |    NO    |      O(b^m)     |           O(bm)          |                  Uses a LIFO queue                  |
+|          [Depth-Limited Search](https://en.wikipedia.org/wiki/iterative_deepening_depth-first_search)          |  **DLS**  |     NO    |    NO    |      O(b^l)     |           O(bl)          |   Same as **DFS** with a predetermined depth limit  |
+| [Iterative-Deepening Depth-First Search](https://en.wikipedia.org/wiki/iterative_deepening_depth-first_search) | **IDDFS** |    YES    |    YES   |      O(b^d)     |           O(bd)          |     Benefits combination of **BFS** and **DFS**     |
+|                  [Uniform-Cost Search](https://en.wikipedia.org/wiki/Talk:uniform-cost_search)                 |  **UCS**  |    YES    |    YES   |  O(b^(1+C\*/E)) |      O(b^(1+C\*/E))      | Uses a queue ordered by the lowest path cost `g(n)` |
+|                             [A*](https://en.wikipedia.org/wiki/A*_search_algorithm)                            |  **A\***  |    YES    |    YES   |                 | O((\|V\|+\|E\|)log\|V\|) |          **Optimally efficient algorithm**          |
 
 <!--    - [Dijkstra](https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm)
     - Moore-Bellman-Ford (MBF)
