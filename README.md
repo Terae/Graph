@@ -16,11 +16,11 @@ A STL-like graph library written in C++
 * [Documentation](#documentation)
 * [Quickstart example](#quickstart-example)
 * [Features](#features)
+* [Common algorithms](#common-algorithms)
 * [Supported compilers](#supported-compilers)
 * [Execute unit tests](#execute-unit-tests)
 * [License](#license)
 * [Used third-party tools](#used-third-party-tools)
-<!--* [Common algorithms](#common-algorithms)-->
 
 ## Design goals
 The Graph library is a STL-like library which can be used as an `std::` container. The class had these design goals:
@@ -89,14 +89,19 @@ This library is built around the concept of [mathematical graph theory](https://
 
 In essence, a graph is a set of _nodes_ with any number of _edges_ in between. Edges can be either _undirected_ ("two-way") or _directed_ ("one-way", aka di-edges). Edges are also allowed to form [loops](https://en.wikipedia.org/wiki/Loop_%28graph_theory%29) (i.e. an edge from node A pointing to node A again).
 
-<!--## Common algorithms
-One of the most common things to do woth graphs is running algorithms to solve commun graph problems. Therefore this labrary is being used as the basis for implementations for a number of commonly used graph algorithms:
-* Search
-    - Seep first (DFS)
-    - Breadth first search (BFS)
-* Shortest path
-    - [A*](https://en.wikipedia.org/wiki/A*_search_algorithm)
-    - [Dijkstra](https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm)
+## Common algorithms
+One of the most common things to do with graphs is running algorithms to solve common graph problems. Therefore this library is being used as the basis for implementations for a number of commonly used graph algorithms:
+
+    |                                                      Name                                                      |  Initial  | Complete? | Optimal? | Time complexity |     Space complexity     |                     Description                     |
+    |:--------------------------------------------------------------------------------------------------------------:|:---------:|:---------:|:--------:|:---------------:|:------------------------:|:---------------------------------------------------:|
+    |                   [Breadth-First Search](https://en.wikipedia.org/wiki/breadth-first_search)                   |  **BFS**  |    YES    |    YES   |      O(b^d)     |          O(b^d)          |                  Uses a FIFO queue                  |
+    |                      [Deep-First Search](https://en.wikipedia.org/wiki/depth-first_search)                     |  **DFS**  |     NO    |    NO    |      O(b^m)     |           O(bm)          |                  Uses a LIFO queue                  |
+    |          [Depth-Limited Search](https://en.wikipedia.org/wiki/iterative_deepening_depth-first_search)          |  **DLS**  |     NO    |    NO    |      O(b^l)     |           O(bl)          |   Same as **DFS** with a predetermined depth limit  |
+    | [Iterative-Deepening Depth-First Search](https://en.wikipedia.org/wiki/iterative_deepening_depth-first_search) | **IDDFS** |    YES    |    YES   |      O(b^d)     |           O(bd)          |     Benefits combination of **BFS** and **DFS**     |
+    |                  [Uniform-Cost Search](https://en.wikipedia.org/wiki/Talk:uniform-cost_search)                 |  **UCS**  |    YES    |    YES   |  O(b^(1+C\*/E)) |      O(b^(1+C\*/E))      | Uses a queue ordered by the lowest path cost `g(n)` |
+    |                             [A*](https://en.wikipedia.org/wiki/A*_search_algorithm)                            |  **A\***  |    YES    |    YES   |                 | O((\|V\|+\|E\|)log\|V\|) |          **Optimally efficient algorithm**          |
+
+<!--    - [Dijkstra](https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm)
     - Moore-Bellman-Ford (MBF)
     - Counting number of hops (simple BFS)
 * [Minimum spanning tree (MST)](https://en.wikipedia.org/wiki/Minimum_spanning_tree)

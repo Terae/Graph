@@ -303,7 +303,8 @@ namespace detail {
     ///
     /// @since version 1.0.0
     ///
-    template <Nature N> class basic_degree;
+
+    template <Nature> class basic_degree;
 
     template <> class basic_degree<DIRECTED> {
       public:
@@ -371,16 +372,18 @@ namespace detail {
         value_type _deg;
     };
 
+    ///
+    //! SECTION helpers
+    ///
+
     template <Nature> struct is_directed           : public std::false_type { };
     template <>       struct is_directed<DIRECTED> : public std::true_type  { };
 
     template <Nature> struct is_undirected             : public std::false_type { };
     template <>       struct is_undirected<UNDIRECTED> : public std::true_type  { };
 
-    ///
-    //! SECTION helpers
-    ///
 #include <memory>
+
     //! distinguish value type between map::iterator and shared_ptr: @see https://stackoverflow.com/a/31409532
     template <typename... >
     using void_t = void;
