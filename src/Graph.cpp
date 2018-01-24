@@ -2,6 +2,8 @@
 /// Created by Terae on 06/12/17.
 ///
 
+#include <set>
+
 template <class Key, class T, class Cost, Nature Nat>
 typename graph<Key, T, Cost, Nat>::iterator graph<Key, T, Cost, Nat>::begin() noexcept {
     return _nodes.begin();
@@ -612,6 +614,16 @@ std::vector<typename graph<Key, T, Cost, Nat>::node::edge> graph<Key, T, Cost, N
 }
 
 template <class Key, class T, class Cost, Nature Nat>
+bool graph<Key, T, Cost, Nat>::is_cyclic() const {
+
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+bool graph<Key, T, Cost, Nat>::is_isomorphic() const {
+
+}
+
+template <class Key, class T, class Cost, Nature Nat>
 std::ostream &graph<Key, T, Cost, Nat>::print(std::ostream &os) const {
     using std::setw;
     using std::ostringstream;
@@ -664,7 +676,7 @@ std::ostream &graph<Key, T, Cost, Nat>::print(std::ostream &os) const {
         size_type max_size_1{0}, max_size_2{0};
 
         for_each(cbegin(), cend(), [&max_size_1, &max_size_2, this](const value_type & element) {
-            std::list<typename node::edge> child = element.second->get_edges();
+            std::list<typename node::edge> child{element.second->get_edges()};
             for_each(child.cbegin(), child.cend(), [ &, this](const typename node::edge & i) {
                 ostringstream out_1, out_2;
                 out_1 << element.first;
@@ -685,7 +697,7 @@ std::ostream &graph<Key, T, Cost, Nat>::print(std::ostream &os) const {
 
         size_type p{0};
         for_each(cbegin(), cend(), [ =, &os, &p](const value_type & element) {
-            std::list<typename node::edge> child = element.second->get_edges();
+            std::list<typename node::edge> child{element.second->get_edges()};
             for_each(child.cbegin(), child.cend(), [ =, &os, &p](const typename node::edge & i) {
                 ostringstream out_1, out_2;
                 out_1 << element.first << '"' << separator;
@@ -799,6 +811,60 @@ graph<Key, T, Cost, Nat> &graph<Key, T, Cost, Nat>::load(const char* filepath) {
 }
 
 template <class Key, class T, class Cost, Nature Nat>
+std::ostream &graph<Key, T, Cost, Nat>::generate_dot(std::ostream &os, const std::string &name) const {
+    const std::string tab{"    "};
+
+    //! Displaying nature + graph name
+    if (name.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-") != name.npos) {
+        GRAPH_THROW_WITH(invalid_argument, "Wrong graph name given; accepted characters: [a-zA-Z0-9_-]")
+    }
+
+    if (get_nature() == DIRECTED) {
+        os << "di";
+    }
+    os << "graph ";
+    if (!name.empty()) {
+        os << name << ' ';
+    }
+    os << "{\n";
+
+    //! Displaying nodes' name
+    for (const_iterator it{cbegin()}; it != cend(); ++it) {
+        os << tab << it->first << '\n';
+    }
+
+    if (get_nature() == DIRECTED) {
+        for_each(cbegin(), cend(), [ =, &os](const value_type & element) {
+            std::list<typename node::edge> child{element.second->get_edges()};
+            for_each(child.cbegin(), child.cend(), [ =, &os](const typename node::edge & i) {
+                if (i.cost() != infinity) {
+                    os << tab << element.first << " -> " << i.target()->first << '\n';
+                }
+            });
+        });
+    } else { /// get_nature() == UNDIRECTED
+        std::set<std::pair<Key, Key>> list_edges;
+        for_each(cbegin(), cend(), [ =, &os, &list_edges](const value_type & element) {
+            std::list<typename node::edge> child{element.second->get_edges()};
+            for_each(child.cbegin(), child.cend(), [ =, &os, &list_edges](const typename node::edge & i) {
+                if (i.cost() != infinity) {
+                    const Key min{std::min(element.first, i.target()->first)};
+                    const Key max{std::max(element.first, i.target()->first)};
+                    list_edges.emplace(std::make_pair(min, max));
+                }
+            });
+        });
+
+        for_each(list_edges.cbegin(), list_edges.cend(), [ =, &os](const std::pair<Key, Key> &p) {
+            os << tab << p.first << " -- " << p.second << '\n';
+        });
+    }
+    os << '}';
+
+    return os;
+}
+
+template <class Key, class T, class Cost, Nature Nat>
 template <class K,   class D, class C,    Nature N>
 bool graph<Key, T, Cost, Nat>::operator==(const graph<K, D, C, N> &other) const noexcept {
     typedef typename graph<Key, T, Cost, Nat>::const_iterator Iterator1;
@@ -806,7 +872,7 @@ bool graph<Key, T, Cost, Nat>::operator==(const graph<K, D, C, N> &other) const 
     typedef std::list<typename basic_node<T, Cost, typename graph<Key, T, Cost, Nat>::iterator, Iterator1>::edge> Set1;
     typedef std::list<typename basic_node<D,    C, typename graph<K,   D, C,      N>::iterator, Iterator2>::edge> Set2;
 
-    if (get_nature()    != other.get_nature()        ||
+    if (get_nature()        != other.get_nature()    ||
             get_nbr_nodes() != other.get_nbr_nodes() ||
             get_nbr_edges() != other.get_nbr_edges()) {
         return false;

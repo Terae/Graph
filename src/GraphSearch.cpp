@@ -73,11 +73,11 @@ std::pair<stateType, costType> search::path<stateType, costType>::pop_front() {
 /////////////////////////////////////////////////
 
 template <class stateType, class costType>
-search::pathComparator<stateType, costType>::pathComparator(stateType target, std::function<double(stateType, stateType)> h) : _target(target), _heuristic(h) {}
+search::pathComparator<stateType, costType>::pathComparator(std::function<double(stateType)> h) : _heuristic(h) {}
 
 template <class stateType, class costType>
 bool search::pathComparator<stateType, costType>::operator() (const path<stateType, costType> &p1, const path<stateType, costType> &p2) {
-    return (p1.total_cost() + _heuristic(p1.back_state(), _target)) > (p2.total_cost() + _heuristic(p2.back_state(), _target));
+    return (p1.total_cost() + _heuristic(p1.back_state())) > (p2.total_cost() + _heuristic(p2.back_state()));
 }
 
 /////////////////////////////////////////////////
@@ -85,17 +85,23 @@ bool search::pathComparator<stateType, costType>::operator() (const path<stateTy
 /////////////////////////////////////////////////
 
 template <class Key, class T, class Cost, Nature Nat>
-search::abstractSearch<Key, T, Cost, Nat>::abstractSearch(const graph<Key, T, Cost, Nat> &g_) : g(g_) {}
+search::abstractSearch<Key, T, Cost, Nat>::abstractSearch(const graph<Key, T, Cost, Nat> &g_, std::function<bool(state)> is_goal) : g(g_), _is_goal(is_goal) {}
+
+template <class Key, class T, class Cost, Nature Nat>
+search::abstractTargetedSearch<Key, T, Cost, Nat>::abstractTargetedSearch(const graph<Key, T, Cost, Nat> &g, state target) : abstractSearch<Key, T, Cost, Nat>(g, [this](state node) -> bool { return std::find(_targets.cbegin(), _targets.cend(), node) != _targets.cend(); }) {
+    this->_targets.emplace_back(target);
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+search::abstractTargetedSearch<Key, T, Cost, Nat>::abstractTargetedSearch(const graph<Key, T, Cost, Nat> &g, const std::list<state> &list_target) : abstractSearch<Key, T, Cost, Nat>(g, [this](state node) -> bool { return std::find(_targets.cbegin(), _targets.cend(), node) != _targets.cend(); }),
+    _targets(list_target) {}
 
 /////////////////////////////////////////////////////
 ///// IMPLEMENTATION OF FIRST SEARCH ALGORITHMS /////
 /////////////////////////////////////////////////////
 
 template <class Key, class T, class Cost, Nature Nat, bool insertFront>
-search::abstractFirstSearch<Key, T, Cost, Nat, insertFront>::abstractFirstSearch(const graph<Key, T, Cost, Nat> &g) : abstractSearch<Key, T, Cost, Nat>(g) {}
-
-template <class Key, class T, class Cost, Nature Nat, bool insertFront>
-search::path<typename search::abstractFirstSearch<Key, T, Cost, Nat, insertFront>::state, Cost> search::abstractFirstSearch<Key, T, Cost, Nat, insertFront>::run(state begin, state target) {
+search::path<typename search::abstractFirstSearch<Key, T, Cost, Nat, insertFront>::state, Cost> search::abstractFirstSearch<Key, T, Cost, Nat, insertFront>::run(state begin) const {
     std::list<state> expanded;
     std::deque<path<state, Cost>> frontier;
 
@@ -114,7 +120,7 @@ search::path<typename search::abstractFirstSearch<Key, T, Cost, Nat, insertFront
             state last{p.back_state()};
             expanded.push_back(last);
 
-            if (last == target) {
+            if (this->_is_goal(last)) {
                 return p;
             }
 
@@ -138,14 +144,14 @@ search::path<typename search::abstractFirstSearch<Key, T, Cost, Nat, insertFront
     return empty;
 }
 
-template <class Key, class T, class Cost, Nature Nat>
-constexpr typename search::BFS<Key, T, Cost, Nat> search::make_BFS(const graph<Key, T, Cost, Nat> &g) {
-    return BFS<Key, T, Cost, Nat>(g);
+template <class Key, class T, class Cost, Nature Nat, class... Args>
+constexpr typename search::BFS<Key, T, Cost, Nat> search::make_BFS(const graph<Key, T, Cost, Nat> &g, Args &&... args) {
+    return BFS<Key, T, Cost, Nat>(g, std::forward<Args>(args)...);
 }
 
-template <class Key, class T, class Cost, Nature Nat>
-constexpr typename search::DFS<Key, T, Cost, Nat> search::make_DFS(const graph<Key, T, Cost, Nat> &g) {
-    return DFS<Key, T, Cost, Nat>(g);
+template <class Key, class T, class Cost, Nature Nat, class... Args>
+constexpr typename search::DFS<Key, T, Cost, Nat> search::make_DFS(const graph<Key, T, Cost, Nat> &g, Args &&... args) {
+    return DFS<Key, T, Cost, Nat>(g, std::forward<Args>(args)...);
 }
 
 ////////////////////////////////////////////////////////////
@@ -153,10 +159,7 @@ constexpr typename search::DFS<Key, T, Cost, Nat> search::make_DFS(const graph<K
 ////////////////////////////////////////////////////////////
 
 template <class Key, class T, class Cost, Nature Nat>
-search::DLS<Key, T, Cost, Nat>::DLS(const graph<Key, T, Cost, Nat> &g) : abstractSearch<Key, T, Cost, Nat>(g) {}
-
-template <class Key, class T, class Cost, Nature Nat>
-search::path<typename search::DLS<Key, T, Cost, Nat>::state, Cost> search::DLS<Key, T, Cost, Nat>::run(state begin, state target, int depth) {
+search::path<typename search::DLS<Key, T, Cost, Nat>::state, Cost> search::DLS<Key, T, Cost, Nat>::run(state begin, int depth) const {
     std::list<state> expanded;
     std::deque<path<state, Cost>> frontier;
 
@@ -176,7 +179,7 @@ search::path<typename search::DLS<Key, T, Cost, Nat>::state, Cost> search::DLS<K
             state last{p.back_state()};
             expanded.push_back(last);
 
-            if (last == target) {
+            if (this->_is_goal(last)) {
                 return p;
             }
 
@@ -218,20 +221,17 @@ search::path<typename search::DLS<Key, T, Cost, Nat>::state, Cost> search::DLS<K
     return path<state, Cost>();*/
 }
 
-template <class Key, class T, class Cost, Nature Nat>
-constexpr typename search::DLS<Key, T, Cost, Nat> search::make_DLS(const graph<Key, T, Cost, Nat> &g) {
-    return DLS<Key, T, Cost, Nat>(g);
+template <class Key, class T, class Cost, Nature Nat, class... Args>
+constexpr typename search::DLS<Key, T, Cost, Nat> search::make_DLS(const graph<Key, T, Cost, Nat> &g, Args &&... args) {
+    return DLS<Key, T, Cost, Nat>(g, std::forward<Args>(args)...);
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-search::IDDFS<Key, T, Cost, Nat>::IDDFS(const graph<Key, T, Cost, Nat> &g) : abstractSearch<Key, T, Cost, Nat>(g) {}
-
-template <class Key, class T, class Cost, Nature Nat>
-search::path<typename search::IDDFS<Key, T, Cost, Nat>::state, Cost> search::IDDFS<Key, T, Cost, Nat>::run(state begin, state target) {
-    search::DLS<Key, T, Cost, Nat> dls{make_DLS(this->g)};
+search::path<typename search::IDDFS<Key, T, Cost, Nat>::state, Cost> search::IDDFS<Key, T, Cost, Nat>::run(state begin) const {
+    search::DLS<Key, T, Cost, Nat> dls{make_DLS(this->g, this->_targets)};
 
     for (int i{0}; i < std::numeric_limits<int>::max(); ++i) {
-        path<state, Cost> found{dls.run(begin, target, i)};
+        path<state, Cost> found{dls.run(begin, i)};
         if (!found.empty()) {
             return found;
         }
@@ -239,9 +239,9 @@ search::path<typename search::IDDFS<Key, T, Cost, Nat>::state, Cost> search::IDD
     return path<state, Cost>();
 }
 
-template <class Key, class T, class Cost, Nature Nat>
-constexpr typename search::IDDFS<Key, T, Cost, Nat> search::make_IDDFS(const graph<Key, T, Cost, Nat> &g) {
-    return IDDFS<Key, T, Cost, Nat>(g);
+template <class Key, class T, class Cost, Nature Nat, class... Args>
+constexpr typename search::IDDFS<Key, T, Cost, Nat> search::make_IDDFS(const graph<Key, T, Cost, Nat> &g, Args &&... args) {
+    return IDDFS<Key, T, Cost, Nat>(g, std::forward<Args>(args)...);
 }
 
 ////////////////////////////////////////////////////
@@ -249,12 +249,9 @@ constexpr typename search::IDDFS<Key, T, Cost, Nat> search::make_IDDFS(const gra
 ////////////////////////////////////////////////////
 
 template <class Key, class T, class Cost, Nature Nat>
-search::UCS<Key, T, Cost, Nat>::UCS(const graph<Key, T, Cost, Nat> &g) : abstractSearch<Key, T, Cost, Nat>(g) {}
-
-template <class Key, class T, class Cost, Nature Nat>
-search::path<typename search::UCS<Key, T, Cost, Nat>::state, Cost> search::UCS<Key, T, Cost, Nat>::run(state begin, state target) {
+search::path<typename search::UCS<Key, T, Cost, Nat>::state, Cost> search::UCS<Key, T, Cost, Nat>::run(state begin) const {
     std::list<state> expanded;
-    std::priority_queue<path<state, Cost>, std::vector<path<state, Cost>>, pathComparator<state, Cost>> frontier((pathComparator<state, Cost>(target, [](state, state) -> double { return 0; })));
+    std::priority_queue<path<state, Cost>, std::vector<path<state, Cost>>, pathComparator<state, Cost>> frontier(pathComparator<state, Cost>([](state) -> double { return 0; } ));
 
     {
         path<state, Cost> p;
@@ -271,7 +268,7 @@ search::path<typename search::UCS<Key, T, Cost, Nat>::state, Cost> search::UCS<K
             state last{p.back_state()};
             expanded.push_back(last);
 
-            if (last == target) {
+            if (this->_is_goal(last)) {
                 return p;
             }
 
@@ -291,9 +288,9 @@ search::path<typename search::UCS<Key, T, Cost, Nat>::state, Cost> search::UCS<K
     return empty;
 }
 
-template <class Key, class T, class Cost, Nature Nat>
-constexpr typename search::UCS<Key, T, Cost, Nat> search::make_UCS(const graph<Key, T, Cost, Nat> &g) {
-    return UCS<Key, T, Cost, Nat>(g);
+template <class Key, class T, class Cost, Nature Nat, class... Args>
+constexpr typename search::UCS<Key, T, Cost, Nat> search::make_UCS(const graph<Key, T, Cost, Nat> &g, Args &&... args) {
+    return UCS<Key, T, Cost, Nat>(g, std::forward<Args>(args)...);
 }
 
 ///////////////////////////////////////////
@@ -301,12 +298,9 @@ constexpr typename search::UCS<Key, T, Cost, Nat> search::make_UCS(const graph<K
 ///////////////////////////////////////////
 
 template <class Key, class T, class Cost, Nature Nat>
-search::AStar<Key, T, Cost, Nat>::AStar(const graph<Key, T, Cost, Nat> &g) : abstractSearch<Key, T, Cost, Nat>(g) {}
-
-template <class Key, class T, class Cost, Nature Nat>
-search::path<typename search::AStar<Key, T, Cost, Nat>::state, Cost> search::AStar<Key, T, Cost, Nat>::run(state begin, state target, std::function<double(state, state)> heuristic) {
+search::path<typename search::AStar<Key, T, Cost, Nat>::state, Cost> search::AStar<Key, T, Cost, Nat>::run(state begin, std::function<double(state)> heuristic) const {
     std::list<state> expanded;
-    std::priority_queue<path<state, Cost>, std::vector<path<state, Cost>>, pathComparator<state, Cost>> frontier((pathComparator<state, Cost>(target, heuristic)));
+    std::priority_queue<path<state, Cost>, std::vector<path<state, Cost>>, pathComparator<state, Cost>> frontier((pathComparator<state, Cost>(heuristic)));
 
     {
         path<state, Cost> p;
@@ -323,7 +317,7 @@ search::path<typename search::AStar<Key, T, Cost, Nat>::state, Cost> search::ASt
             state last{p.back_state()};
             expanded.push_back(last);
 
-            if (last == target) {
+            if (this->_is_goal(last)) {
                 return p;
             }
 
@@ -343,7 +337,21 @@ search::path<typename search::AStar<Key, T, Cost, Nat>::state, Cost> search::ASt
     return empty;
 }
 
+template <class Key, class T, class Cost, Nature Nat, class... Args>
+constexpr typename search::AStar<Key, T, Cost, Nat> search::make_AStar(const graph<Key, T, Cost, Nat> &g, Args &&... args) {
+    return AStar<Key, T, Cost, Nat>(g, std::forward<Args>(args)...);
+}
+
+/////////////////////////////////////////////////
+///// IMPLEMENTATION OF THE Dijkstra SEARCH /////
+/////////////////////////////////////////////////
+
 template <class Key, class T, class Cost, Nature Nat>
-constexpr typename search::AStar<Key, T, Cost, Nat> search::make_AStar(const graph<Key, T, Cost, Nat> &g) {
-    return AStar<Key, T, Cost, Nat>(g);
+std::map<typename search::Dijkstra<Key, T, Cost, Nat>::state, search::path<typename search::Dijkstra<Key, T, Cost, Nat>::state, Cost>> search::Dijkstra<Key, T, Cost, Nat>::run(state begin) const {
+
+}
+
+template <class Key, class T, class Cost, Nature Nat, class... Args>
+constexpr typename search::Dijkstra<Key, T, Cost, Nat> search::make_Dijkstra(const graph<Key, T, Cost, Nat> &g, Args &&... args) {
+    return Dijkstra<Key, T, Cost, Nat>(g, std::forward<Args>(args)...);
 }

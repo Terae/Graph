@@ -62,28 +62,28 @@ int main() {
 
     const string BEGIN{"Arad"};
 
-    auto DFS    = search::make_DFS(map);
-    auto pDFS   = DFS.run  (map.find(BEGIN), map.find("Bucharest"));
+    auto DFS    = search::make_DFS(map, map.find("Bucharest"));
+    auto pDFS   = DFS.run  (map.find(BEGIN));
 
-    auto BFS    = search::make_BFS(map);
-    auto pBFS   = BFS.run  (map.find(BEGIN), map.find("Bucharest"));
+    auto BFS    = search::make_BFS(map, map.find("Bucharest"));
+    auto pBFS   = BFS.run  (map.find(BEGIN));
 
-    auto DLS    = search::make_DLS(map);
-    auto pDLS   = DLS.run  (map.find(BEGIN), map.find("Bucharest"), 5);
+    auto DLS    = search::make_DLS(map, map.find("Bucharest"));
+    auto pDLS   = DLS.run  (map.find(BEGIN), 5);
 
-    auto IDDFS  = search::make_IDDFS(map);
-    auto pIDDFS = IDDFS.run(map.find(BEGIN), map.find("Bucharest"));
+    auto IDDFS  = search::make_IDDFS(map, map.find("Bucharest"));
+    auto pIDDFS = IDDFS.run(map.find(BEGIN));
 
-    auto UCS    = search::make_UCS(map);
-    auto pUCS   = UCS.run  (map.find(BEGIN), map.find("Bucharest"));
+    auto UCS    = search::make_UCS(map, map.find("Bucharest"));
+    auto pUCS   = UCS.run  (map.find(BEGIN));
 
-    auto aStar  = search::make_AStar(map);
-    auto heuristic = [&straight_line_Bucharest](const graph_undirected<string, int, int>::const_iterator & it, const graph_undirected<string, int, int>::const_iterator & target) -> double {
-        if (target->first == "Bucharest") {
+    auto aStar  = search::make_AStar(map, map.find("Bucharest"));
+    auto heuristic = [&straight_line_Bucharest](const graph_undirected<string, int, int>::const_iterator & it) -> double {
+        if (it->first == "Bucharest") {
             return straight_line_Bucharest[it->first];
         }
     };
-    auto pAStar = aStar.run(map.find(BEGIN), map.find("Bucharest"), heuristic);
+    auto pAStar = aStar.run(map.find(BEGIN), heuristic);
 
     const size_t nr_digits_IDDFS{static_cast<size_t>(pIDDFS.empty() ? 0 : log10(pIDDFS.get_nr_steps()) + 1)};
     cout << "\nCalculation of the shortest path from '" << BEGIN << "' to 'Bucharest' with several search algorithms:\n"

@@ -376,4 +376,49 @@ TEST_CASE("text") {
         Graph_undirected g3;
         CHECK_THROWS_WITH(g3.load("/tmp/graph.txt"), "[graph.exception.invalid_argument] Bad graph nature (expected 'digraph') when calling 'operator>>'.");
     }
+
+    SECTION("generate_dot(ostream &, string)") {
+        Graph_directed g1;
+        g1[0];
+        g1(1, 2) = 1;
+        g1(1, 3) = 1;
+        g1(4, 2) = 1;
+        g1(1, 4); // infinite edge
+        ostringstream out1;
+        const string result1{"digraph g1 {\n"
+            "    0\n"
+            "    1\n"
+            "    2\n"
+            "    3\n"
+            "    4\n"
+            "    1 -> 2\n"
+            "    1 -> 3\n"
+            "    4 -> 2\n"
+            "}"};
+        g1.generate_dot(out1, "g1");
+        CHECK(result1 == out1.str());
+
+        Graph_undirected g2;
+        g2[0];
+        g2(1, 2) = 1;
+        g2(1, 3) = 1;
+        g2(4, 2) = 1;
+        g2(1, 4); // infinite edge
+        ostringstream out2;
+        const string result2{"graph g2 {\n"
+            "    0\n"
+            "    1\n"
+            "    2\n"
+            "    3\n"
+            "    4\n"
+            "    1 -- 2\n"
+            "    1 -- 3\n"
+            "    2 -- 4\n"
+            "}"};
+        g2.generate_dot(out2, "g2");
+        CHECK(result2 == out2.str());
+
+        CHECK_THROWS_WITH(g1.generate_dot(out1, "wrong name"), "[graph.exception.invalid_argument] Wrong graph name given; accepted characters: [a-zA-Z0-9_-] when calling 'generate_dot'.");
+
+    }
 }

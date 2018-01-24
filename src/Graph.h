@@ -286,22 +286,31 @@ class graph {
     template <class = typename std::enable_if<detail::is_undirected<Nat>::value>>
     inline std::vector<typename node::edge> get_edges    (const key_type &) const;
 
+    // TODO
+    bool is_cyclic() const;
+
+    // TODO
+    bool is_isomorphic() const;
+
     ///
     //! @section Text functions
     ///
 
-    template<class K, class D, class C, Nature N> friend std::ostream &operator<<(std::ostream &os, const graph<K, D, C, N> &g);
-    template<class K, class D, class C, Nature N> friend std::istream &operator>>(std::istream &is,       graph<K, D, C, N> &g);
+    template<class K, class D, class C, Nature N> friend std::ostream &operator<<(std::ostream &, const graph<K, D, C, N> &);
+    template<class K, class D, class C, Nature N> friend std::istream &operator>>(std::istream &,       graph<K, D, C, N> &);
 
     void   save(const char* filepath) const;
     graph &load(const char* filepath);
+
+    /// @param name Optional; accepted characters: [a-zA-Z0-9_-]
+    std::ostream &generate_dot(std::ostream &, const std::string &name = "") const;
 
     ///
     //! @section Bool operators
     ///
 
-    template<class K, class D, class C, Nature N> bool operator==(const graph<K, D, C, N> &other) const noexcept;
-    template<class K, class D, class C, Nature N> bool operator!=(const graph<K, D, C, N> &other) const noexcept;
+    template<class K, class D, class C, Nature N> bool operator==(const graph<K, D, C, N> &) const noexcept;
+    template<class K, class D, class C, Nature N> bool operator!=(const graph<K, D, C, N> &) const noexcept;
 
     /// CRTP: https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern
     class node : public basic_node<T, Cost, iterator, const_iterator> {
