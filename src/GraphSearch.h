@@ -9,12 +9,12 @@
 namespace search {
     template <class stateType, class costType>
     class path {
-        template <class, class>                      friend class pathComparator;
-        template <class, class, class, Nature>       friend class abstractSearch;
-        template <class, class, class, Nature, bool> friend class abstractFirstSearch;
-        template <class, class, class, Nature>       friend class DLS;
-        template <class, class, class, Nature>       friend class UCS;
-        template <class, class, class, Nature>       friend class AStar;
+        template <class, class>                      friend class path_comparator;
+        template <class, class, class, Nature, bool> friend class abstract_first_search;
+        template <class, class, class, Nature>       friend class dls;
+        template <class, class, class, Nature>       friend class ucs;
+        template <class, class, class, Nature>       friend class astar;
+        template <class, class, class, Nature>       friend class dijkstra;
 
       public:
         path();
@@ -41,124 +41,306 @@ namespace search {
     };
 
     template <class stateType, class costType>
-    class pathComparator {
+    class path_comparator {
       private:
-        stateType _target;
-        std::function<double(stateType, stateType)> _heuristic;
+        std::function<double(stateType)> _heuristic;
 
       public:
-        pathComparator(stateType target, std::function<double(stateType, stateType)> heuristic);
+        path_comparator(std::function<double(stateType)> heuristic);
 
         bool operator() (const path<stateType, costType> &, const path<stateType, costType> &);
     };
 
     ///
-    /// @brief Abstract class of all search algorithms
+    /// @brief Abstract class for all search algorithms
+    ///
+    /// Subclasses:
+    /// - @ref abstract_targeted_search Abstract class for all search algorithms with a specified target
+    /// - @ref abstract_first_search Abstract class for First Search algorithms (BFS, DFS)
+    /// - @ref bfs Breadth-First Search algorithm
+    /// - @ref dfs Depth-First Search algorithm
+    /// - @ref dls Depth-Limited Search algorithm
+    /// - @ref iddfs Iterative-Deepening Depth-First Search algorithm
+    /// - @ref ucs Uniform-Cost Search algorithm
+    /// - @ref astar A* Search algorithm
+    /// - @ref dijkstra dijkstra algorithm
+    ///
+    /// @since version 1.1
     ///
     template <class Key, class T, class Cost, Nature Nat>
-    class abstractSearch {
+    class abstract_search {
+      public:
+        using state = typename graph<Key, T, Cost, Nat>::const_iterator;
+
+        explicit abstract_search(const graph<Key, T, Cost, Nat> &, std::function<bool(state)> is_goal);
+
       protected:
         const graph<Key, T, Cost, Nat> &g;
-        abstractSearch(const graph<Key, T, Cost, Nat> &);
+
+        std::function<bool(state)> _is_goal;
+    };
+
+    ///
+    /// @brief Abstract class for all search algorithms with a specified target
+    ///
+    /// Allow the user to give one or several nodes-goal to the algorithm
+    /// instead of giving a function<bool(state)> parameter in entry
+    ///
+    /// Subclasses:
+    /// - @ref abstract_first_search Abstract class for First Search algorithms (BFS, DFS)
+    /// - @ref bfs Breadth-First Search algorithm
+    /// - @ref dfs Depth-First Search algorithm
+    /// - @ref dls Depth-Limited Search algorithm
+    /// - @ref iddfs Iterative-Deepening Depth-First Search algorithm
+    /// - @ref ucs Uniform-Cost Search algorithm
+    /// - @ref astar A* Search algorithm
+    ///
+    /// @sa @ref abstract_search Abstract class for all search algorithms
+    /// @sa @ref dijkstra dijkstra algorithm
+    ///
+    /// @since version 1.1
+    ///
+    template <class Key, class T, class Cost, Nature Nat>
+    class abstract_targeted_search : public abstract_search<Key, T, Cost, Nat> {
+      public:
+        using abstract_search<Key, T, Cost, Nat>::abstract_search;
+
+        using state = typename graph<Key, T, Cost, Nat>::const_iterator;
+
+        explicit abstract_targeted_search(const graph<Key, T, Cost, Nat> &, Key   target);
+        explicit abstract_targeted_search(const graph<Key, T, Cost, Nat> &, state target);
+
+        explicit abstract_targeted_search(const graph<Key, T, Cost, Nat> &, const std::list<Key>   &list_target);
+        explicit abstract_targeted_search(const graph<Key, T, Cost, Nat> &, const std::list<state> &list_target);
+
+      protected:
+        std::list<state> _targets;
     };
 
     ///
     /// @brief Abstract class for Depth-First and Breadth-First Searches
-    /// @tparam insertFront Specialization parameter between DFS (true) and BFS(false) using respectively a `std::stack` and a `std::queue`
+    ///
+    /// @tparam insertFront Specialization parameter between dfs (true) and bfs(false) using respectively a `std::stack` and a `std::queue`
+    ///
+    /// Subclasses:
+    /// - @ref bfs Breadth-First Search algorithm
+    /// - @ref dfs Depth-First Search algorithm
+    ///
+    /// @sa @ref abstract_search Abstract class for all search algorithms
+    /// @sa @ref abstract_first_search Abstract class for First Search algorithms (BFS, DFS)
+    /// @sa @ref dls Depth-Limited Search algorithm
+    /// @sa @ref iddfs Iterative-Deepening Depth-First Search algorithm
+    /// @sa @ref ucs Uniform-Cost Search algorithm
+    /// @sa @ref astar A* Search algorithm
+    /// @sa @ref dijkstra dijkstra algorithm
     ///
     template <class Key, class T, class Cost, Nature Nat, bool insertFront>
-    class abstractFirstSearch : public abstractSearch<Key, T, Cost, Nat> {
+    class abstract_first_search : public abstract_targeted_search<Key, T, Cost, Nat> {
       public:
-        using state = typename graph<Key, T, Cost, Nat>::const_iterator;
-        abstractFirstSearch(const graph<Key, T, Cost, Nat> &);
+        using abstract_targeted_search<Key, T, Cost, Nat>::abstract_targeted_search;
 
-        path<state, Cost> run(state begin, state target);
+        using state = typename abstract_targeted_search<Key, T, Cost, Nat>::state;
+
+        path<state, Cost> run(Key   begin) const;
+        path<state, Cost> run(state begin) const;
     };
 
     ///
     /// @brief Breadth-First Search class
     /// @see https://en.wikipedia.org/wiki/Breadth-First_Search
     ///
+    /// @sa @ref abstract_search Abstract class for all search algorithms
+    /// @sa @ref abstract_targeted_search Abstract class for all search algorithms with a specified target
+    /// @sa @ref abstract_first_search Abstract class for First Search algorithms (BFS, DFS)
+    /// @sa @ref dfs Depth-First Search algorithm
+    /// @sa @ref dls Depth-Limited Search algorithm
+    /// @sa @ref iddfs Iterative-Deepening Depth-First Search algorithm
+    /// @sa @ref ucs Uniform-Cost Search algorithm
+    /// @sa @ref astar A* Search algorithm
+    /// @sa @ref dijkstra dijkstra algorithm
+    ///
+    /// @since version 1.1
+    ///
     template <class Key, class T, class Cost, Nature Nat>
-    using BFS = abstractFirstSearch<Key, T, Cost, Nat, false>;
+    using bfs = abstract_first_search<Key, T, Cost, Nat, false>;
 
-    template <class Key, class T, class Cost, Nature Nat>
-    constexpr BFS<Key, T, Cost, Nat> make_BFS(const graph<Key, T, Cost, Nat> &);
+    template <class Key, class T, class Cost, Nature Nat, class... Args>
+    constexpr bfs<Key, T, Cost, Nat> make_bfs(const graph<Key, T, Cost, Nat> &, Args &&...);
 
     ///
     /// @brief Depth-First Search class
     /// @see https://en.wikipedia.org/wiki/Depth-First_Search
     ///
+    /// @sa @ref abstract_search Abstract class for all search algorithms
+    /// @sa @ref abstract_targeted_search Abstract class for all search algorithms with a specified target
+    /// @sa @ref abstract_first_search Abstract class for First Search algorithms (BFS, DFS)
+    /// @sa @ref bfs Breadth-First Search algorithm
+    /// @sa @ref dls Depth-Limited Search algorithm
+    /// @sa @ref iddfs Iterative-Deepening Depth-First Search algorithm
+    /// @sa @ref ucs Uniform-Cost Search algorithm
+    /// @sa @ref astar A* Search algorithm
+    /// @sa @ref dijkstra dijkstra algorithm
+    ///
+    /// @since version 1.1
+    ///
     template <class Key, class T, class Cost, Nature Nat>
-    using DFS = abstractFirstSearch<Key, T, Cost, Nat, true>;
+    using dfs = abstract_first_search<Key, T, Cost, Nat, true>;
 
-    template <class Key, class T, class Cost, Nature Nat>
-    constexpr DFS<Key, T, Cost, Nat> make_DFS(const graph<Key, T, Cost, Nat> &);
+    template <class Key, class T, class Cost, Nature Nat, class... Args>
+    constexpr dfs<Key, T, Cost, Nat> make_dfs(const graph<Key, T, Cost, Nat> &, Args &&...);
 
     ///
     /// @brief Depth-Limited Search class
     /// @see https://en.wikipedia.org/wiki/Iterative_Deepening_Depth-First_Search
-    /// @tparam l Predetermined depth limit 'l' to create a Depth-Limited Search (fix DFS's loop problem). Have to be well choose, in function of the problem.
+    ///
+    /// @tparam l Predetermined depth limit 'l' to create a Depth-Limited Search (fix dfs's loop problem). Have to be well choose, in function of the problem.
+    ///
+    /// @sa @ref abstract_search Abstract class for all search algorithms
+    /// @sa @ref abstract_targeted_search Abstract class for all search algorithms with a specified target
+    /// @sa @ref abstract_first_search Abstract class for First Search algorithms (BFS, DFS)
+    /// @sa @ref bfs Breadth-First Search algorithm
+    /// @sa @ref dfs Depth-First Search algorithm
+    /// @sa @ref iddfs Iterative-Deepening Depth-First Search algorithm
+    /// @sa @ref ucs Uniform-Cost Search algorithm
+    /// @sa @ref astar A* Search algorithm
+    /// @sa @ref dijkstra dijkstra algorithm
+    ///
+    /// @since version 1.1
     ///
     template <class Key, class T, class Cost, Nature Nat>
-    class DLS : public abstractSearch<Key, T, Cost, Nat> {
+    class dls : public abstract_targeted_search<Key, T, Cost, Nat> {
       public:
-        using state = typename graph<Key, T, Cost, Nat>::const_iterator;
-        DLS(const graph<Key, T, Cost, Nat> &);
+        using abstract_targeted_search<Key, T, Cost, Nat>::abstract_targeted_search;
 
-        path<state, Cost> run(state begin, state target, int depth);
+        using state = typename abstract_targeted_search<Key, T, Cost, Nat>::state;
+
+        path<state, Cost> run(Key   begin, int depth) const;
+        path<state, Cost> run(state begin, int depth) const;
     };
 
-    template <class Key, class T, class Cost, Nature Nat>
-    constexpr DLS<Key, T, Cost, Nat> make_DLS(const graph<Key, T, Cost, Nat> &);
+    template <class Key, class T, class Cost, Nature Nat, class... Args>
+    constexpr dls<Key, T, Cost, Nat> make_dls(const graph<Key, T, Cost, Nat> &, Args &&...);
 
     ///
     /// @brief Iterative-Deepening Depth-First Search
     /// @see https://en.wikipedia.org/wiki/Iterative_Deepening_Depth-First_Search
     ///
+    /// @sa @ref abstract_search Abstract class for all search algorithms
+    /// @sa @ref abstract_targeted_search Abstract class for all search algorithms with a specified target
+    /// @sa @ref abstract_first_search Abstract class for First Search algorithms (BFS, DFS)
+    /// @sa @ref bfs Breadth-First Search algorithm
+    /// @sa @ref dfs Depth-First Search algorithm
+    /// @sa @ref dls Depth-Limited Search algorithm
+    /// @sa @ref ucs Uniform-Cost Search algorithm
+    /// @sa @ref astar A* Search algorithm
+    /// @sa @ref dijkstra dijkstra algorithm
+    ///
+    /// @since version 1.1
+    ///
     template <class Key, class T, class Cost, Nature Nat>
-    class IDDFS : public abstractSearch<Key, T, Cost, Nat> {
+    class iddfs : public abstract_targeted_search<Key, T, Cost, Nat> {
       public:
-        using state = typename graph<Key, T, Cost, Nat>::const_iterator;
-        IDDFS(const graph<Key, T, Cost, Nat> &);
+        using abstract_targeted_search<Key, T, Cost, Nat>::abstract_targeted_search;
 
-        path<state, Cost> run(state begin, state target);
+        using state = typename abstract_targeted_search<Key, T, Cost, Nat>::state;
+
+        path<state, Cost> run(Key   begin) const;
+        path<state, Cost> run(state begin) const;
     };
 
-    template <class Key, class T, class Cost, Nature Nat>
-    constexpr IDDFS<Key, T, Cost, Nat> make_IDDFS(const graph<Key, T, Cost, Nat> &);
+    template <class Key, class T, class Cost, Nature Nat, class... Args>
+    constexpr iddfs<Key, T, Cost, Nat> make_iddfs(const graph<Key, T, Cost, Nat> &, Args &&...);
 
     ///
     /// @brief Uniform-Cost Search
     /// @see https://en.wikipedia.org/wiki/Talk:Uniform-Cost_Search
     ///
+    /// @sa @ref abstract_search Abstract class for all search algorithms
+    /// @sa @ref abstract_targeted_search Abstract class for all search algorithms with a specified target
+    /// @sa @ref abstract_first_search Abstract class for First Search algorithms (BFS, DFS)
+    /// @sa @ref bfs Breadth-First Search algorithm
+    /// @sa @ref dfs Depth-First Search algorithm
+    /// @sa @ref dls Depth-Limited Search algorithm
+    /// @sa @ref iddfs Iterative-Deepening Depth-First Search algorithm
+    /// @sa @ref astar A* Search algorithm
+    /// @sa @ref dijkstra dijkstra algorithm
+    ///
+    /// @since version 1.1
+    ///
     template <class Key, class T, class Cost, Nature Nat>
-    class UCS : public abstractSearch<Key, T, Cost, Nat> {
+    class ucs : public abstract_targeted_search<Key, T, Cost, Nat> {
       public:
-        using state = typename graph<Key, T, Cost, Nat>::const_iterator;
-        UCS(const graph<Key, T, Cost, Nat> &);
+        using abstract_targeted_search<Key, T, Cost, Nat>::abstract_targeted_search;
 
-        path<state, Cost> run(state begin, state target);
+        using state = typename abstract_targeted_search<Key, T, Cost, Nat>::state;
+
+        path<state, Cost> run(Key   begin) const;
+        path<state, Cost> run(state begin) const;
     };
 
-    template <class Key, class T, class Cost, Nature Nat>
-    constexpr UCS<Key, T, Cost, Nat> make_UCS(const graph<Key, T, Cost, Nat> &);
+    template <class Key, class T, class Cost, Nature Nat, class... Args>
+    constexpr ucs<Key, T, Cost, Nat> make_ucs(const graph<Key, T, Cost, Nat> &, Args &&...);
 
     ///
     /// @brief A* Search class
     /// @see https://en.wikipedia.org/wiki/A*_search_algorithm
     ///
+    /// @sa @ref abstract_search Abstract class for all search algorithms
+    /// @sa @ref abstract_targeted_search Abstract class for all search algorithms with a specified target
+    /// @sa @ref abstract_first_search Abstract class for First Search algorithms (BFS, DFS)
+    /// @sa @ref bfs Breadth-First Search algorithm
+    /// @sa @ref dfs Depth-First Search algorithm
+    /// @sa @ref dls Depth-Limited Search algorithm
+    /// @sa @ref iddfs Iterative-Deepening Depth-First Search algorithm
+    /// @sa @ref ucs Uniform-Cost Search algorithm
+    /// @sa @ref dijkstra dijkstra algorithm
+    ///
+    /// @since version 1.1
+    ///
     template <class Key, class T, class Cost, Nature Nat>
-    class AStar : public abstractSearch<Key, T, Cost, Nat> {
+    class astar : public abstract_targeted_search<Key, T, Cost, Nat> {
       public:
-        using state = typename graph<Key, T, Cost, Nat>::const_iterator;
-        AStar(const graph<Key, T, Cost, Nat> &g);
+        using abstract_targeted_search<Key, T, Cost, Nat>::abstract_targeted_search;
 
-        path<state, Cost> run(state begin, state target, std::function<double(state, state)> heuristic);
+        using state = typename abstract_targeted_search<Key, T, Cost, Nat>::state;
+
+        path<state, Cost> run(Key   begin, std::function<double(state)> heuristic) const;
+        path<state, Cost> run(state begin, std::function<double(state)> heuristic) const;
     };
 
+    template <class Key, class T, class Cost, Nature Nat, class... Args>
+    constexpr astar<Key, T, Cost, Nat> make_astar(const graph<Key, T, Cost, Nat> &, Args &&...);
+
+    ///
+    /// @brief dijkstra class
+    /// @see https://en.wikipedia.org/wiki/dijkstra%27s_algorithm
+    ///
+    /// @sa @ref abstract_search Abstract class for all search algorithms
+    /// @sa @ref abstract_targeted_search Abstract class for all search algorithms with a specified target
+    /// @sa @ref abstract_first_search Abstract class for First Search algorithms (BFS, DFS)
+    /// @sa @ref bfs Breadth-First Search algorithm
+    /// @sa @ref dfs Depth-First Search algorithm
+    /// @sa @ref dls Depth-Limited Search algorithm
+    /// @sa @ref iddfs Iterative-Deepening Depth-First Search algorithm
+    /// @sa @ref ucs Uniform-Cost Search algorithm
+    /// @sa @ref astar A* Search algorithm
+    ///
+    /// @since version 1.1
+    ///
     template <class Key, class T, class Cost, Nature Nat>
-    constexpr AStar<Key, T, Cost, Nat> make_AStar(const graph<Key, T, Cost, Nat> &);
+    class dijkstra : public abstract_search<Key, T, Cost, Nat> {
+      public:
+        using abstract_search<Key, T, Cost, Nat>::abstract_search;
+
+        using state = typename abstract_search<Key, T, Cost, Nat>::state;
+
+        std::map<state, path<state, Cost>> run(Key   begin) const;
+        // TODO
+        std::map<state, path<state, Cost>> run(state begin) const;
+    };
+
+    template <class Key, class T, class Cost, Nature Nat, class... Args>
+    constexpr dijkstra<Key, T, Cost, Nat> make_dijkstra(const graph<Key, T, Cost, Nat> &, Args &&...);
 }
 
 #include "GraphSearch.cpp"

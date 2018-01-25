@@ -25,7 +25,7 @@ FILE="$LOCATION/graph.hpp"
 cat > "$FILE" << EOF
 /*
  *    ╔═╗╦═╗╔═╗╔═╗╦ ╦  C++ Graph library
- *    ║ ╦╠╦╝╠═╣╠═╝╠═╣  Version 1.1.0
+ *    ║ ╦╠╦╝╠═╣╠═╝╠═╣  Version 1.1.1
  *    ╚═╝╩╚═╩ ╩╩  ╩ ╩  https://github.com/Terae/Structure
  *
  *

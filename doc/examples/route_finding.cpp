@@ -62,42 +62,42 @@ int main() {
 
     const string BEGIN{"Arad"};
 
-    auto DFS    = search::make_DFS(map);
-    auto pDFS   = DFS.run  (map.find(BEGIN), map.find("Bucharest"));
+    auto dfs    = search::make_dfs(map, "Bucharest");
+    auto pdfs   = dfs.run  (BEGIN);
 
-    auto BFS    = search::make_BFS(map);
-    auto pBFS   = BFS.run  (map.find(BEGIN), map.find("Bucharest"));
+    auto bfs    = search::make_bfs(map, "Bucharest");
+    auto pbfs   = bfs.run  (BEGIN);
 
-    auto DLS    = search::make_DLS(map);
-    auto pDLS   = DLS.run  (map.find(BEGIN), map.find("Bucharest"), 5);
+    auto dls    = search::make_dls(map, "Bucharest");
+    auto pdls   = dls.run  (BEGIN, 5);
 
-    auto IDDFS  = search::make_IDDFS(map);
-    auto pIDDFS = IDDFS.run(map.find(BEGIN), map.find("Bucharest"));
+    auto iddfs  = search::make_iddfs(map, "Bucharest");
+    auto piddfs = iddfs.run(BEGIN);
 
-    auto UCS    = search::make_UCS(map);
-    auto pUCS   = UCS.run  (map.find(BEGIN), map.find("Bucharest"));
+    auto ucs    = search::make_ucs(map, "Bucharest");
+    auto pucs   = ucs.run  (BEGIN);
 
-    auto aStar  = search::make_AStar(map);
-    auto heuristic = [&straight_line_Bucharest](const graph_undirected<string, int, int>::const_iterator & it, const graph_undirected<string, int, int>::const_iterator & target) -> double {
-        if (target->first == "Bucharest") {
+    auto astar  = search::make_astar(map, "Bucharest");
+    auto heuristic = [&straight_line_Bucharest](const graph_undirected<string, int, int>::const_iterator & it) -> double {
+        if (it->first == "Bucharest") {
             return straight_line_Bucharest[it->first];
         }
     };
-    auto pAStar = aStar.run(map.find(BEGIN), map.find("Bucharest"), heuristic);
+    auto pastar = astar.run(BEGIN, heuristic);
 
-    const size_t nr_digits_IDDFS{static_cast<size_t>(pIDDFS.empty() ? 0 : log10(pIDDFS.get_nr_steps()) + 1)};
+    const size_t nr_digits_iddfs{static_cast<size_t>(piddfs.empty() ? 0 : log10(piddfs.get_nr_steps()) + 1)};
     cout << "\nCalculation of the shortest path from '" << BEGIN << "' to 'Bucharest' with several search algorithms:\n"
-         << "              | \x1B[34m\x1B[1mBreadth-First Search\x1B[0m |  \x1B[34m\x1B[1mDepth-First Search\x1B[0m  | \x1B[34m\x1B[1mDepth-Limited Search (5)\x1B[0m |  \x1B[34m\x1B[1mUniform-Cost Search\x1B[0m | \x1B[34m\x1B[1mIterative-Deepening Depth-First Search (" << pIDDFS.get_nr_steps() << ")\x1B[0m |       \x1B[34m\x1B[1mA* Search\x1B[0m      |\n"
-         << "--------------|----------------------|----------------------|--------------------------|----------------------|-------------------------------------------" << string(nr_digits_IDDFS, '-') << "|----------------------|\n"
-         << "  Total cost  |\x1B[31m" << setw(13) << pBFS.total_cost() << "         \x1B[0m|\x1B[31m" << setw(14) << pDFS.total_cost() << "        \x1B[0m|\x1B[31m" << setw(15) << pDLS.total_cost() << "           \x1B[0m|\x1B[31m" << setw(14) << pUCS.total_cost() << "        \x1B[0m|\x1B[31m" << setw(25) << pIDDFS.total_cost() << string(nr_digits_IDDFS, ' ') << "                  \x1B[0m|\x1B[31m" << setw(14) << pAStar.total_cost() << "        \x1B[0m|\n"
+         << "              | \x1B[34m\x1B[1mBreadth-First Search\x1B[0m |  \x1B[34m\x1B[1mDepth-First Search\x1B[0m  | \x1B[34m\x1B[1mDepth-Limited Search (5)\x1B[0m |  \x1B[34m\x1B[1mUniform-Cost Search\x1B[0m | \x1B[34m\x1B[1mIterative-Deepening Depth-First Search (" << piddfs.get_nr_steps() << ")\x1B[0m |       \x1B[34m\x1B[1mA* Search\x1B[0m      |\n"
+         << "--------------|----------------------|----------------------|--------------------------|----------------------|-------------------------------------------" << string(nr_digits_iddfs, '-') << "|----------------------|\n"
+         << "  Total cost  |\x1B[31m" << setw(13) << pbfs.total_cost() << "         \x1B[0m|\x1B[31m" << setw(14) << pdfs.total_cost() << "        \x1B[0m|\x1B[31m" << setw(15) << pdls.total_cost() << "           \x1B[0m|\x1B[31m" << setw(14) << pucs.total_cost() << "        \x1B[0m|\x1B[31m" << setw(25) << piddfs.total_cost() << string(nr_digits_iddfs, ' ') << "                  \x1B[0m|\x1B[31m" << setw(14) << pastar.total_cost() << "        \x1B[0m|\n"
          << "              |                      |                      |                          |                      |                                            |                      |\n";
 
     int i{1}, col1{0}, col2{0}, col3{0}, col4{0}, col5{0}, col6{0};
-    for (; !(pBFS.empty() && pDFS.empty() && pDLS.empty() && pIDDFS.empty() && pUCS.empty() && pAStar.empty()); ++i) {
+    for (; !(pbfs.empty() && pdfs.empty() && pdls.empty() && piddfs.empty() && pucs.empty() && pastar.empty()); ++i) {
         cout << left << setw(13) << ("    Step " + to_string(i)) << " |" << right;
 
-        if (!pBFS.empty()) {
-            auto p = pBFS.pop_front();
+        if (!pbfs.empty()) {
+            auto p = pbfs.pop_front();
             col1 += p.second;
             cout << setw(21) << (p.first->first + " (" + to_string(col1) + ")");
         } else {
@@ -105,8 +105,8 @@ int main() {
         }
 
         cout << " |";
-        if (!pDFS.empty()) {
-            auto p = pDFS.pop_front();
+        if (!pdfs.empty()) {
+            auto p = pdfs.pop_front();
             col2 += p.second;
             cout << setw(21) << (p.first->first + " (" + to_string(col2) + ")");
         } else {
@@ -114,8 +114,8 @@ int main() {
         }
         cout << " |";
 
-        if (!pDLS.empty()) {
-            auto p = pDLS.pop_front();
+        if (!pdls.empty()) {
+            auto p = pdls.pop_front();
             col3 += p.second;
             cout << setw(25) << (p.first->first + " (" + to_string(col3) + ")");
         } else {
@@ -123,8 +123,8 @@ int main() {
         }
         cout << " |";
 
-        if (!pUCS.empty()) {
-            auto p = pUCS.pop_front();
+        if (!pucs.empty()) {
+            auto p = pucs.pop_front();
             col4 += p.second;
             cout << setw(21) << (p.first->first + " (" + to_string(col4) + ")");
         } else {
@@ -132,17 +132,17 @@ int main() {
         }
         cout << " |";
 
-        if (!pIDDFS.empty()) {
-            auto p = pIDDFS.pop_front();
+        if (!piddfs.empty()) {
+            auto p = piddfs.pop_front();
             col5 += p.second;
-            cout << setw(42 + static_cast<int>(nr_digits_IDDFS)) << (p.first->first + " (" + to_string(col5) + ")");
+            cout << setw(42 + static_cast<int>(nr_digits_iddfs)) << (p.first->first + " (" + to_string(col5) + ")");
         } else {
-            cout << string(23, ' ') << '-' << string(18 + nr_digits_IDDFS, ' ');
+            cout << string(23, ' ') << '-' << string(18 + nr_digits_iddfs, ' ');
         }
         cout << " |";
 
-        if (!pAStar.empty()) {
-            auto p = pAStar.pop_front();
+        if (!pastar.empty()) {
+            auto p = pastar.pop_front();
             col6 += p.second;
             cout << setw(21) << (p.first->first + " (" + to_string(col6) + ")");
         } else {
