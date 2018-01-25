@@ -88,9 +88,21 @@ template <class Key, class T, class Cost, Nature Nat>
 search::abstract_search<Key, T, Cost, Nat>::abstract_search(const graph<Key, T, Cost, Nat> &g_, std::function<bool(state)> is_goal) : g(g_), _is_goal(is_goal) {}
 
 template <class Key, class T, class Cost, Nature Nat>
+search::abstract_targeted_search<Key, T, Cost, Nat>::abstract_targeted_search(const graph<Key, T, Cost, Nat> &g, Key target) : abstract_targeted_search<Key, T, Cost, Nat>(g, g.find(target)) {}
+
+template <class Key, class T, class Cost, Nature Nat>
 search::abstract_targeted_search<Key, T, Cost, Nat>::abstract_targeted_search(const graph<Key, T, Cost, Nat> &g, state target) : abstract_search<Key, T, Cost, Nat>(g, [this](state node) -> bool { return std::find(_targets.cbegin(), _targets.cend(), node) != _targets.cend(); }) {
     this->_targets.emplace_back(target);
 }
+
+template <class Key, class T, class Cost, Nature Nat>
+search::abstract_targeted_search<Key, T, Cost, Nat>::abstract_targeted_search(const graph<Key, T, Cost, Nat> &g, const std::list<Key> &list_target) : abstract_targeted_search(g, [ & ]() -> std::list<state> {
+    std::list<state> l;
+    for (Key k : list_target) {
+        l.emplace_back(g.find(k));
+    }
+    return l;
+}()) {}
 
 template <class Key, class T, class Cost, Nature Nat>
 search::abstract_targeted_search<Key, T, Cost, Nat>::abstract_targeted_search(const graph<Key, T, Cost, Nat> &g, const std::list<state> &list_target) : abstract_search<Key, T, Cost, Nat>(g, [this](state node) -> bool { return std::find(_targets.cbegin(), _targets.cend(), node) != _targets.cend(); }),
@@ -99,6 +111,11 @@ search::abstract_targeted_search<Key, T, Cost, Nat>::abstract_targeted_search(co
 /////////////////////////////////////////////////////
 ///// IMPLEMENTATION OF FIRST SEARCH ALGORITHMS /////
 /////////////////////////////////////////////////////
+
+template <class Key, class T, class Cost, Nature Nat, bool insertFront>
+search::path<typename search::abstract_first_search<Key, T, Cost, Nat, insertFront>::state, Cost> search::abstract_first_search<Key, T, Cost, Nat, insertFront>::run(Key begin) const {
+    return run(this->g.find(begin));
+}
 
 template <class Key, class T, class Cost, Nature Nat, bool insertFront>
 search::path<typename search::abstract_first_search<Key, T, Cost, Nat, insertFront>::state, Cost> search::abstract_first_search<Key, T, Cost, Nat, insertFront>::run(state begin) const {
@@ -157,6 +174,11 @@ constexpr typename search::dfs<Key, T, Cost, Nat> search::make_dfs(const graph<K
 ////////////////////////////////////////////////////////////
 ///// IMPLEMENTATION OF DEPTH-LIMITED SEARCH ALGORITHM /////
 ////////////////////////////////////////////////////////////
+
+template <class Key, class T, class Cost, Nature Nat>
+search::path<typename search::dls<Key, T, Cost, Nat>::state, Cost> search::dls<Key, T, Cost, Nat>::run(Key begin, int depth) const {
+    return run(this->g.find(begin), depth);
+}
 
 template <class Key, class T, class Cost, Nature Nat>
 search::path<typename search::dls<Key, T, Cost, Nat>::state, Cost> search::dls<Key, T, Cost, Nat>::run(state begin, int depth) const {
@@ -227,8 +249,13 @@ constexpr typename search::dls<Key, T, Cost, Nat> search::make_dls(const graph<K
 }
 
 template <class Key, class T, class Cost, Nature Nat>
+search::path<typename search::iddfs<Key, T, Cost, Nat>::state, Cost> search::iddfs<Key, T, Cost, Nat>::run(Key begin) const {
+    return run(this->g.find(begin));
+}
+
+template <class Key, class T, class Cost, Nature Nat>
 search::path<typename search::iddfs<Key, T, Cost, Nat>::state, Cost> search::iddfs<Key, T, Cost, Nat>::run(state begin) const {
-    search::dls<Key, T, Cost, Nat> dls{make_DLS(this->g, this->_targets)};
+    search::dls<Key, T, Cost, Nat> dls{make_dls(this->g, this->_targets)};
 
     for (int i{0}; i < std::numeric_limits<int>::max(); ++i) {
         path<state, Cost> found{dls.run(begin, i)};
@@ -247,6 +274,11 @@ constexpr typename search::iddfs<Key, T, Cost, Nat> search::make_iddfs(const gra
 ////////////////////////////////////////////////////
 ///// IMPLEMENTATION OF UNIFORM-COST ALGORITHM /////
 ////////////////////////////////////////////////////
+
+template <class Key, class T, class Cost, Nature Nat>
+search::path<typename search::ucs<Key, T, Cost, Nat>::state, Cost> search::ucs<Key, T, Cost, Nat>::run(Key begin) const {
+    return run(this->g.find(begin));
+}
 
 template <class Key, class T, class Cost, Nature Nat>
 search::path<typename search::ucs<Key, T, Cost, Nat>::state, Cost> search::ucs<Key, T, Cost, Nat>::run(state begin) const {
@@ -298,6 +330,11 @@ constexpr typename search::ucs<Key, T, Cost, Nat> search::make_ucs(const graph<K
 ///////////////////////////////////////////
 
 template <class Key, class T, class Cost, Nature Nat>
+search::path<typename search::astar<Key, T, Cost, Nat>::state, Cost> search::astar<Key, T, Cost, Nat>::run(Key begin, std::function<double(state)> heuristic) const {
+    return run(this->g.find(begin), heuristic);
+}
+
+template <class Key, class T, class Cost, Nature Nat>
 search::path<typename search::astar<Key, T, Cost, Nat>::state, Cost> search::astar<Key, T, Cost, Nat>::run(state begin, std::function<double(state)> heuristic) const {
     std::list<state> expanded;
     std::priority_queue<path<state, Cost>, std::vector<path<state, Cost>>, path_comparator<state, Cost>> frontier((path_comparator<state, Cost>(heuristic)));
@@ -345,6 +382,11 @@ constexpr typename search::astar<Key, T, Cost, Nat> search::make_astar(const gra
 /////////////////////////////////////////////////
 ///// IMPLEMENTATION OF THE Dijkstra SEARCH /////
 /////////////////////////////////////////////////
+
+template <class Key, class T, class Cost, Nature Nat>
+std::map<typename search::dijkstra<Key, T, Cost, Nat>::state, search::path<typename search::dijkstra<Key, T, Cost, Nat>::state, Cost>> search::dijkstra<Key, T, Cost, Nat>::run(Key begin) const {
+    return run(this->g.find(begin));
+}
 
 template <class Key, class T, class Cost, Nature Nat>
 std::map<typename search::dijkstra<Key, T, Cost, Nat>::state, search::path<typename search::dijkstra<Key, T, Cost, Nat>::state, Cost>> search::dijkstra<Key, T, Cost, Nat>::run(state begin) const {

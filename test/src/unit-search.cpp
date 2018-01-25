@@ -24,8 +24,8 @@ TEST_CASE("search") {
         g("node 3", "node 2") = 32;
         g("node 2", "node 4") = 24;
 
-        Graph::const_iterator target{g.find("node 4")};
-        search::astar<std::string, int, double, UNDIRECTED> a(g, target);
+        std::list<std::string> targets = {"node 4"};
+        search::astar<std::string, int, double, UNDIRECTED> a(g, targets);
         search::path<Graph::const_iterator, double> p{a.run(g.find("node 1"), [&g](const Graph::const_iterator & it) -> double {
                 return std::abs(it->second->get() - g["node 4"]);
             })

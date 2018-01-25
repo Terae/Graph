@@ -107,7 +107,10 @@ namespace search {
 
         using state = typename graph<Key, T, Cost, Nat>::const_iterator;
 
+        explicit abstract_targeted_search(const graph<Key, T, Cost, Nat> &, Key   target);
         explicit abstract_targeted_search(const graph<Key, T, Cost, Nat> &, state target);
+
+        explicit abstract_targeted_search(const graph<Key, T, Cost, Nat> &, const std::list<Key>   &list_target);
         explicit abstract_targeted_search(const graph<Key, T, Cost, Nat> &, const std::list<state> &list_target);
 
       protected:
@@ -138,6 +141,7 @@ namespace search {
 
         using state = typename abstract_targeted_search<Key, T, Cost, Nat>::state;
 
+        path<state, Cost> run(Key   begin) const;
         path<state, Cost> run(state begin) const;
     };
 
@@ -210,6 +214,7 @@ namespace search {
 
         using state = typename abstract_targeted_search<Key, T, Cost, Nat>::state;
 
+        path<state, Cost> run(Key   begin, int depth) const;
         path<state, Cost> run(state begin, int depth) const;
     };
 
@@ -239,6 +244,7 @@ namespace search {
 
         using state = typename abstract_targeted_search<Key, T, Cost, Nat>::state;
 
+        path<state, Cost> run(Key   begin) const;
         path<state, Cost> run(state begin) const;
     };
 
@@ -268,6 +274,7 @@ namespace search {
 
         using state = typename abstract_targeted_search<Key, T, Cost, Nat>::state;
 
+        path<state, Cost> run(Key   begin) const;
         path<state, Cost> run(state begin) const;
     };
 
@@ -297,6 +304,7 @@ namespace search {
 
         using state = typename abstract_targeted_search<Key, T, Cost, Nat>::state;
 
+        path<state, Cost> run(Key   begin, std::function<double(state)> heuristic) const;
         path<state, Cost> run(state begin, std::function<double(state)> heuristic) const;
     };
 
@@ -326,6 +334,7 @@ namespace search {
 
         using state = typename abstract_search<Key, T, Cost, Nat>::state;
 
+        std::map<state, path<state, Cost>> run(Key   begin) const;
         // TODO
         std::map<state, path<state, Cost>> run(state begin) const;
     };

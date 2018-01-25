@@ -62,28 +62,28 @@ int main() {
 
     const string BEGIN{"Arad"};
 
-    auto dfs    = search::make_dfs(map, map.find("Bucharest"));
-    auto pdfs   = dfs.run  (map.find(BEGIN));
+    auto dfs    = search::make_dfs(map, "Bucharest");
+    auto pdfs   = dfs.run  (BEGIN);
 
-    auto bfs    = search::make_bfs(map, map.find("Bucharest"));
-    auto pbfs   = bfs.run  (map.find(BEGIN));
+    auto bfs    = search::make_bfs(map, "Bucharest");
+    auto pbfs   = bfs.run  (BEGIN);
 
-    auto dls    = search::make_dls(map, map.find("Bucharest"));
-    auto pdls   = dls.run  (map.find(BEGIN), 5);
+    auto dls    = search::make_dls(map, "Bucharest");
+    auto pdls   = dls.run  (BEGIN, 5);
 
-    auto iddfs  = search::make_iddfs(map, map.find("Bucharest"));
-    auto piddfs = iddfs.run(map.find(BEGIN));
+    auto iddfs  = search::make_iddfs(map, "Bucharest");
+    auto piddfs = iddfs.run(BEGIN);
 
-    auto ucs    = search::make_ucs(map, map.find("Bucharest"));
-    auto pucs   = ucs.run  (map.find(BEGIN));
+    auto ucs    = search::make_ucs(map, "Bucharest");
+    auto pucs   = ucs.run  (BEGIN);
 
-    auto astar  = search::make_astar(map, map.find("Bucharest"));
+    auto astar  = search::make_astar(map, "Bucharest");
     auto heuristic = [&straight_line_Bucharest](const graph_undirected<string, int, int>::const_iterator & it) -> double {
         if (it->first == "Bucharest") {
             return straight_line_Bucharest[it->first];
         }
     };
-    auto pastar = astar.run(map.find(BEGIN), heuristic);
+    auto pastar = astar.run(BEGIN, heuristic);
 
     const size_t nr_digits_iddfs{static_cast<size_t>(piddfs.empty() ? 0 : log10(piddfs.get_nr_steps()) + 1)};
     cout << "\nCalculation of the shortest path from '" << BEGIN << "' to 'Bucharest' with several search algorithms:\n"
