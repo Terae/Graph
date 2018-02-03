@@ -57,12 +57,11 @@ cat > "$FILE" << EOF
 EOF
 
 # Copying Graph.h, GraphSearch.h, Graph.cpp, Node.cpp and GraphSearch.cpp into graph.hpp
-sed -e '/#include "Graph.cpp"/ {' -e "r ${HOME}/src/GraphSearch.h" -e "r ${HOME}/src/Node.cpp" -e "r ${HOME}/src/Graph.cpp" -e "r ${HOME}/src/GraphSearch.cpp" -e 'd' -e '}' ${HOME}/src/Graph.h >> "$FILE" || exit 2
+sed -e '/#include "Graph.cpp"/ {' -e "r ${HOME}/src/Node.cpp" -e "r ${HOME}/src/Graph.cpp" -e 'd' -e '}' ${HOME}/src/Graph.h >> "$FILE" || exit 2
 # Copying Node.h into graph.hpp
 sed -i -e '/#include "Node.h"/ {' -e "r ${HOME}/src/Node.h" -e 'd' -e '}' "$FILE" || exit 2
 sed -i '/#include "Node.cpp"/,+2d' "$FILE" || exit 2
 sed -i 's/#include "Graph.h"//' "$FILE" || exit 2
-sed -i 's/#include "GraphSearch.cpp"//' "$FILE" || exit 2
 # Copying detail.hpp into graph.hpp
 sed -i -e '/#include "detail.hpp"/ {' -e "r ${HOME}/src/detail.hpp" -e 'd' -e '}' "$FILE" || exit 2
 # Modifying #ifndef/#define values

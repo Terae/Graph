@@ -615,7 +615,42 @@ std::vector<typename graph<Key, T, Cost, Nat>::node::edge> graph<Key, T, Cost, N
 
 template <class Key, class T, class Cost, Nature Nat>
 bool graph<Key, T, Cost, Nat>::is_cyclic() const {
+    for (const_iterator it{cbegin()}; it != cend(); ++it) {
+        std::list<const_iterator> initPath;
+        if (is_cyclic_rec(it, initPath)) {
+            return true;
+        }
+    }
+    return false;
+}
 
+template <class Key, class T, class Cost, Nature Nat>
+bool graph<Key, T, Cost, Nat>::is_cyclic_rec(const_iterator current, std::list<const_iterator> path) const {
+    for (const_iterator it : path) {
+        if (it == current && (get_nature() == DIRECTED || path.back() != current)) {
+            return true;
+        }
+    }
+    /*if (std::find(path.cbegin(), path.cend(), current) != path.cend()) {
+        return true;
+    }*/
+
+    path.push_back(current);
+    std::vector<typename node::edge> adjacent;
+    if (get_nature() == DIRECTED) {
+        adjacent = get_out_edges(current);
+    } else { /// get_nature() == UNDIRECTED
+        adjacent = get_edges(current);
+    }
+
+    for (typename std::vector<typename node::edge>::const_iterator it{adjacent.cbegin()}; it != adjacent.cend(); ++it) {
+        if (is_cyclic_rec(it->target(), path)) {
+            return true;
+        }
+        path.remove(it->target());
+    }
+
+    return false;
 }
 
 template <class Key, class T, class Cost, Nature Nat>
@@ -1096,4 +1131,489 @@ void graph<Key, T, Cost, Nat>::node::set_iterator_values(iterator this_, iterato
     this->container_from_this = this_;
     this->end_container       = end;
     this->cend_container      = cend;
+}
+
+///////////////////////////////////////////////
+///// IMPLEMENTATION OF SEARCH ALGORITHMS /////
+///////////////////////////////////////////////
+
+////////////////////////////////////////
+///// First Searches (BFS and DFS) /////
+////////////////////////////////////////
+template <class Key, class T, class Cost, Nature Nat>
+template <bool insertFront>
+typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::abstract_first_search(const_iterator start, std::function<bool(const_iterator)> is_goal) const {
+    if (start == cend()) {
+        GRAPH_THROW_WITH(invalid_argument, "Start point equals to graph::cend()")
+    }
+
+    std::list<const_iterator> expanded;
+    std::deque<search_path> frontier;
+
+    {
+        search_path p;
+        p.push_back({start, Cost()});
+        frontier.push_front(std::move(p));
+    }
+
+    while (!frontier.empty()) {
+        search_path p{frontier.front()};
+        frontier.pop_front();
+
+        /// expanded does not contain path's last state
+        if (std::find(expanded.cbegin(), expanded.cend(), p.back().first) == expanded.end()) {
+            const_iterator last{p.back().first};
+            expanded.push_back(last);
+
+            if (is_goal(last)) {
+                return p;
+            }
+
+            std::vector<typename node::edge> legalActions{get_nature() == DIRECTED ? get_out_edges(last) : get_edges(last)};
+
+            for (typename std::vector<typename node::edge>::const_iterator it{legalActions.cbegin()}; it != legalActions.cend(); ++it) {
+                search_path newPath{p};
+                newPath.push_back({it->target(), it->cost()});
+                if (insertFront) {
+                    frontier.push_front(newPath);
+                } else {
+                    frontier.push_back(newPath);
+                }
+            }
+        }
+    }
+
+    /// Could not find a solution
+    search_path empty;
+    return empty;
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::bfs(key_type start, Key target) const {
+    std::list<const_iterator> l;
+    l.emplace_back(find(target));
+    return bfs(find(start), l);
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::bfs(key_type start, std::list<key_type> target_list) const {
+    std::list<const_iterator> l;
+    for (key_type k : target_list) {
+        l.emplace_back(find(k));
+    }
+    return bfs(find(start), l);
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::bfs(key_type start, std::function<bool(key_type)> is_goal) const {
+    return bfs(find(start), [ &is_goal](const_iterator it) {
+        return is_goal(it->first);
+    });
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::bfs(const_iterator start, const_iterator target) const {
+    std::list<const_iterator> l;
+    l.emplace_back(target);
+    return bfs(start, l);
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::bfs(const_iterator start, std::list<const_iterator> target_list) const {
+    return bfs(start, [ &target_list](const_iterator node) -> bool { return std::find(target_list.cbegin(), target_list.cend(), node) != target_list.cend(); });
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::bfs(const_iterator start, std::function<bool(const_iterator)> is_goal) const {
+    return abstract_first_search<false>(start, is_goal);
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::dfs(key_type start, Key target) const {
+    std::list<const_iterator> l;
+    l.emplace_back(find(target));
+    return dfs(find(start), l);
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::dfs(key_type start, std::list<key_type> target_list) const {
+    std::list<const_iterator> l;
+    for (key_type k : target_list) {
+        l.emplace_back(find(k));
+    }
+    return dfs(find(start), l);
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::dfs(key_type start, std::function<bool(key_type)> is_goal) const {
+    return dfs(find(start), [ &is_goal](const_iterator it) {
+        return is_goal(it->first);
+    });
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::dfs(const_iterator start, const_iterator target) const {
+    std::list<const_iterator> l;
+    l.emplace_back(target);
+    return dfs(start, l);
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::dfs(const_iterator start, std::list<const_iterator> target_list) const {
+    return dfs(start, [ &target_list](const_iterator node) -> bool { return std::find(target_list.cbegin(), target_list.cend(), node) != target_list.cend(); });
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::dfs(const_iterator start, std::function<bool(const_iterator)> is_goal) const {
+    return abstract_first_search<true>(start, is_goal);
+}
+
+////////////////////////////////
+///// Depth-Limited Search /////
+////////////////////////////////
+
+template <class Key, class T, class Cost, Nature Nat>
+typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::dls(key_type start, Key target, size_type depth) const {
+    std::list<const_iterator> l;
+    l.emplace_back(find(target));
+    return dls(find(start), l, depth);
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::dls(key_type start, std::list<key_type> target_list, size_type depth) const {
+    std::list<const_iterator> l;
+    for (key_type k : target_list) {
+        l.emplace_back(find(k));
+    }
+    return dls(find(start), l, depth);
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::dls(key_type start, std::function<bool(key_type)> is_goal, size_type depth) const {
+    return dls(find(start), [ &is_goal](const_iterator it) {
+        return is_goal(it->first);
+    }, depth);
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::dls(const_iterator start, const_iterator target, size_type depth) const {
+    std::list<const_iterator> l;
+    l.emplace_back(target);
+    return dls(start, l, depth);
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::dls(const_iterator start, std::list<const_iterator> target_list, size_type depth) const {
+    return dls(start, [ &target_list](const_iterator node) -> bool { return std::find(target_list.cbegin(), target_list.cend(), node) != target_list.cend(); }, depth);
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::dls(const_iterator start, std::function<bool(const_iterator)> is_goal, size_type depth) const {
+    if (start == cend()) {
+        GRAPH_THROW_WITH(invalid_argument, "Start point equals to graph::cend()")
+    }
+
+    std::list<const_iterator> expanded;
+    std::deque<search_path> frontier;
+
+    {
+        search_path p;
+        p.push_back({start, Cost()});
+        frontier.push_front(std::move(p));
+    }
+
+    int l{0};
+    while (!frontier.empty() && l < depth) {
+        search_path p{frontier.front()};
+        frontier.pop_front();
+
+        /// expanded does not contain path's last state
+        if (std::find(expanded.cbegin(), expanded.cend(), p.back().first) == expanded.end()) {
+            const_iterator last{p.back().first};
+            expanded.push_back(last);
+
+            if (is_goal(last)) {
+                return p;
+            }
+
+            std::vector<typename node::edge> legalActions{get_nature() == DIRECTED ? get_out_edges(last) : get_edges(last)};
+
+            for (typename std::vector<typename node::edge>::const_iterator it{legalActions.cbegin()}; it != legalActions.cend(); ++it) {
+                search_path newPath{p};
+                newPath.push_back({it->target(), it->cost()});
+                frontier.push_front(newPath);
+            }
+        }
+        ++l;
+    }
+
+    /// Could not find a solution
+    search_path empty;
+    return empty;
+}
+
+//////////////////////////////////////////////////
+///// Iterative-Deepening Depth-First Search /////
+//////////////////////////////////////////////////
+
+template <class Key, class T, class Cost, Nature Nat>
+typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::iddfs(key_type start, Key target) const {
+    std::list<const_iterator> l;
+    l.emplace_back(find(target));
+    return iddfs(find(start), l);
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::iddfs(key_type start, std::list<key_type> target_list) const {
+    std::list<const_iterator> l;
+    for (key_type k : target_list) {
+        l.emplace_back(find(k));
+    }
+    return iddfs(find(start), l);
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::iddfs(key_type start, std::function<bool(key_type)> is_goal) const {
+    return iddfs(find(start), [ &is_goal](const_iterator it) {
+        return is_goal(it->first);
+    });
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::iddfs(const_iterator start, const_iterator target) const {
+    std::list<const_iterator> l;
+    l.emplace_back(target);
+    return iddfs(start, l);
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::iddfs(const_iterator start, std::list<const_iterator> target_list) const {
+    return iddfs(start, [ &target_list](const_iterator node) -> bool { return std::find(target_list.cbegin(), target_list.cend(), node) != target_list.cend(); });
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::iddfs(const_iterator start, std::function<bool(const_iterator)> is_goal) const {
+    if (start == cend()) {
+        GRAPH_THROW_WITH(invalid_argument, "Start point equals to graph::cend()")
+    }
+
+    for (size_type i{0}; i < std::numeric_limits<size_type>::max(); ++i) {
+        search_path found{dls(start, is_goal, i)};
+        if (!found.empty()) {
+            return found;
+        }
+    }
+    search_path empty;
+    return empty;
+}
+
+///////////////////////////////
+///// Uniform Cost Search /////
+///////////////////////////////
+
+template <class Key, class T, class Cost, Nature Nat>
+typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::ucs(key_type start, Key target) const {
+    std::list<const_iterator> l;
+    l.emplace_back(find(target));
+    return ucs(find(start), l);
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::ucs(key_type start, std::list<key_type> target_list) const {
+    std::list<const_iterator> l;
+    for (key_type k : target_list) {
+        l.emplace_back(find(k));
+    }
+    return ucs(find(start), l);
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::ucs(key_type start, std::function<bool(key_type)> is_goal) const {
+    return ucs(find(start), [ &is_goal](const_iterator it) {
+        return is_goal(it->first);
+    });
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::ucs(const_iterator start, const_iterator target) const {
+    std::list<const_iterator> l;
+    l.emplace_back(target);
+    return ucs(start, l);
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::ucs(const_iterator start, std::list<const_iterator> target_list) const {
+    return ucs(start, [ &target_list](const_iterator node) -> bool { return std::find(target_list.cbegin(), target_list.cend(), node) != target_list.cend(); });
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::ucs(const_iterator start, std::function<bool(const_iterator)> is_goal) const {
+    if (start == cend()) {
+        GRAPH_THROW_WITH(invalid_argument, "Start point equals to graph::cend()")
+    }
+
+    std::list<const_iterator> expanded;
+    std::priority_queue<search_path, std::vector<search_path>, path_comparator> frontier((path_comparator([](const_iterator) {
+        return Cost();
+    })));
+
+    {
+        search_path p;
+        p.push_back({start, Cost()});
+        frontier.push(std::move(p));
+    }
+
+    while (!frontier.empty()) {
+        search_path p{frontier.top()};
+        frontier.pop();
+
+        /// expanded does not contain path's last state
+        if (std::find(expanded.cbegin(), expanded.cend(), p.back().first) == expanded.end()) {
+            const_iterator last{p.back().first};
+            expanded.push_back(last);
+
+            if (is_goal(last)) {
+                return p;
+            }
+
+            std::vector<typename node::edge> legalActions{get_nature() == DIRECTED ? get_out_edges(last) : get_edges(last)};
+
+            for (typename std::vector<typename node::edge>::const_iterator it{legalActions.cbegin()}; it != legalActions.cend(); ++it) {
+                search_path newPath{p};
+                newPath.push_back({it->target(), it->cost()});
+                frontier.push(newPath);
+            }
+        }
+    }
+
+    /// Could not find a solution
+    search_path empty;
+    return empty;
+}
+
+/////////////////////
+///// A* Search /////
+/////////////////////
+
+template <class Key, class T, class Cost, Nature Nat>
+typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::astar(key_type start, Key target, std::function<Cost(const_iterator)> heuristic) const {
+    std::list<const_iterator> l;
+    l.emplace_back(find(target));
+    return astar(find(start), l, heuristic);
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::astar(key_type start, std::list<key_type> target_list, std::function<Cost(const_iterator)> heuristic) const {
+    std::list<const_iterator> l;
+    for (key_type k : target_list) {
+        l.emplace_back(find(k));
+    }
+    return astar(find(start), l, heuristic);
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::astar(key_type start, std::function<bool(key_type)> is_goal, std::function<Cost(const_iterator)> heuristic) const {
+    return astar(find(start), [ &is_goal](const_iterator it) {
+        return is_goal(it->first);
+    }, heuristic);
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::astar(const_iterator start, const_iterator target, std::function<Cost(const_iterator)> heuristic) const {
+    std::list<const_iterator> l;
+    l.emplace_back(target);
+    return astar(start, l, heuristic);
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::astar(const_iterator start, std::list<const_iterator> target_list, std::function<Cost(const_iterator)> heuristic) const {
+    return astar(start, [ &target_list](const_iterator node) -> bool { return std::find(target_list.cbegin(), target_list.cend(), node) != target_list.cend(); }, heuristic);
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::astar(const_iterator start, std::function<bool(const_iterator)> is_goal, std::function<Cost(const_iterator)> heuristic) const {
+    if (start == cend()) {
+        GRAPH_THROW_WITH(invalid_argument, "Start point equals to graph::cend()")
+    }
+
+    std::list<const_iterator> expanded;
+    std::priority_queue<search_path, std::vector<search_path>, path_comparator> frontier((path_comparator(heuristic)));
+
+    {
+        search_path p;
+        p.push_back({start, Cost()});
+        frontier.push(std::move(p));
+    }
+
+    while (!frontier.empty()) {
+        search_path p{frontier.top()};
+        frontier.pop();
+
+        /// expanded does not contain path's last state
+        if (std::find(expanded.cbegin(), expanded.cend(), p.back().first) == expanded.end()) {
+            const_iterator last{p.back().first};
+            expanded.push_back(last);
+
+            if (is_goal(last)) {
+                return p;
+            }
+
+            std::vector<typename node::edge> legalActions{get_nature() == DIRECTED ? get_out_edges(last) : get_edges(last)};
+
+            for (typename std::vector<typename node::edge>::const_iterator it{legalActions.cbegin()}; it != legalActions.cend(); ++it) {
+                search_path newPath{p};
+                newPath.push_back({it->target(), it->cost()});
+                frontier.push(newPath);
+            }
+        }
+    }
+
+    /// Could not find a solution
+    search_path empty;
+    return empty;
+}
+
+////
+template <class Key, class T, class Cost, Nature Nat>
+std::map<typename graph<Key, T, Cost, Nat>::const_iterator, typename graph<Key, T, Cost, Nat>::search_path> graph<Key, T, Cost, Nat>::dijkstra(key_type start) const {
+    return dijkstra(find(start));
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+typename std::map<typename graph<Key, T, Cost, Nat>::const_iterator, typename graph<Key, T, Cost, Nat>::search_path> graph<Key, T, Cost, Nat>::dijkstra(const_iterator start) const {
+    // TODO
+    ;
+}
+/////////////////////////////
+///// search_path class /////
+/////////////////////////////
+
+template <class Key, class T, class Cost, Nature Nat>
+graph<Key, T, Cost, Nat>::search_path::search_path(const search_path &p) : Container(p) {}
+
+template <class Key, class T, class Cost, Nature Nat>
+Cost graph<Key, T, Cost, Nat>::search_path::total_cost() const {
+    Cost total{};
+    for (const_iterator it{cbegin()}; it != cend(); ++it) {
+        total += it->second;
+    }
+    return total;
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+bool graph<Key, T, Cost, Nat>::search_path::contain(const graph::const_iterator &i) const {
+    for (const_iterator it{cbegin()}; it != cend(); ++it) {
+        if (it->first == i) {
+            return true;
+        }
+    }
+    return false;
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+graph<Key, T, Cost, Nat>::path_comparator::path_comparator(std::function<Cost(const_iterator)> heuristic) : _heuristic(heuristic) {}
+
+template <class Key, class T, class Cost, Nature Nat>
+bool graph<Key, T, Cost, Nat>::path_comparator::operator() (const search_path &p1, const search_path &p2) {
+    return (p1.total_cost() + _heuristic(p1.back().first)) > (p2.total_cost() + _heuristic(p2.back().first));
 }

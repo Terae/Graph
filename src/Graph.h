@@ -9,6 +9,7 @@
 #include <fstream>   /// setw, operator<<
 #include <iomanip>   /// setw
 #include <map>       /// map
+#include <queue>     /// queue
 #include <vector>    /// vector
 
 #ifdef INCLUDE_JSON_FILE
@@ -59,6 +60,7 @@ class graph {
   public:
     class node;
     using Degree = detail::basic_degree<Nat>;
+    class search_path;
 
   private:
     using PtrNode  = std::shared_ptr<node>;
@@ -69,6 +71,7 @@ class graph {
 
     const Cost infinity = std::numeric_limits<Cost>::has_infinity ? std::numeric_limits<Cost>::infinity() :
                           std::numeric_limits<Cost>::max();
+    class path_comparator;
 
   public:
 
@@ -332,19 +335,173 @@ class graph {
     template<class K, class D, class C, Nature N> bool operator!=(const graph<K, D, C, N> &) const noexcept;
 
     /// CRTP: https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern
-    class node : public basic_node<T, Cost, iterator, const_iterator> {
+    class node : public basic_node<graphed_type, Cost, iterator, const_iterator> {
       public:
         explicit node();
 
-        explicit node(const T &);
+        explicit node(const graphed_type &);
 
-        node &operator=(const T &);
+        node &operator=(const graphed_type &);
 
       private:
         friend class graph;
 
         void set_iterator_values(iterator this_, iterator end, const_iterator cend);
     };
+
+    ///
+    //! @section Search algorithms
+    ///
+
+    ///
+    /// @brief Breadth-First Search class
+    /// @see https://en.wikipedia.org/wiki/Breadth-First_Search
+    /// @since version 1.1
+    ///
+    search_path bfs(key_type       start, key_type                            target)      const;
+    search_path bfs(key_type       start, std::list<key_type>                 target_list) const;
+    search_path bfs(key_type       start, std::function<bool(key_type)>       is_goal)     const;
+
+    search_path bfs(const_iterator start, const_iterator                      target)      const;
+    search_path bfs(const_iterator start, std::list<const_iterator>           target_list) const;
+    search_path bfs(const_iterator start, std::function<bool(const_iterator)> is_goal)     const;
+
+    ///
+    /// @brief Depth-First Search class
+    /// @see https://en.wikipedia.org/wiki/Depth-First_Search
+    /// @since version 1.1
+    ///
+    search_path dfs(key_type       start, key_type                            target)      const;
+    search_path dfs(key_type       start, std::list<key_type>                 target_list) const;
+    search_path dfs(key_type       start, std::function<bool(key_type)>       is_goal)     const;
+
+    search_path dfs(const_iterator start, const_iterator                      target)      const;
+    search_path dfs(const_iterator start, std::list<const_iterator>           target_list) const;
+    search_path dfs(const_iterator start, std::function<bool(const_iterator)> is_goal)     const;
+
+    ///
+    /// @brief Depth-Limited Search class
+    /// @see https://en.wikipedia.org/wiki/Iterative_Deepening_Depth-First_Search
+    /// @param depth Predetermined depth limit to create a Depth-Limited Search (fix DFS's loop problem). Have to be well choose, in function of the problem.
+    /// @since version 1.1
+    ///
+    search_path dls(key_type       start, key_type                            target,      size_type depth) const;
+    search_path dls(key_type       start, std::list<key_type>                 target_list, size_type depth) const;
+    search_path dls(key_type       start, std::function<bool(key_type)>       is_goal,     size_type depth) const;
+
+    search_path dls(const_iterator start, const_iterator                      target,      size_type depth) const;
+    search_path dls(const_iterator start, std::list<const_iterator>           target_list, size_type depth) const;
+    search_path dls(const_iterator start, std::function<bool(const_iterator)> is_goal,     size_type depth) const;
+
+    ///
+    /// @brief Iterative-Deepening Depth-First Search
+    /// @see https://en.wikipedia.org/wiki/Iterative_Deepening_Depth-First_Search
+    /// @since version 1.1
+    ///
+    search_path iddfs(key_type       start, key_type                            target)      const;
+    search_path iddfs(key_type       start, std::list<key_type>                 target_list) const;
+    search_path iddfs(key_type       start, std::function<bool(key_type)>       is_goal)     const;
+
+    search_path iddfs(const_iterator start, const_iterator                      target)      const;
+    search_path iddfs(const_iterator start, std::list<const_iterator>           target_list) const;
+    search_path iddfs(const_iterator start, std::function<bool(const_iterator)> is_goal)     const;
+
+    ///
+    /// @brief Uniform-Cost Search
+    /// @see https://en.wikipedia.org/wiki/Talk:Uniform-Cost_Search
+    /// @since version 1.1
+    ///
+    search_path ucs(key_type       start, key_type                            target)      const;
+    search_path ucs(key_type       start, std::list<key_type>                 target_list) const;
+    search_path ucs(key_type       start, std::function<bool(key_type)>       is_goal)     const;
+
+    search_path ucs(const_iterator start, const_iterator                      target)      const;
+    search_path ucs(const_iterator start, std::list<const_iterator>           target_list) const;
+    search_path ucs(const_iterator start, std::function<bool(const_iterator)> is_goal)     const;
+
+    ///
+    /// @brief A* Search
+    /// @see https://en.wikipedia.org/wiki/A*_search_algorithm
+    /// @since version 1.1
+    ///
+    search_path astar(key_type       start, key_type                            target,      std::function<Cost(const_iterator)> heuristic) const;
+    search_path astar(key_type       start, std::list<key_type>                 target_list, std::function<Cost(const_iterator)> heuristic) const;
+    search_path astar(key_type       start, std::function<bool(key_type)>       is_goal,     std::function<Cost(const_iterator)> heuristic) const;
+
+    search_path astar(const_iterator start, const_iterator                      target,      std::function<Cost(const_iterator)> heuristic) const;
+    search_path astar(const_iterator start, std::list<const_iterator>           target_list, std::function<Cost(const_iterator)> heuristic) const;
+    search_path astar(const_iterator start, std::function<bool(const_iterator)> is_goal,     std::function<Cost(const_iterator)> heuristic) const;
+
+    ///
+    /// @brief dijkstra class
+    /// @see https://en.wikipedia.org/wiki/dijkstra%27s_algorithm
+    /// @since version 1.1
+    ///
+    std::map<const_iterator, search_path> dijkstra(key_type       start) const;
+    std::map<const_iterator, search_path> dijkstra(const_iterator start) const; // TODO
+
+    class search_path final : private std::deque<std::pair<graph::const_iterator, Cost>> {
+        template <bool> friend search_path                  graph::abstract_first_search(graph::const_iterator, std::function<bool(const_iterator)>)                                      const;
+        friend search_path                                  graph::dls                  (graph::const_iterator, std::function<bool(const_iterator)>, size_type)                           const;
+        friend search_path                                  graph::iddfs                (graph::const_iterator, std::function<bool(const_iterator)>)                                      const;
+        friend search_path                                  graph::ucs                  (graph::const_iterator, std::function<bool(const_iterator)>)                                      const;
+        friend search_path                                  graph::astar                (graph::const_iterator, std::function<bool(const_iterator)>, std::function<Cost(const_iterator)>) const;
+        friend std::map<graph::const_iterator, search_path> graph::dijkstra             (graph::const_iterator)                                                                           const;
+
+        friend bool path_comparator::operator()(const search_path &, const search_path &);
+
+        using Container = std::deque<std::pair<graph::const_iterator, Cost>>;
+
+      public:
+        using value_type             = typename Container::value_type;
+        using reference              = typename Container::reference;
+        using const_reference        = typename Container::const_reference;
+        using iterator               = typename Container::iterator;
+        using const_iterator         = typename Container::const_iterator;
+        using reverse_iterator       = typename Container::reverse_iterator;
+        using const_reverse_iterator = typename Container::const_reverse_iterator;
+
+        using Container::begin;
+        using Container::cbegin;
+        using Container::rbegin;
+        using Container::crbegin;
+        using Container::end;
+        using Container::cend;
+        using Container::rend;
+        using Container::crend;
+
+        search_path() = default;
+        search_path(const search_path &);
+        virtual ~search_path() = default;
+
+        using Container::empty;
+        using Container::size;
+        using Container::clear;
+        using Container::front;
+        using Container::pop_front;
+        using Container::swap;
+
+        Cost total_cost() const;
+
+        bool contain(const graph::const_iterator &) const;
+    };
+
+  private:
+    //! Helper functions and classes
+    class path_comparator {
+      private:
+        std::function<Cost(const_iterator)> _heuristic;
+
+      public:
+        path_comparator(std::function<Cost(const_iterator)> heuristic);
+
+        bool operator() (const search_path &, const search_path &);
+    };
+
+    bool is_cyclic_rec(const_iterator current, std::list<const_iterator> path) const;
+
+    /// @tparam insertFront Specialization parameter between dfs (`true`) and bfs (`false`) using respectively a `std::stack` and a `std::queue`
+    template <bool insertFront> search_path abstract_first_search(const_iterator start, std::function<bool(const_iterator)> is_goal)     const;
 };
 
 template <class Key, class T, class Cost = std::size_t>
