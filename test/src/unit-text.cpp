@@ -10,7 +10,7 @@
 #endif
 
 TEST_CASE("text") {
-    const std::string GRAPH_1{"graph<int, std::string, float> {\n"
+    const std::string GRAPH_1_GRP{"graph<int, std::string, double> {\n"
         "    nodes: {\n"
         "        \"0\",   \"value of 0.000000\";\n"
         "        \"2\",   \"value of 3.000000\";\n"
@@ -113,9 +113,518 @@ TEST_CASE("text") {
         "        \"196\", \"value of 294.000000\";\n"
         "        \"198\", \"value of 297.000000\"\n"
         "    }\n"
-        "}\n"};
+        "}"};
 
-    const std::string GRAPH_2{"digraph<int, std::string, float> {\n"
+    const std::string GRAPH_1_JSON{"{\n"
+        "    \"nature\": 117,\n"
+        "    \"nodes\": [\n"
+        "        {\n"
+        "            \"key\": 0,\n"
+        "            \"value\": \"value of 0.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 2,\n"
+        "            \"value\": \"value of 3.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 4,\n"
+        "            \"value\": \"value of 6.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 6,\n"
+        "            \"value\": \"value of 9.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 8,\n"
+        "            \"value\": \"value of 12.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 10,\n"
+        "            \"value\": \"value of 15.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 12,\n"
+        "            \"value\": \"value of 18.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 14,\n"
+        "            \"value\": \"value of 21.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 16,\n"
+        "            \"value\": \"value of 24.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 18,\n"
+        "            \"value\": \"value of 27.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 20,\n"
+        "            \"value\": \"value of 30.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 22,\n"
+        "            \"value\": \"value of 33.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 24,\n"
+        "            \"value\": \"value of 36.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 26,\n"
+        "            \"value\": \"value of 39.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 28,\n"
+        "            \"value\": \"value of 42.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 30,\n"
+        "            \"value\": \"value of 45.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 32,\n"
+        "            \"value\": \"value of 48.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 34,\n"
+        "            \"value\": \"value of 51.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 36,\n"
+        "            \"value\": \"value of 54.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 38,\n"
+        "            \"value\": \"value of 57.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 40,\n"
+        "            \"value\": \"value of 60.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 42,\n"
+        "            \"value\": \"value of 63.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 44,\n"
+        "            \"value\": \"value of 66.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 46,\n"
+        "            \"value\": \"value of 69.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 48,\n"
+        "            \"value\": \"value of 72.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 50,\n"
+        "            \"value\": \"value of 75.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 52,\n"
+        "            \"value\": \"value of 78.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 54,\n"
+        "            \"value\": \"value of 81.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 56,\n"
+        "            \"value\": \"value of 84.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 58,\n"
+        "            \"value\": \"value of 87.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 60,\n"
+        "            \"value\": \"value of 90.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 62,\n"
+        "            \"value\": \"value of 93.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 64,\n"
+        "            \"value\": \"value of 96.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 66,\n"
+        "            \"value\": \"value of 99.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 68,\n"
+        "            \"value\": \"value of 102.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 70,\n"
+        "            \"value\": \"value of 105.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 72,\n"
+        "            \"value\": \"value of 108.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 74,\n"
+        "            \"value\": \"value of 111.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 76,\n"
+        "            \"value\": \"value of 114.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 78,\n"
+        "            \"value\": \"value of 117.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 80,\n"
+        "            \"value\": \"value of 120.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 82,\n"
+        "            \"value\": \"value of 123.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 84,\n"
+        "            \"value\": \"value of 126.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 86,\n"
+        "            \"value\": \"value of 129.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 88,\n"
+        "            \"value\": \"value of 132.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 90,\n"
+        "            \"value\": \"value of 135.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 92,\n"
+        "            \"value\": \"value of 138.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 94,\n"
+        "            \"value\": \"value of 141.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 96,\n"
+        "            \"value\": \"value of 144.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 98,\n"
+        "            \"value\": \"value of 147.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 100,\n"
+        "            \"value\": \"value of 150.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 102,\n"
+        "            \"value\": \"value of 153.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 104,\n"
+        "            \"value\": \"value of 156.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 106,\n"
+        "            \"value\": \"value of 159.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 108,\n"
+        "            \"value\": \"value of 162.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 110,\n"
+        "            \"value\": \"value of 165.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 112,\n"
+        "            \"value\": \"value of 168.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 114,\n"
+        "            \"value\": \"value of 171.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 116,\n"
+        "            \"value\": \"value of 174.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 118,\n"
+        "            \"value\": \"value of 177.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 120,\n"
+        "            \"value\": \"value of 180.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 122,\n"
+        "            \"value\": \"value of 183.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 124,\n"
+        "            \"value\": \"value of 186.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 126,\n"
+        "            \"value\": \"value of 189.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 128,\n"
+        "            \"value\": \"value of 192.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 130,\n"
+        "            \"value\": \"value of 195.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 132,\n"
+        "            \"value\": \"value of 198.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 134,\n"
+        "            \"value\": \"value of 201.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 136,\n"
+        "            \"value\": \"value of 204.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 138,\n"
+        "            \"value\": \"value of 207.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 140,\n"
+        "            \"value\": \"value of 210.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 142,\n"
+        "            \"value\": \"value of 213.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 144,\n"
+        "            \"value\": \"value of 216.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 146,\n"
+        "            \"value\": \"value of 219.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 148,\n"
+        "            \"value\": \"value of 222.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 150,\n"
+        "            \"value\": \"value of 225.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 152,\n"
+        "            \"value\": \"value of 228.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 154,\n"
+        "            \"value\": \"value of 231.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 156,\n"
+        "            \"value\": \"value of 234.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 158,\n"
+        "            \"value\": \"value of 237.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 160,\n"
+        "            \"value\": \"value of 240.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 162,\n"
+        "            \"value\": \"value of 243.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 164,\n"
+        "            \"value\": \"value of 246.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 166,\n"
+        "            \"value\": \"value of 249.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 168,\n"
+        "            \"value\": \"value of 252.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 170,\n"
+        "            \"value\": \"value of 255.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 172,\n"
+        "            \"value\": \"value of 258.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 174,\n"
+        "            \"value\": \"value of 261.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 176,\n"
+        "            \"value\": \"value of 264.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 178,\n"
+        "            \"value\": \"value of 267.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 180,\n"
+        "            \"value\": \"value of 270.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 182,\n"
+        "            \"value\": \"value of 273.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 184,\n"
+        "            \"value\": \"value of 276.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 186,\n"
+        "            \"value\": \"value of 279.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 188,\n"
+        "            \"value\": \"value of 282.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 190,\n"
+        "            \"value\": \"value of 285.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 192,\n"
+        "            \"value\": \"value of 288.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 194,\n"
+        "            \"value\": \"value of 291.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 196,\n"
+        "            \"value\": \"value of 294.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 198,\n"
+        "            \"value\": \"value of 297.000000\"\n"
+        "        }\n"
+        "    ]\n"
+        "}"};
+
+    const std::string GRAPH_1_DOT{"graph my_graph {\n"
+        "    0\n"
+        "    2\n"
+        "    4\n"
+        "    6\n"
+        "    8\n"
+        "    10\n"
+        "    12\n"
+        "    14\n"
+        "    16\n"
+        "    18\n"
+        "    20\n"
+        "    22\n"
+        "    24\n"
+        "    26\n"
+        "    28\n"
+        "    30\n"
+        "    32\n"
+        "    34\n"
+        "    36\n"
+        "    38\n"
+        "    40\n"
+        "    42\n"
+        "    44\n"
+        "    46\n"
+        "    48\n"
+        "    50\n"
+        "    52\n"
+        "    54\n"
+        "    56\n"
+        "    58\n"
+        "    60\n"
+        "    62\n"
+        "    64\n"
+        "    66\n"
+        "    68\n"
+        "    70\n"
+        "    72\n"
+        "    74\n"
+        "    76\n"
+        "    78\n"
+        "    80\n"
+        "    82\n"
+        "    84\n"
+        "    86\n"
+        "    88\n"
+        "    90\n"
+        "    92\n"
+        "    94\n"
+        "    96\n"
+        "    98\n"
+        "    100\n"
+        "    102\n"
+        "    104\n"
+        "    106\n"
+        "    108\n"
+        "    110\n"
+        "    112\n"
+        "    114\n"
+        "    116\n"
+        "    118\n"
+        "    120\n"
+        "    122\n"
+        "    124\n"
+        "    126\n"
+        "    128\n"
+        "    130\n"
+        "    132\n"
+        "    134\n"
+        "    136\n"
+        "    138\n"
+        "    140\n"
+        "    142\n"
+        "    144\n"
+        "    146\n"
+        "    148\n"
+        "    150\n"
+        "    152\n"
+        "    154\n"
+        "    156\n"
+        "    158\n"
+        "    160\n"
+        "    162\n"
+        "    164\n"
+        "    166\n"
+        "    168\n"
+        "    170\n"
+        "    172\n"
+        "    174\n"
+        "    176\n"
+        "    178\n"
+        "    180\n"
+        "    182\n"
+        "    184\n"
+        "    186\n"
+        "    188\n"
+        "    190\n"
+        "    192\n"
+        "    194\n"
+        "    196\n"
+        "    198\n"
+        "}"};
+
+    const std::string GRAPH_2_GRP{"digraph<int, std::string, double> {\n"
         "    nodes: {\n"
         "        \"0\",   \"value of 0.000000\";\n"
         "        \"2\",   \"value of 3.000000\";\n"
@@ -229,12 +738,756 @@ TEST_CASE("text") {
         "        \"42\", \"6\",  infinity;\n"
         "        \"70\", \"6\",  \"70.6\"\n"
         "    }\n"
-        "}\n"};
+        "}"};
+
+    const std::string GRAPH_2_JSON{"{\n"
+        "    \"edges\": [\n"
+        "        {\n"
+        "            \"cost\": 0.2,\n"
+        "            \"from\": 0,\n"
+        "            \"to\": 2\n"
+        "        },\n"
+        "        {\n"
+        "            \"cost\": 0.6,\n"
+        "            \"from\": 0,\n"
+        "            \"to\": 6\n"
+        "        },\n"
+        "        {\n"
+        "            \"cost\": 6.82,\n"
+        "            \"from\": 6,\n"
+        "            \"to\": 82\n"
+        "        },\n"
+        "        {\n"
+        "            \"cost\": 8.46,\n"
+        "            \"from\": 8,\n"
+        "            \"to\": 46\n"
+        "        },\n"
+        "        {\n"
+        "            \"cost\": 24.42,\n"
+        "            \"from\": 24,\n"
+        "            \"to\": 42\n"
+        "        },\n"
+        "        {\n"
+        "            \"cost\": 42.2,\n"
+        "            \"from\": 42,\n"
+        "            \"to\": 2\n"
+        "        },\n"
+        "        {\n"
+        "            \"cost\": 42.24,\n"
+        "            \"from\": 42,\n"
+        "            \"to\": 24\n"
+        "        },\n"
+        "        {\n"
+        "            \"cost\": null,\n"
+        "            \"from\": 42,\n"
+        "            \"to\": 6\n"
+        "        },\n"
+        "        {\n"
+        "            \"cost\": 70.6,\n"
+        "            \"from\": 70,\n"
+        "            \"to\": 6\n"
+        "        }\n"
+        "    ],\n"
+        "    \"nature\": 100,\n"
+        "    \"nodes\": [\n"
+        "        {\n"
+        "            \"key\": 0,\n"
+        "            \"value\": \"value of 0.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 2,\n"
+        "            \"value\": \"value of 3.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 4,\n"
+        "            \"value\": \"value of 6.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 6,\n"
+        "            \"value\": \"value of 9.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 8,\n"
+        "            \"value\": \"value of 12.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 10,\n"
+        "            \"value\": \"value of 15.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 12,\n"
+        "            \"value\": \"value of 18.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 14,\n"
+        "            \"value\": \"value of 21.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 16,\n"
+        "            \"value\": \"value of 24.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 18,\n"
+        "            \"value\": \"value of 27.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 20,\n"
+        "            \"value\": \"value of 30.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 22,\n"
+        "            \"value\": \"value of 33.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 24,\n"
+        "            \"value\": \"value of 36.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 26,\n"
+        "            \"value\": \"value of 39.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 28,\n"
+        "            \"value\": \"value of 42.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 30,\n"
+        "            \"value\": \"value of 45.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 32,\n"
+        "            \"value\": \"value of 48.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 34,\n"
+        "            \"value\": \"value of 51.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 36,\n"
+        "            \"value\": \"value of 54.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 38,\n"
+        "            \"value\": \"value of 57.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 40,\n"
+        "            \"value\": \"value of 60.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 42,\n"
+        "            \"value\": \"value of 63.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 44,\n"
+        "            \"value\": \"value of 66.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 46,\n"
+        "            \"value\": \"value of 69.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 48,\n"
+        "            \"value\": \"value of 72.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 50,\n"
+        "            \"value\": \"value of 75.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 52,\n"
+        "            \"value\": \"value of 78.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 54,\n"
+        "            \"value\": \"value of 81.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 56,\n"
+        "            \"value\": \"value of 84.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 58,\n"
+        "            \"value\": \"value of 87.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 60,\n"
+        "            \"value\": \"value of 90.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 62,\n"
+        "            \"value\": \"value of 93.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 64,\n"
+        "            \"value\": \"value of 96.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 66,\n"
+        "            \"value\": \"value of 99.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 68,\n"
+        "            \"value\": \"value of 102.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 70,\n"
+        "            \"value\": \"value of 105.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 72,\n"
+        "            \"value\": \"value of 108.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 74,\n"
+        "            \"value\": \"value of 111.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 76,\n"
+        "            \"value\": \"value of 114.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 78,\n"
+        "            \"value\": \"value of 117.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 80,\n"
+        "            \"value\": \"value of 120.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 82,\n"
+        "            \"value\": \"value of 123.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 84,\n"
+        "            \"value\": \"value of 126.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 86,\n"
+        "            \"value\": \"value of 129.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 88,\n"
+        "            \"value\": \"value of 132.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 90,\n"
+        "            \"value\": \"value of 135.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 92,\n"
+        "            \"value\": \"value of 138.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 94,\n"
+        "            \"value\": \"value of 141.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 96,\n"
+        "            \"value\": \"value of 144.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 98,\n"
+        "            \"value\": \"value of 147.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 100,\n"
+        "            \"value\": \"value of 150.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 102,\n"
+        "            \"value\": \"value of 153.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 104,\n"
+        "            \"value\": \"value of 156.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 106,\n"
+        "            \"value\": \"value of 159.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 108,\n"
+        "            \"value\": \"value of 162.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 110,\n"
+        "            \"value\": \"value of 165.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 112,\n"
+        "            \"value\": \"value of 168.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 114,\n"
+        "            \"value\": \"value of 171.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 116,\n"
+        "            \"value\": \"value of 174.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 118,\n"
+        "            \"value\": \"value of 177.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 120,\n"
+        "            \"value\": \"value of 180.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 122,\n"
+        "            \"value\": \"value of 183.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 124,\n"
+        "            \"value\": \"value of 186.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 126,\n"
+        "            \"value\": \"value of 189.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 128,\n"
+        "            \"value\": \"value of 192.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 130,\n"
+        "            \"value\": \"value of 195.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 132,\n"
+        "            \"value\": \"value of 198.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 134,\n"
+        "            \"value\": \"value of 201.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 136,\n"
+        "            \"value\": \"value of 204.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 138,\n"
+        "            \"value\": \"value of 207.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 140,\n"
+        "            \"value\": \"value of 210.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 142,\n"
+        "            \"value\": \"value of 213.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 144,\n"
+        "            \"value\": \"value of 216.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 146,\n"
+        "            \"value\": \"value of 219.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 148,\n"
+        "            \"value\": \"value of 222.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 150,\n"
+        "            \"value\": \"value of 225.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 152,\n"
+        "            \"value\": \"value of 228.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 154,\n"
+        "            \"value\": \"value of 231.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 156,\n"
+        "            \"value\": \"value of 234.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 158,\n"
+        "            \"value\": \"value of 237.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 160,\n"
+        "            \"value\": \"value of 240.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 162,\n"
+        "            \"value\": \"value of 243.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 164,\n"
+        "            \"value\": \"value of 246.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 166,\n"
+        "            \"value\": \"value of 249.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 168,\n"
+        "            \"value\": \"value of 252.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 170,\n"
+        "            \"value\": \"value of 255.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 172,\n"
+        "            \"value\": \"value of 258.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 174,\n"
+        "            \"value\": \"value of 261.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 176,\n"
+        "            \"value\": \"value of 264.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 178,\n"
+        "            \"value\": \"value of 267.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 180,\n"
+        "            \"value\": \"value of 270.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 182,\n"
+        "            \"value\": \"value of 273.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 184,\n"
+        "            \"value\": \"value of 276.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 186,\n"
+        "            \"value\": \"value of 279.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 188,\n"
+        "            \"value\": \"value of 282.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 190,\n"
+        "            \"value\": \"value of 285.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 192,\n"
+        "            \"value\": \"value of 288.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 194,\n"
+        "            \"value\": \"value of 291.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 196,\n"
+        "            \"value\": \"value of 294.000000\"\n"
+        "        },\n"
+        "        {\n"
+        "            \"key\": 198,\n"
+        "            \"value\": \"value of 297.000000\"\n"
+        "        }\n"
+        "    ]\n"
+        "}"};
+
+    const std::string GRAPH_2_DOT{"digraph my_graph {\n"
+        "    0\n"
+        "    2\n"
+        "    4\n"
+        "    6\n"
+        "    8\n"
+        "    10\n"
+        "    12\n"
+        "    14\n"
+        "    16\n"
+        "    18\n"
+        "    20\n"
+        "    22\n"
+        "    24\n"
+        "    26\n"
+        "    28\n"
+        "    30\n"
+        "    32\n"
+        "    34\n"
+        "    36\n"
+        "    38\n"
+        "    40\n"
+        "    42\n"
+        "    44\n"
+        "    46\n"
+        "    48\n"
+        "    50\n"
+        "    52\n"
+        "    54\n"
+        "    56\n"
+        "    58\n"
+        "    60\n"
+        "    62\n"
+        "    64\n"
+        "    66\n"
+        "    68\n"
+        "    70\n"
+        "    72\n"
+        "    74\n"
+        "    76\n"
+        "    78\n"
+        "    80\n"
+        "    82\n"
+        "    84\n"
+        "    86\n"
+        "    88\n"
+        "    90\n"
+        "    92\n"
+        "    94\n"
+        "    96\n"
+        "    98\n"
+        "    100\n"
+        "    102\n"
+        "    104\n"
+        "    106\n"
+        "    108\n"
+        "    110\n"
+        "    112\n"
+        "    114\n"
+        "    116\n"
+        "    118\n"
+        "    120\n"
+        "    122\n"
+        "    124\n"
+        "    126\n"
+        "    128\n"
+        "    130\n"
+        "    132\n"
+        "    134\n"
+        "    136\n"
+        "    138\n"
+        "    140\n"
+        "    142\n"
+        "    144\n"
+        "    146\n"
+        "    148\n"
+        "    150\n"
+        "    152\n"
+        "    154\n"
+        "    156\n"
+        "    158\n"
+        "    160\n"
+        "    162\n"
+        "    164\n"
+        "    166\n"
+        "    168\n"
+        "    170\n"
+        "    172\n"
+        "    174\n"
+        "    176\n"
+        "    178\n"
+        "    180\n"
+        "    182\n"
+        "    184\n"
+        "    186\n"
+        "    188\n"
+        "    190\n"
+        "    192\n"
+        "    194\n"
+        "    196\n"
+        "    198\n"
+        "    0 -> 2\n"
+        "    0 -> 6\n"
+        "    6 -> 82\n"
+        "    8 -> 46\n"
+        "    24 -> 42\n"
+        "    42 -> 2\n"
+        "    42 -> 24\n"
+        "    70 -> 6\n"
+        "}"};
 
     using namespace std;
-    using Graph            = graph           <int, string, float>;
-    using Graph_directed   = graph_directed  <int, string, float>;
-    using Graph_undirected = graph_undirected<int, string, float>;
+    using Graph            = graph           <int, string, double>;
+    using Graph_directed   = graph_directed  <int, string, double>;
+    using Graph_undirected = graph_undirected<int, string, double>;
+
+    SECTION("generate_grp()") {
+        SECTION("simple graph") {
+            Graph_undirected g;
+
+            for (int i{0}; i < 200; i += 2) {
+                g[i] = "value of " + to_string(i * 1.5);
+            }
+
+            ostringstream out;
+            out << *g.generate_grp();
+
+            CHECK(GRAPH_1_GRP == out.str());
+        }
+
+        SECTION("complete graph") {
+            Graph_directed g;
+
+            for (int i{0}; i < 200; i += 2) {
+                g[i] = "value of " + to_string(i * 1.5);
+            }
+
+            g(0,  2)  = 0.2;
+            g(6,  82) = 6.82;
+            g(0,  6)  = 0.6;
+            g(8,  46) = 8.46;
+            g(42, 2)  = 42.2;
+            g(70, 6)  = 70.6;
+            g(24, 42) = 24.42;
+            g(42, 24) = 42.24;
+            g(42, 6);
+
+            ostringstream out;
+            out << *g.generate_grp();
+
+            CHECK(GRAPH_2_GRP == out.str());
+        }
+    }
+
+    SECTION("generate_json()") {
+        SECTION("simple graph") {
+            Graph_undirected g;
+
+            for (int i{0}; i < 200; i += 2) {
+                g[i] = "value of " + to_string(i * 1.5);
+            }
+
+            ostringstream out;
+            out << std::setw(4) << *g.generate_json();
+
+            CHECK(GRAPH_1_JSON == out.str());
+        }
+
+        SECTION("complete graph") {
+            Graph_directed g;
+
+            for (int i{0}; i < 200; i += 2) {
+                g[i] = "value of " + to_string(i * 1.5);
+            }
+
+            g(0,  2)  = 0.2;
+            g(6,  82) = 6.82;
+            g(0,  6)  = 0.6;
+            g(8,  46) = 8.46;
+            g(42, 2)  = 42.2;
+            g(70, 6)  = 70.6;
+            g(24, 42) = 24.42;
+            g(42, 24) = 42.24;
+            g(42, 6);
+
+            ostringstream out;
+            out << std::setw(4) << *g.generate_json();
+
+            CHECK(GRAPH_2_JSON == out.str());
+        }
+    }
+
+    SECTION("generate_dot(string)") {
+        SECTION("simple graph") {
+            Graph_undirected g;
+
+            for (int i{0}; i < 200; i += 2) {
+                g[i] = "value of " + to_string(i * 1.5);
+            }
+
+            ostringstream out;
+            out << *g.generate_dot("my_graph");
+
+            CHECK(GRAPH_1_DOT == out.str());
+        }
+
+        SECTION("complete graph") {
+            Graph_directed g;
+
+            for (int i{0}; i < 200; i += 2) {
+                g[i] = "value of " + to_string(i * 1.5);
+            }
+
+            g(0,  2)  = 0.2;
+            g(6,  82) = 6.82;
+            g(0,  6)  = 0.6;
+            g(8,  46) = 8.46;
+            g(42, 2)  = 42.2;
+            g(70, 6)  = 70.6;
+            g(24, 42) = 24.42;
+            g(42, 24) = 42.24;
+            g(42, 6);
+
+            ostringstream out;
+            out << *g.generate_dot("my_graph");
+
+            CHECK(GRAPH_2_DOT == out.str());
+        }
+    }
+
+    SECTION("save/parse") {
+        Graph_directed g1;
+
+        for (int i{0}; i < 200; i += 2) {
+            g1[i] = "value of " + to_string(i * 1.5);
+        }
+
+        g1(0,  2)  = 0.2;
+        g1(6,  82) = 6.82;
+        g1(0,  6)  = 0.6;
+        g1(8,  46) = 8.46;
+        g1(42, 2)  = 42.2;
+        g1(70, 6)  = 70.6;
+        g1(24, 42) = 24.42;
+        g1(42, 24) = 42.24;
+        g1(42, 6);
+
+        SECTION("GRP") {
+            g1.save_to_grp("/tmp/graph.txt");
+
+            ifstream is1("/tmp/graph.txt");
+            Graph_directed g2;
+            g2.parse_from_grp(static_cast<istream &>(is1));
+            CHECK(g1 == g2);
+
+            ifstream is2("/tmp/graph.txt");
+            Graph_undirected g3;
+            CHECK_THROWS_WITH(g3.parse_from_grp(static_cast<istream &>(is2)), "[graph.exception.invalid_argument] Bad graph nature (expected 'digraph') when calling 'parse_from_grp'.");
+        }
+
+        SECTION("JSON") {
+            g1.save_to_json("/tmp/graph.json");
+
+            ifstream is1("/tmp/graph.json");
+            Graph_directed g2;
+            g2.parse_from_json(static_cast<istream &>(is1));
+            CHECK(g1 == g2);
+
+            ifstream is2("/tmp/graph.json");
+            Graph_undirected g3;
+            CHECK_THROWS_WITH(g3.parse_from_json(static_cast<istream &>(is2)), "[graph.exception.invalid_argument] Bad graph nature (expected 'digraph') when calling 'parse_from_json'.");
+        }
+
+        SECTION("DOT") {
+            g1.save_to_dot("/tmp/graph.dot");
+        }
+    }
+
+    SECTION("load") {
+        Graph_directed g;
+
+        CHECK_THROWS_WITH(g.load("unexistant_file.txt"), "[graph.exception.invalid_argument] Unexistant file: 'unexistant_file.txt' when calling 'load'.");
+
+        SECTION("GRP") {
+            CHECK_NOTHROW(g.load("/tmp/graph.txt"));
+        }
+
+        SECTION("JSON") {
+            CHECK_NOTHROW(g.load("/tmp/graph.json"));
+        }
+
+        SECTION("DOT") {
+            CHECK_THROWS_WITH(g.load("/tmp/graph.dot"), "[graph.exception.invalid_argument] Load from DOT file non supported yet when calling 'load'.");
+        }
+    }
 
     SECTION("operator<<(ostream& os, const graph<Key, T, Cost>& g)") {
         SECTION("simple graph") {
@@ -247,7 +1500,7 @@ TEST_CASE("text") {
             ostringstream out;
             out << g;
 
-            CHECK(GRAPH_1 == out.str());
+            CHECK(GRAPH_1_GRP + "\n" == out.str());
         }
 
         SECTION("complete graph") {
@@ -270,114 +1523,27 @@ TEST_CASE("text") {
             ostringstream out;
             out << g;
 
-            CHECK(GRAPH_2 == out.str());
+            CHECK(GRAPH_2_GRP + "\n" == out.str());
         }
     }
 
-    SECTION("operator>>(istream& is, graph<Key, T, Cost>& g)") {
-        SECTION("Exceptions") {
-            Graph g1;
-            Graph_directed g2;
-            Graph_undirected g3;
-            std::stringstream ss1, ss2, ss3, ss4, ss5, ss6, ss7, ss8, ss9;
+    SECTION("operator>>(istream& is, const graph<Key, T, Cost>& g)") {
+        Graph_directed g;
 
-            ss1 << "badgraph<string, int, float> {\n    nodes: {\n    }\n}";
-            CHECK_THROWS_WITH(ss1 >> g1, "[graph.exception.parse_error] parse error at 31: Bad graph nature (expected '[di]graph') when calling 'operator>>'.");
+        CHECK_THROWS_WITH(ifstream("") >> g, "[graph.exception.parse_error] parse error: istream corrupted, fail to parse the graph when calling 'operator>>'.");
 
-            ss2 << "graph<string, int, float> {\n    nodes: {\n    }\n}";
-            CHECK_THROWS_WITH(ss2 >> g2, "[graph.exception.invalid_argument] Bad graph nature (expected 'graph') when calling 'operator>>'.");
+        SECTION("GRP") {
+            ifstream is("/tmp/graph.txt");
+            CHECK_NOTHROW(is >> g);
+        }
 
-            ss3 << "digraph<string, int, float> {\n    nodes: {\n    }\n}";
-            CHECK_THROWS_WITH(ss3 >> g3, "[graph.exception.invalid_argument] Bad graph nature (expected 'digraph') when calling 'operator>>'.");
-
-            ss4 << "graph<string, int, float> {\n badnodes: {\n    }\n}";
-            CHECK_THROWS_WITH(ss4 >> g1, "[graph.exception.parse_error] parse error at 41: Bad format for nodes when calling 'operator>>'.");
-
-            ss5 << "graph<string, int, float> {\n    nodes: {\n        bad values";
-            CHECK_THROWS_WITH(ss5 >> g1, "[graph.exception.parse_error] parse error at 5: Bad type when calling 'read_T'.");
-
-            ss6 << "graph<string, int, float> {\n    nodes: {\n    },\n    badedges: {\n    }\n}";
-            CHECK_THROWS_WITH(ss6 >> g1, "[graph.exception.parse_error] parse error at 64: Bad format for edges when calling 'operator>>'.");
-
-            ss7 << "graph<string, int, float> {\n    nodes: {\n    },\n    edges: {\n        bad values\n    }\n}";
-            CHECK_THROWS_WITH(ss7 >> g1, "[graph.exception.parse_error] parse error at 5: Bad type when calling 'read_T'.");
-
-            ss8 << "graph<string, int, float> {\n    nodes: {\n    },\n    edges: {\n    }\n";
-            CHECK_THROWS_WITH(ss8 >> g1, "[graph.exception.parse_error] parse error at 18446744073709551615: Bad format at the end of the graph when calling 'operator>>'.");
-
-            ss9 << "graph<string, int, float> {\n    nodes: {\n    }\n";
-            CHECK_THROWS_WITH(ss9 >> g1, "[graph.exception.parse_error] parse error at 18446744073709551615: Bad format for edges when calling 'operator>>'.");
-        };
-
-        SECTION("Reading from istream") {
-            Graph_directed g1;
-
-            for (int i{0}; i < 200; i += 2) {
-                g1[i] = "value of " + to_string(i * 1.5);
-            }
-
-            g1(0,  2)  = 0.2;
-            g1(6,  82) = 6.82;
-            g1(0,  6)  = 0.6;
-            g1(8,  46) = 8.46;
-            g1(42, 2)  = 42.2;
-            g1(70, 6)  = 70.6;
-            g1(24, 42) = 24.42;
-            g1(42, 24) = 42.24;
-            g1(42, 6);
-
-            Graph_directed g2;
-            std::stringstream ss1;
-            ss1 << GRAPH_2;
-            ss1 >> g2;
-            CHECK(g1 == g2);
-
-            std::stringstream ss2;
-            ss2 << GRAPH_2;
-            Graph_undirected g3;
-            CHECK_THROWS_WITH(ss2 >> g3, "[graph.exception.invalid_argument] Bad graph nature (expected 'digraph') when calling 'operator>>'.");
-
-            Graph_directed g4;
-            g4[1] = "node 1";
-            g4[2] = "node 2";
-            g4[3] = "node 3";
-            std::stringstream ss3;
-            ss3 << g4;
-            Graph_directed g5;
-            ss3 >> g5;
-            CHECK(g4 == g5);
+        SECTION("JSON") {
+            ifstream is("/tmp/graph.json");
+            CHECK_THROWS_WITH(is >> g, "[graph.exception.parse_error] parse error: istream corrupted, fail to parse the graph when calling 'operator>>'.");
         }
     }
 
-    SECTION("save/load") {
-        Graph_directed g1;
-
-        for (int i{0}; i < 200; i += 2) {
-            g1[i] = "value of " + to_string(i * 1.5);
-        }
-
-        g1(0,  2)  = 0.2;
-        g1(6,  82) = 6.82;
-        g1(0,  6)  = 0.6;
-        g1(8,  46) = 8.46;
-        g1(42, 2)  = 42.2;
-        g1(70, 6)  = 70.6;
-        g1(24, 42) = 24.42;
-        g1(42, 24) = 42.24;
-        g1(42, 6);
-
-        g1.save("/tmp/graph.txt");
-
-        Graph_directed g2;
-        g2.load("/tmp/graph.txt");
-
-        CHECK(g1 == g2);
-
-        Graph_undirected g3;
-        CHECK_THROWS_WITH(g3.load("/tmp/graph.txt"), "[graph.exception.invalid_argument] Bad graph nature (expected 'digraph') when calling 'operator>>'.");
-    }
-
-    SECTION("generate_dot(ostream &, string)") {
+    /*SECTION("generate_dot(ostream &, string)") {
         Graph_directed g1;
         g1[0];
         g1(1, 2) = 1;
@@ -395,7 +1561,7 @@ TEST_CASE("text") {
             "    1 -> 3\n"
             "    4 -> 2\n"
             "}"};
-        g1.generate_dot(out1, "g1");
+        out1 << *g1.generate_dot("g1");
         CHECK(result1 == out1.str());
 
         Graph_undirected g2;
@@ -415,10 +1581,10 @@ TEST_CASE("text") {
             "    1 -- 3\n"
             "    2 -- 4\n"
             "}"};
-        g2.generate_dot(out2, "g2");
+        out2 << *g2.generate_dot("g2");
         CHECK(result2 == out2.str());
 
-        CHECK_THROWS_WITH(g1.generate_dot(out1, "wrong name"), "[graph.exception.invalid_argument] Wrong graph name given; accepted characters: [a-zA-Z0-9_-] when calling 'generate_dot'.");
+        CHECK_THROWS_WITH(g1.generate_dot("wrong name"), "[graph.exception.invalid_argument] Wrong graph name given; accepted characters: [a-zA-Z0-9_-] when calling 'generate_dot'.");
 
-    }
+    }*/
 }

@@ -64,8 +64,6 @@ class graph {
     const Cost infinity = std::numeric_limits<Cost>::has_infinity ? std::numeric_limits<Cost>::infinity() :
                           std::numeric_limits<Cost>::max();
 
-    std::ostream &print(std::ostream &os) const;
-
   public:
 
     ///
@@ -296,14 +294,29 @@ class graph {
     //! @section Text functions
     ///
 
+    /// Display a JSON representation
     template<class K, class D, class C, Nature N> friend std::ostream &operator<<(std::ostream &, const graph<K, D, C, N> &);
+    /// Try to load from JSON and then from FILE
     template<class K, class D, class C, Nature N> friend std::istream &operator>>(std::istream &,       graph<K, D, C, N> &);
 
-    void   save(const char* filepath) const;
-    graph &load(const char* filepath);
+    /// Load a graph from a file; .DOT not supported
+    void load(const char* filename);
 
-    /// @param name Optional; accepted characters: [a-zA-Z0-9_-]
-    std::ostream &generate_dot(std::ostream &, const std::string &name = "") const;
+    /// .DOT format manipulation
+    /// @param graph_name Optional; accepted characters: [a-zA-Z0-9_-]
+    std::unique_ptr<std::string> generate_dot(const std::string &graph_name = "") const;
+    void save_to_dot (const char* filename,   const std::string &graph_name = "") const;
+
+    /// .JSON format manipulation
+    std::unique_ptr<nlohmann::json> generate_json() const;
+    void save_to_json  (const char* filename) const;
+    void parse_from_json(std::istream &);
+    [[deprecated]] void DEBUG_load_from_json_rust(const char*);
+
+    /// graph format manipulation
+    std::unique_ptr<std::string> generate_grp() const;
+    void save_to_grp  (const char* filename) const;
+    void parse_from_grp(std::istream &);
 
     ///
     //! @section Bool operators

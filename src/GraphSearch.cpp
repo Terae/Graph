@@ -73,7 +73,7 @@ std::pair<stateType, costType> search::path<stateType, costType>::pop_front() {
 /////////////////////////////////////////////////
 
 template <class stateType, class costType>
-search::path_comparator<stateType, costType>::path_comparator(std::function<double(stateType)> h) : _heuristic(h) {}
+search::path_comparator<stateType, costType>::path_comparator(std::function<costType(stateType)> h) : _heuristic(h) {}
 
 template <class stateType, class costType>
 bool search::path_comparator<stateType, costType>::operator() (const path<stateType, costType> &p1, const path<stateType, costType> &p2) {
@@ -330,12 +330,12 @@ constexpr typename search::ucs<Key, T, Cost, Nat> search::make_ucs(const graph<K
 ///////////////////////////////////////////
 
 template <class Key, class T, class Cost, Nature Nat>
-search::path<typename search::astar<Key, T, Cost, Nat>::state, Cost> search::astar<Key, T, Cost, Nat>::run(Key begin, std::function<double(state)> heuristic) const {
+search::path<typename search::astar<Key, T, Cost, Nat>::state, Cost> search::astar<Key, T, Cost, Nat>::run(Key begin, std::function<Cost(state)> heuristic) const {
     return run(this->g.find(begin), heuristic);
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-search::path<typename search::astar<Key, T, Cost, Nat>::state, Cost> search::astar<Key, T, Cost, Nat>::run(state begin, std::function<double(state)> heuristic) const {
+search::path<typename search::astar<Key, T, Cost, Nat>::state, Cost> search::astar<Key, T, Cost, Nat>::run(state begin, std::function<Cost(state)> heuristic) const {
     std::list<state> expanded;
     std::priority_queue<path<state, Cost>, std::vector<path<state, Cost>>, path_comparator<state, Cost>> frontier((path_comparator<state, Cost>(heuristic)));
 

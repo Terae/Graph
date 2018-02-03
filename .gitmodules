@@ -4,3 +4,6 @@
 [submodule "benchmarks/third-party/benchpress"]
 	path = benchmarks/third-party/benchpress
 	url = https://github.com/sbs-ableton/benchpress
+[submodule "third-party/json"]
+	path = third-party/json
+	url = https://github.com/nlohmann/json

@@ -624,22 +624,236 @@ bool graph<Key, T, Cost, Nat>::is_isomorphic() const {
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-std::ostream &graph<Key, T, Cost, Nat>::print(std::ostream &os) const {
-    using std::setw;
-    using std::ostringstream;
+std::ostream &operator<<(std::ostream &os, const graph<Key, T, Cost, Nat> &g) {
+    return os << *g.generate_grp() << std::endl;
+    //return os << std::setw(4) << *g.generate_json() << std::endl;
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+std::istream &operator>>(std::istream &is, graph<Key, T, Cost, Nat> &g) {
+    try {
+        g.parse_from_grp(is);
+    } catch (...) {
+        /*try {
+            g.parse_from_json(is);
+        } catch (std::exception&e) {
+            std::cerr << e.what() << std::endl;*/
+        GRAPH_THROW_WITH(parse_error, 0, "istream corrupted, fail to parse the graph")
+        //}
+    }
+
+    return is;
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+void graph<Key, T, Cost, Nat>::load(const char* filename) {
+    const char* dot = strrchr(filename, '.');
+    std::string extension{""};
+    if (dot != NULL && dot != filename) {
+        extension = dot + 1;
+    }
+
+    std::ifstream in(filename);
+    if (!in) {
+        GRAPH_THROW_WITH(invalid_argument, ("Unexistant file: '" + std::string(filename) + "'").c_str())
+    }
+
+    if (extension == "json") {
+        parse_from_json(static_cast<std::istream &>(in));
+    } else if (extension == "dot") {
+        GRAPH_THROW_WITH(invalid_argument, "Load from DOT file non supported yet")
+    } else {
+        try {
+            parse_from_grp(static_cast<std::istream &>(in));
+        } catch (exception &e) {
+            std::cerr << "Fail to load the file '" << filename << "'; wrong extension or corrupted file." << std::endl;
+        }
+    }
+    in.close();
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+std::unique_ptr<std::string> graph<Key, T, Cost, Nat>::generate_dot(const std::string &graph_name) const {
+    std::string dot;
 
     const std::string tab{"    "};
-    const std::string separator{","};
+
+    //! Displaying nature + graph name
+    if (graph_name.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-") != graph_name.npos) {
+        GRAPH_THROW_WITH(invalid_argument, "Wrong graph name given; accepted characters: [a-zA-Z0-9_-]")
+    }
+
+    if (get_nature() == DIRECTED) {
+        dot += "di";
+    }
+    dot += "graph ";
+    if (!graph_name.empty()) {
+        dot += graph_name + " ";
+    }
+    dot += "{\n";
+
+    //! Displaying nodes' name
+    for (const_iterator it{cbegin()}; it != cend(); ++it) {
+        std::stringstream ss;
+        ss << it->first;
+        dot += tab + ss.str() + "\n";
+    }
+
+    if (get_nature() == DIRECTED) {
+        for_each(cbegin(), cend(), [ =, &dot](const value_type & element) {
+            std::list<typename node::edge> child{element.second->get_edges()};
+            for_each(child.cbegin(), child.cend(), [ =, &dot](const typename node::edge & i) {
+                if (i.cost() != infinity) {
+                    std::stringstream ss;
+                    ss << tab << element.first << " -> " << i.target()->first << '\n';
+                    dot += ss.str();
+                }
+            });
+        });
+    } else { /// get_nature() == UNDIRECTED
+        std::set<std::pair<Key, Key>> list_edges;
+        for_each(cbegin(), cend(), [ =, &dot, &list_edges](const value_type & element) {
+            std::list<typename node::edge> child{element.second->get_edges()};
+            for_each(child.cbegin(), child.cend(), [ =, &dot, &list_edges](const typename node::edge & i) {
+                //if (i.cost() != infinity) {
+                const Key min{std::min(element.first, i.target()->first)};
+                const Key max{std::max(element.first, i.target()->first)};
+                list_edges.emplace(std::make_pair(min, max));
+                //}
+            });
+        });
+
+        for_each(list_edges.cbegin(), list_edges.cend(), [ =, &dot](const std::pair<Key, Key> &p) {
+            std::stringstream ss;
+            ss << tab << p.first << " -- " << p.second << '\n';
+            dot += ss.str();
+        });
+    }
+    dot += '}';
+
+    return std::unique_ptr<std::string>(new std::string(std::forward<std::string>(dot)));
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+void graph<Key, T, Cost, Nat>::save_to_dot(const char* filename, const std::string &graph_name) const {
+    std::ofstream out(filename);
+    out << *generate_dot(graph_name) << std::endl;
+    out.close();
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+std::unique_ptr<nlohmann::json> graph<Key, T, Cost, Nat>::generate_json() const {
+    nlohmann::json json;
+
+    using Set = std::list<typename node::edge>;
+
+    // Displaying nature
+    json["nature"] = get_nature();
+
+    // Displaying nodes
+    size_type n{0};
+    for (const_iterator node{cbegin()}; node != cend(); ++node, ++n) {
+        json["nodes"][n]["key"]   = node->first;
+        json["nodes"][n]["value"] = node->second->get();
+    }
+
+    // Displaying adjacences
+    size_type p{0};
+    for (const_iterator node{cbegin()}; node != cend(); ++node) {
+        Set child{node->second->get_edges()};
+        for (typename Set::const_iterator edge{child.begin()}; edge != child.end(); ++edge) {
+            const_iterator it{edge->target()};
+            //if (edge->cost() != infinity) {
+            json["edges"][p]["from"] = node->first;
+            json["edges"][p]["to"]   = it->first;
+            json["edges"][p]["cost"] = edge->cost();
+            ++p;
+            //}
+        }
+    }
+    return std::unique_ptr<nlohmann::json>(new nlohmann::json(std::forward<nlohmann::json>(json)));
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+void graph<Key, T, Cost, Nat>::save_to_json(const char* filename) const {
+    std::ofstream out(filename);
+    out << std::setw(4) << *generate_json() << std::endl;
+    out.close();
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+void graph<Key, T, Cost, Nat>::parse_from_json(std::istream &is) {
+    nlohmann::json json;
+    is >> json;
+
+    if (static_cast<Nature>(json["nature"]) != get_nature()) {
+        std::string error_msg{"Bad graph nature (expected '"};
+        error_msg += (Nat == DIRECTED ? "graph')" : "digraph')");
+        GRAPH_THROW_WITH(invalid_argument, error_msg.c_str())
+    }
+
+    clear();
+    for (const nlohmann::json &node : json["nodes"]) {
+        key_type k = node["key"];
+        graphed_type x = node["value"];
+        add_node(k, x);
+    }
+    for (const nlohmann::json &edge : json["edges"]) {
+        key_type from = edge["from"];
+        key_type to = edge["to"];
+        Cost c;
+        if (edge["cost"].is_null()) {// == nlohmann::json::is_null())
+            c = infinity;
+        } else {
+            c = edge["cost"];
+        }
+        //Cost c = edge["cost"];
+        add_edge(from, to, c);
+    }
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+void graph<Key, T, Cost, Nat>::DEBUG_load_from_json_rust(const char* path) {
+    nlohmann::json json;
+    std::ifstream is(path);
+    if (!is) {
+        std::cerr << "Unexistant file '" << path << "'!" << std::endl;
+        exit(1);
+    }
+    is >> json;
+
+    clear();
+    for (const nlohmann::json &node : json["nodes"]) {
+        add_node(node);
+    }
+
+    for (const nlohmann::json &edge : json["edges"]) {
+        const_iterator begin{std::next(cbegin(), edge[0])};
+        const_iterator end  {std::next(cbegin(), edge[1])};
+        add_edge(begin, end);
+    }
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+std::unique_ptr<std::string> graph<Key, T, Cost, Nat>::generate_grp() const {
+    using std::ostringstream;
+    using std::setw;
+    using std::string;
+    using std::stringstream;
+
+    const string tab{"    "};
+
+    string data;
 
     //! Displaying nature + graph types
     if (get_nature() == DIRECTED) {
-        os << "di";
+        data += "di";
     }
 
-    os << "graph<" << detail::type_name<Key>()  << ", "
-       << detail::type_name<T>()    << ", "
-       << detail::type_name<Cost>() << "> {\n"
-       << tab << "nodes: {\n";
+    data += "graph<" + detail::type_name<Key>() + ", " +
+            detail::type_name<T>() + ", " +
+            detail::type_name<Cost>() + "> {\n" +
+            tab + "nodes: {\n";
 
     //! Displaying nodes:  "<name>"; "<value>",
     size_type max_size{3};
@@ -655,24 +869,26 @@ std::ostream &graph<Key, T, Cost, Nat>::print(std::ostream &os) const {
 
     for (const_iterator it{cbegin()}; it != cend(); ++it) {
         ostringstream out;
-        out << it->first << '"' << separator;
+        out << it->first << "\",";
 
-        os << tab << tab
-           << '"' << std::left << setw(static_cast<int>(max_size + 2 + separator.size())) << out.str()
+        stringstream ss;
+        ss << tab << tab
+           << '"' << std::left << setw(static_cast<int>(max_size + 3)) << out.str()
            << '"' << it->second->get() << '"';
+        data += ss.str();
 
         if (it != --cend()) {
-            os << ';';
+            data += ";";
         }
-        os << '\n';
+        data += "\n";
     }
-    os << tab << '}';
+    data += tab + "}";
 
     //! Displaying edges:  "<node 1>"; "<node 2>"; "<cost>",
     if (get_nbr_edges() == 0) {
-        os << "\n}";
+        data += "\n}";
     } else {
-        os << ",\n" << tab << "edges: {\n";
+        data += ",\n" + tab + "edges: {\n";
         size_type max_size_1{0}, max_size_2{0};
 
         for_each(cbegin(), cend(), [&max_size_1, &max_size_2, this](const value_type & element) {
@@ -696,54 +912,56 @@ std::ostream &graph<Key, T, Cost, Nat>::print(std::ostream &os) const {
         });
 
         size_type p{0};
-        for_each(cbegin(), cend(), [ =, &os, &p](const value_type & element) {
+        for_each(cbegin(), cend(), [ =, &data, &p](const value_type & element) {
             std::list<typename node::edge> child{element.second->get_edges()};
-            for_each(child.cbegin(), child.cend(), [ =, &os, &p](const typename node::edge & i) {
+            for_each(child.cbegin(), child.cend(), [ =, &data, &p](const typename node::edge & i) {
                 ostringstream out_1, out_2;
-                out_1 << element.first << '"' << separator;
-                out_2 << i.target()->first << '"' << separator;
+                out_1 << '"' << element.first << "\",";
+                out_2 << '"' << i.target()->first << "\",";
 
-                os << tab << tab
-                   << '"' << setw(static_cast<int>(max_size_1 + 2 + separator.size())) << out_1.str()
-                   << '"' << setw(static_cast<int>(max_size_2 + 2 + separator.size())) << out_2.str();
+                stringstream ss;
+                ss << std::left << tab << tab
+                   << setw(static_cast<int>(max_size_1 + 4)) << out_1.str()
+                   << setw(static_cast<int>(max_size_2 + 4)) << out_2.str();
                 if (i.cost() == infinity) {
-                    os << "infinity";
+                    ss << "infinity";
                 } else {
-                    os << '"' << i.cost() << '"';
+                    ss << '"' << i.cost() << '"';
                 }
 
                 if (p < (this->get_nature() == DIRECTED ?
                          this->get_nbr_edges() : 2 * this->get_nbr_edges()) - 1) {
-                    os << ';';
+                    ss << ';';
                 }
-                os << '\n';
+                ss << '\n';
+                data += ss.str();
                 p++;
             });
         });
-        os << tab << "}\n}";
+        data += tab + "}\n}";
     }
 
-    return os;
+    return std::unique_ptr<std::string>(new std::string(std::forward<std::string>(data)));
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-std::ostream &operator<<(std::ostream &os, const graph<Key, T, Cost, Nat> &g) {
-    return g.print(os) << std::endl;
+void graph<Key, T, Cost, Nat>::save_to_grp(const char* filename) const {
+    std::ofstream out(filename);
+    out << *generate_grp() << std::endl;
+    out.close();
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-std::istream &operator>>(std::istream &is, graph<Key, T, Cost, Nat> &g) {
-    g.clear();
-
+void graph<Key, T, Cost, Nat>::parse_from_grp(std::istream &is) {
     //! Nature
     std::string line;
     getline(is, line);
     if (line.substr(0, 5) == "graph") {
-        if (g.get_nature() != UNDIRECTED) {
+        if (get_nature() != UNDIRECTED) {
             GRAPH_THROW_WITH(invalid_argument, "Bad graph nature (expected 'graph')")
         }
     } else if (line.substr(0, 7) == "digraph") {
-        if (g.get_nature() != DIRECTED) {
+        if (get_nature() != DIRECTED) {
             GRAPH_THROW_WITH(invalid_argument, "Bad graph nature (expected 'digraph')")
         }
     } else {
@@ -755,6 +973,8 @@ std::istream &operator>>(std::istream &is, graph<Key, T, Cost, Nat> &g) {
     if (line != "    nodes: {") {
         GRAPH_THROW_WITH(parse_error, static_cast<std::size_t>(is.tellg()), "Bad format for nodes")
     }
+
+    clear();
     while (getline(is, line) && line.find("}") == std::string::npos) {
         std::istringstream iss{line};
         Key key;
@@ -762,7 +982,7 @@ std::istream &operator>>(std::istream &is, graph<Key, T, Cost, Nat> &g) {
         detail::read_T(iss, key);
         detail::read_T(iss, value);
 
-        g[key] = value;
+        add_node(key, value);
     }
 
     //! Edges
@@ -780,7 +1000,7 @@ std::istream &operator>>(std::istream &is, graph<Key, T, Cost, Nat> &g) {
             detail::read_T(iss, to);
             detail::read_cost(iss, cost);
 
-            g(from, to) = cost;
+            add_edge(from, to, cost);
         }
 
         getline(is, line);
@@ -788,80 +1008,6 @@ std::istream &operator>>(std::istream &is, graph<Key, T, Cost, Nat> &g) {
             GRAPH_THROW_WITH(parse_error, static_cast<std::size_t>(is.tellg()), "Bad format at the end of the graph")
         }
     }
-
-    return is;
-}
-
-template <class Key, class T, class Cost, Nature Nat>
-void graph<Key, T, Cost, Nat>::save(const char* filepath) const {
-    std::ofstream out(filepath);
-    out << *this << std::endl;
-    out.close();
-}
-
-template <class Key, class T, class Cost, Nature Nat>
-graph<Key, T, Cost, Nat> &graph<Key, T, Cost, Nat>::load(const char* filepath) {
-    std::ifstream in(filepath);
-    if (in) {
-        in >> *this;
-        in.close();
-    }
-
-    return *this;
-}
-
-template <class Key, class T, class Cost, Nature Nat>
-std::ostream &graph<Key, T, Cost, Nat>::generate_dot(std::ostream &os, const std::string &name) const {
-    const std::string tab{"    "};
-
-    //! Displaying nature + graph name
-    if (name.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-") != name.npos) {
-        GRAPH_THROW_WITH(invalid_argument, "Wrong graph name given; accepted characters: [a-zA-Z0-9_-]")
-    }
-
-    if (get_nature() == DIRECTED) {
-        os << "di";
-    }
-    os << "graph ";
-    if (!name.empty()) {
-        os << name << ' ';
-    }
-    os << "{\n";
-
-    //! Displaying nodes' name
-    for (const_iterator it{cbegin()}; it != cend(); ++it) {
-        os << tab << it->first << '\n';
-    }
-
-    if (get_nature() == DIRECTED) {
-        for_each(cbegin(), cend(), [ =, &os](const value_type & element) {
-            std::list<typename node::edge> child{element.second->get_edges()};
-            for_each(child.cbegin(), child.cend(), [ =, &os](const typename node::edge & i) {
-                if (i.cost() != infinity) {
-                    os << tab << element.first << " -> " << i.target()->first << '\n';
-                }
-            });
-        });
-    } else { /// get_nature() == UNDIRECTED
-        std::set<std::pair<Key, Key>> list_edges;
-        for_each(cbegin(), cend(), [ =, &os, &list_edges](const value_type & element) {
-            std::list<typename node::edge> child{element.second->get_edges()};
-            for_each(child.cbegin(), child.cend(), [ =, &os, &list_edges](const typename node::edge & i) {
-                if (i.cost() != infinity) {
-                    const Key min{std::min(element.first, i.target()->first)};
-                    const Key max{std::max(element.first, i.target()->first)};
-                    list_edges.emplace(std::make_pair(min, max));
-                }
-            });
-        });
-
-        for_each(list_edges.cbegin(), list_edges.cend(), [ =, &os](const std::pair<Key, Key> &p) {
-            os << tab << p.first << " -- " << p.second << '\n';
-        });
-    }
-    os << '}';
-
-    return os;
 }
 
 template <class Key, class T, class Cost, Nature Nat>
@@ -869,8 +1015,9 @@ template <class K,   class D, class C,    Nature N>
 bool graph<Key, T, Cost, Nat>::operator==(const graph<K, D, C, N> &other) const noexcept {
     typedef typename graph<Key, T, Cost, Nat>::const_iterator Iterator1;
     typedef typename graph<K,   D,    C,   N>::const_iterator Iterator2;
-    typedef std::list<typename basic_node<T, Cost, typename graph<Key, T, Cost, Nat>::iterator, Iterator1>::edge> Set1;
-    typedef std::list<typename basic_node<D,    C, typename graph<K,   D, C,      N>::iterator, Iterator2>::edge> Set2;
+
+    typedef typename basic_node<T, Cost, typename graph<Key, T, Cost, Nat>::iterator, Iterator1>::edge Edge1;
+    typedef typename basic_node<D,    C, typename graph<K,   D, C,      N>::iterator, Iterator2>::edge Edge2;
 
     if (get_nature()        != other.get_nature()    ||
             get_nbr_nodes() != other.get_nbr_nodes() ||
@@ -882,24 +1029,36 @@ bool graph<Key, T, Cost, Nat>::operator==(const graph<K, D, C, N> &other) const 
     Iterator2 it2{other.cbegin()};
 
     for (; (it1 != cend() || it2 != other.cend()); ++it1, ++it2) {
-        /// Test nodes value
+        //! Test nodes value
         if (!(it1->first                == it2->first)         ||
                 !(it1->second->get()    == it2->second->get()) ||
                 !(it1->second->degree() == it2->second->degree())) {
             return false;
         }
 
-        /// Test out edges
-        Set1 child1{it1->second->get_edges()};
-        Set2 child2{it2->second->get_edges()};
-        typename Set1::const_iterator edge1{child1.cbegin()};
-        typename Set2::const_iterator edge2{child2.cbegin()};
+        //! Test out edges
+        std::list<Edge1> edges1{it1->second->get_edges()};
+        std::list<Edge2> edges2{it2->second->get_edges()};
+
+        /// Transform an unordered list into a map to browse edges in the same order
+        std::map<Key, Edge1> child1;
+        std::map<Key, Edge2> child2;
+
+        std::transform(edges1.begin(), edges1.end(), std::inserter(child1, child1.end()), [](const Edge1 & e) {
+            return std::make_pair(e.target()->first, e);
+        });
+        std::transform(edges2.begin(), edges2.end(), std::inserter(child2, child2.end()), [](const Edge2 & e) {
+            return std::make_pair(e.target()->first, e);
+        });
+
+        typename std::map<Key, Edge1>::const_iterator edge1{child1.cbegin()};
+        typename std::map<Key, Edge2>::const_iterator edge2{child2.cbegin()};
 
         for (; (edge1 != child1.cend() || edge2 != child2.cend()); ++edge1, ++edge2) {
-            Iterator1 target1{edge1->target()};
-            Iterator2 target2{edge2->target()};
+            Iterator1 target1{edge1->second.target()};
+            Iterator2 target2{edge2->second.target()};
 
-            if (!(target1->first == target2->first && edge1->cost() == edge2->cost())) {
+            if (!(target1->first == target2->first && edge1->second.cost() == edge2->second.cost())) {
                 return false;
             }
         }

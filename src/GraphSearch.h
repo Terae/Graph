@@ -43,10 +43,10 @@ namespace search {
     template <class stateType, class costType>
     class path_comparator {
       private:
-        std::function<double(stateType)> _heuristic;
+        std::function<costType(stateType)> _heuristic;
 
       public:
-        path_comparator(std::function<double(stateType)> heuristic);
+        path_comparator(std::function<costType(stateType)> heuristic);
 
         bool operator() (const path<stateType, costType> &, const path<stateType, costType> &);
     };
@@ -304,8 +304,8 @@ namespace search {
 
         using state = typename abstract_targeted_search<Key, T, Cost, Nat>::state;
 
-        path<state, Cost> run(Key   begin, std::function<double(state)> heuristic) const;
-        path<state, Cost> run(state begin, std::function<double(state)> heuristic) const;
+        path<state, Cost> run(Key   begin, std::function<Cost(state)> heuristic) const;
+        path<state, Cost> run(state begin, std::function<Cost(state)> heuristic) const;
     };
 
     template <class Key, class T, class Cost, Nature Nat, class... Args>
