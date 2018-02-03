@@ -11,6 +11,12 @@
 #include <map>       /// map
 #include <vector>    /// vector
 
+#ifdef INCLUDE_JSON_FILE
+    #include "../third-party/json/single_include/nlohmann/json.hpp"
+#else
+    #include <nlohmann/json.hpp>
+#endif
+
 /// C++ language standard detection
 #if   (defined(__cplusplus) && __cplusplus >= 201703L) || (defined(_MSC_VER)   && _MSC_VER > 1900 && defined(_HAS_CXX17) && _HAS_CXX17 == 1)
     #define GRAPH_HAS_CPP_17

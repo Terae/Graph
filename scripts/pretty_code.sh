@@ -69,6 +69,16 @@ sed -i -e '/#include "detail.hpp"/ {' -e "r ${HOME}/src/detail.hpp" -e 'd' -e '}
 sed -i 's/ROOT_GRAPH_H/ROOT_GRAPH_FINAL_H/' "$FILE" || exit 2
 sed -i '/ROOT_NODE_H/d' "$FILE" || exit 2
 sed -i '/ROOT_DETAIL_H/d' "$FILE" || exit 2
+# Include json library (from /`usr/local/include/nlohmann/json.hpp`) or the file from github in function of the local installation
+##sed -i '/    #include "..\/third-party\/json\/*/,+4d' "$FILE" || exit 2
+##if [ -f /usr/local/include/nlohmann/json.hpp ]; then
+##	sed -i 's/#ifdef INCLUDE_JSON_FILE/#include <nlohmann\/json.hpp>/' "$FILE" || exit 2
+##	rm ${LOCATION}/json.hpp 2> /dev/null
+##else
+##	sed -i 's/#ifdef INCLUDE_JSON_FILE/#include "json.hpp"/' "$FILE" || exit 2
+##	cp ${HOME}/third-party/json/single_include/nlohmann/json.hpp ${LOCATION}
+##fi
+
 # Remove comments
 sed -i 's/\/\/\/.*//' "$FILE" || exit 2
 # Remove trailing whitespaces

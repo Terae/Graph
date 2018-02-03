@@ -1,9 +1,10 @@
 /.idea
-/build
 appveyor.yml.cached
-codecov.yml
 /benchmarks/.idea
 /benchmarks/build
 benchmarks/graph_benchmarks
+/build
+codecov.yml
 /doc/html
 /doc/xml
+single_include/json.hpp

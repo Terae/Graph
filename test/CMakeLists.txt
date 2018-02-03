@@ -69,6 +69,11 @@ endif()
 # Catch library with the main function to speed up build #
 ##########################################################
 
+execute_process(
+        COMMAND git submodule update --init ${Graph_SOURCE_DIR}/test/third-party/catch
+        WORKING_DIRECTORY ${Graph_SOURCE_DIR}
+)
+
 add_library(catch_main OBJECT "src/unit.cpp")
 
 set_target_properties(catch_main PROPERTIES
