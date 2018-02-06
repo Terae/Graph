@@ -122,10 +122,7 @@ static void bench(benchpress::context &ctx, const EMode mode) {
             //g.DEBUG_load_from_json("astar.rust.json");
             ctx.reset_timer();
             for (size_t i{0}; i < ctx.num_iterations(); ++i) {
-                auto astar = search::make_astar(g, g.find("END"));
-                auto search_result = astar.run("START", [](const graph_directed<std::string, int, int>::const_iterator & it) -> int {
-                    return 5;
-                });
+                graph_directed<std::string, int, int>::search_path p{g.astar("START", "END", [](const graph_directed<std::string, int, int>::const_iterator &) -> int { return 5; })};
             }
 
             break;
