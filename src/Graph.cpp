@@ -614,6 +614,7 @@ std::vector<typename graph<Key, T, Cost, Nat>::node::edge> graph<Key, T, Cost, N
 }
 
 template <class Key, class T, class Cost, Nature Nat>
+template <class> /// enable_if_t<DIRECTED>
 bool graph<Key, T, Cost, Nat>::is_cyclic() const {
     for (const_iterator it{cbegin()}; it != cend(); ++it) {
         std::list<const_iterator> initPath;
@@ -666,15 +667,15 @@ std::ostream &operator<<(std::ostream &os, const graph<Key, T, Cost, Nat> &g) {
 
 template <class Key, class T, class Cost, Nature Nat>
 std::istream &operator>>(std::istream &is, graph<Key, T, Cost, Nat> &g) {
-    try {
+    GRAPH_TRY {
         g.parse_from_grp(is);
-    } catch (...) {
-        /*try {
-            g.parse_from_json(is);
-        } catch (std::exception&e) {
-            std::cerr << e.what() << std::endl;*/
+    } GRAPH_CATCH (...) {
+        ///GRAPH_TRY {
+        ///    g.parse_from_json(is);
+        ///} GRAPH_THROW (std::exception&e) {
+        ///    std::cerr << e.what() << std::endl;
         GRAPH_THROW_WITH(parse_error, 0, "istream corrupted, fail to parse the graph")
-        //}
+        ///}
     }
 
     return is;
@@ -698,9 +699,9 @@ void graph<Key, T, Cost, Nat>::load(const char* filename) {
     } else if (extension == "dot") {
         GRAPH_THROW_WITH(invalid_argument, "Load from DOT file non supported yet")
     } else {
-        try {
+        GRAPH_TRY {
             parse_from_grp(static_cast<std::istream &>(in));
-        } catch (exception &e) {
+        } GRAPH_CATCH (exception & e) {
             std::cerr << "Fail to load the file '" << filename << "'; wrong extension or corrupted file." << std::endl;
         }
     }
@@ -750,11 +751,9 @@ std::unique_ptr<std::string> graph<Key, T, Cost, Nat>::generate_dot(const std::s
         for_each(cbegin(), cend(), [ =, &dot, &list_edges](const value_type & element) {
             std::list<typename node::edge> child{element.second->get_edges()};
             for_each(child.cbegin(), child.cend(), [ =, &dot, &list_edges](const typename node::edge & i) {
-                //if (i.cost() != infinity) {
                 const Key min{std::min(element.first, i.target()->first)};
                 const Key max{std::max(element.first, i.target()->first)};
                 list_edges.emplace(std::make_pair(min, max));
-                //}
             });
         });
 
@@ -782,28 +781,24 @@ std::unique_ptr<nlohmann::json> graph<Key, T, Cost, Nat>::generate_json() const 
 
     using Set = std::list<typename node::edge>;
 
-    // Displaying nature
+    /// Displaying nature
     json["nature"] = get_nature();
 
-    // Displaying nodes
+    /// Displaying nodes
     size_type n{0};
     for (const_iterator node{cbegin()}; node != cend(); ++node, ++n) {
         json["nodes"][n]["key"]   = node->first;
         json["nodes"][n]["value"] = node->second->get();
     }
 
-    // Displaying adjacences
+    /// Displaying adjacences
     size_type p{0};
     for (const_iterator node{cbegin()}; node != cend(); ++node) {
         Set child{node->second->get_edges()};
-        for (typename Set::const_iterator edge{child.begin()}; edge != child.end(); ++edge) {
-            const_iterator it{edge->target()};
-            //if (edge->cost() != infinity) {
+        for (typename Set::const_iterator edge{child.begin()}; edge != child.end(); ++edge, ++p) {
             json["edges"][p]["from"] = node->first;
-            json["edges"][p]["to"]   = it->first;
+            json["edges"][p]["to"]   = edge->target()->first;
             json["edges"][p]["cost"] = edge->cost();
-            ++p;
-            //}
         }
     }
     return std::unique_ptr<nlohmann::json>(new nlohmann::json(std::forward<nlohmann::json>(json)));
@@ -837,12 +832,11 @@ void graph<Key, T, Cost, Nat>::parse_from_json(std::istream &is) {
         key_type from = edge["from"];
         key_type to = edge["to"];
         Cost c;
-        if (edge["cost"].is_null()) {// == nlohmann::json::is_null())
+        if (edge["cost"].is_null()) {
             c = infinity;
         } else {
             c = edge["cost"];
         }
-        //Cost c = edge["cost"];
         add_edge(from, to, c);
     }
 }
@@ -871,12 +865,13 @@ void graph<Key, T, Cost, Nat>::DEBUG_load_from_json_rust(const char* path) {
 
 template <class Key, class T, class Cost, Nature Nat>
 std::unique_ptr<std::string> graph<Key, T, Cost, Nat>::generate_grp() const {
+    using std::max;
     using std::ostringstream;
     using std::setw;
     using std::string;
     using std::stringstream;
 
-    const string tab{"    "};
+    const string tab{string(4, ' ')};
 
     string data;
 
@@ -897,9 +892,7 @@ std::unique_ptr<std::string> graph<Key, T, Cost, Nat>::generate_grp() const {
         out << element.first;
         size_type size{static_cast<size_type>(out.tellp())};
 
-        if (size > max_size) {
-            max_size = size;
-        }
+        max_size = max(max_size, size);
     });
 
     for (const_iterator it{cbegin()}; it != cend(); ++it) {
@@ -936,13 +929,8 @@ std::unique_ptr<std::string> graph<Key, T, Cost, Nat>::generate_grp() const {
                 size_type size_1{static_cast<size_type>(out_1.tellp())},
                           size_2{static_cast<size_type>(out_2.tellp())};
 
-                if (size_1 > max_size_1) {
-                    max_size_1 = size_1;
-                }
-
-                if (size_2 > max_size_2) {
-                    max_size_2 = size_2;
-                }
+                max_size_1 = max(max_size_1, size_1);
+                max_size_2 = max(max_size_2, size_2);
             });
         });
 
@@ -951,7 +939,7 @@ std::unique_ptr<std::string> graph<Key, T, Cost, Nat>::generate_grp() const {
             std::list<typename node::edge> child{element.second->get_edges()};
             for_each(child.cbegin(), child.cend(), [ =, &data, &p](const typename node::edge & i) {
                 ostringstream out_1, out_2;
-                out_1 << '"' << element.first << "\",";
+                out_1 << '"' << element.first     << "\",";
                 out_2 << '"' << i.target()->first << "\",";
 
                 stringstream ss;
@@ -1575,14 +1563,71 @@ typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::astar(c
 
 ////
 template <class Key, class T, class Cost, Nature Nat>
-std::map<typename graph<Key, T, Cost, Nat>::const_iterator, typename graph<Key, T, Cost, Nat>::search_path> graph<Key, T, Cost, Nat>::dijkstra(key_type start) const {
+typename graph<Key, T, Cost, Nat>::dijkstra_path graph<Key, T, Cost, Nat>::dijkstra(key_type start) const {
     return dijkstra(find(start));
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-typename std::map<typename graph<Key, T, Cost, Nat>::const_iterator, typename graph<Key, T, Cost, Nat>::search_path> graph<Key, T, Cost, Nat>::dijkstra(const_iterator start) const {
-    // TODO
-    ;
+typename graph<Key, T, Cost, Nat>::dijkstra_path graph<Key, T, Cost, Nat>::dijkstra(const_iterator start) const {
+    struct pair_iterator_comparator {
+        bool operator()(const std::pair<const_iterator, Cost> &lhs, const std::pair<const_iterator, Cost> &rhs) const {
+            return true;
+        }
+    };
+
+    //! Initialization
+
+    const Cost nul_cost{Cost()};
+    std::set<std::pair<const_iterator, Cost>, pair_iterator_comparator> set_preprocessing;
+
+    dijkstra_path result;
+    for (const_iterator it{cbegin()}; it != cend(); ++it) {
+        search_path p;
+        p.push_back({it, nul_cost});
+        result.emplace(it, std::make_pair(p, infinity));
+    }
+
+    //! Dijkstra algorithm
+    /// d(start, start) == nul_cost;
+    set_preprocessing.insert(std::make_pair(start, nul_cost));
+    result[start].second = nul_cost;
+
+    while (!set_preprocessing.empty()) {
+        std::pair<const_iterator, Cost> tmp{*(set_preprocessing.begin())};
+        set_preprocessing.erase(set_preprocessing.begin());
+
+        const_iterator u{tmp.first};
+
+        std::vector<typename node::edge> adj{get_out_edges(u)};
+        for (typename std::vector<typename node::edge>::const_iterator it{adj.cbegin()}; it != adj.cend(); ++it) {
+            const_iterator v{it->target()};
+
+            Cost cost{v->second->get_cost(u)};
+
+            Cost dist_u{result[u].second};
+            Cost dist_v{result[v].second};
+
+            /// Existing shortest path to v through u
+            if (dist_v > dist_u + cost) {
+                if (dist_v != infinity) {
+                    auto i{set_preprocessing.find(std::make_pair(v, dist_v))};
+                    if (i != set_preprocessing.cend()) {
+                        set_preprocessing.erase(i);
+                    }
+                }
+
+                dist_v = dist_u + cost;
+                result[v].second = dist_v;
+                set_preprocessing.insert(std::make_pair(v, dist_v));
+
+                if (u != start) {
+                    result[v].first.push_back({u, cost});
+                }
+            }
+        }
+    }
+
+    return result;
 }
 /////////////////////////////
 ///// search_path class /////
@@ -1614,6 +1659,11 @@ template <class Key, class T, class Cost, Nature Nat>
 graph<Key, T, Cost, Nat>::path_comparator::path_comparator(std::function<Cost(const_iterator)> heuristic) : _heuristic(heuristic) {}
 
 template <class Key, class T, class Cost, Nature Nat>
-bool graph<Key, T, Cost, Nat>::path_comparator::operator() (const search_path &p1, const search_path &p2) {
+bool graph<Key, T, Cost, Nat>::path_comparator::operator() (const search_path &p1, const search_path &p2) const {
     return (p1.total_cost() + _heuristic(p1.back().first)) > (p2.total_cost() + _heuristic(p2.back().first));
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+bool graph<Key, T, Cost, Nat>::iterator_comparator::operator()(const const_iterator &lhs, const const_iterator &rhs) const {
+    return lhs->first < rhs->first;
 }

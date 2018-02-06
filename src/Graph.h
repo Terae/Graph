@@ -72,6 +72,7 @@ class graph {
     const Cost infinity = std::numeric_limits<Cost>::has_infinity ? std::numeric_limits<Cost>::infinity() :
                           std::numeric_limits<Cost>::max();
     class path_comparator;
+    struct iterator_comparator;
 
   public:
 
@@ -278,12 +279,12 @@ class graph {
 
     std::map<key_type, Degree> degrees() const;
 
-    template <class = typename std::enable_if<detail::is_directed  <Nat>::value>>
+    template <class = typename std::enable_if<detail::is_directed<Nat>::value>>
     std::vector<typename node::edge> get_in_edges (const_iterator)   const;
-    template <class = typename std::enable_if<detail::is_directed  <Nat>::value>>
+    template <class = typename std::enable_if<detail::is_directed<Nat>::value>>
     inline std::vector<typename node::edge> get_in_edges (const key_type &) const;
 
-    template <class = typename std::enable_if<detail::is_directed  <Nat>::value>>
+    template <class = typename std::enable_if<detail::is_directed<Nat>::value>>
     inline std::vector<typename node::edge> get_out_edges(const_iterator)   const;
     template <class = typename std::enable_if<detail::is_directed  <Nat>::value>>
     inline std::vector<typename node::edge> get_out_edges(const key_type &) const;
@@ -293,7 +294,7 @@ class graph {
     template <class = typename std::enable_if<detail::is_undirected<Nat>::value>>
     inline std::vector<typename node::edge> get_edges    (const key_type &) const;
 
-    // TODO
+    template <class = typename std::enable_if<detail::is_directed<Nat>::value>>
     bool is_cyclic() const;
 
     // TODO
@@ -437,18 +438,19 @@ class graph {
     /// @see https://en.wikipedia.org/wiki/dijkstra%27s_algorithm
     /// @since version 1.1
     ///
-    std::map<const_iterator, search_path> dijkstra(key_type       start) const;
-    std::map<const_iterator, search_path> dijkstra(const_iterator start) const; // TODO
+    using dijkstra_path = std::map<const_iterator, std::pair<search_path, Cost>, iterator_comparator>;
+    dijkstra_path dijkstra(key_type       start) const;
+    dijkstra_path dijkstra(const_iterator start) const;
 
     class search_path final : private std::deque<std::pair<graph::const_iterator, Cost>> {
-        template <bool> friend search_path                  graph::abstract_first_search(graph::const_iterator, std::function<bool(const_iterator)>)                                      const;
-        friend search_path                                  graph::dls                  (graph::const_iterator, std::function<bool(const_iterator)>, size_type)                           const;
-        friend search_path                                  graph::iddfs                (graph::const_iterator, std::function<bool(const_iterator)>)                                      const;
-        friend search_path                                  graph::ucs                  (graph::const_iterator, std::function<bool(const_iterator)>)                                      const;
-        friend search_path                                  graph::astar                (graph::const_iterator, std::function<bool(const_iterator)>, std::function<Cost(const_iterator)>) const;
-        friend std::map<graph::const_iterator, search_path> graph::dijkstra             (graph::const_iterator)                                                                           const;
+        template <bool> friend search_path   graph::abstract_first_search(graph::const_iterator, std::function<bool(const_iterator)>)                                      const;
+        friend search_path          graph::dls                  (graph::const_iterator, std::function<bool(const_iterator)>, size_type)                           const;
+        friend search_path          graph::iddfs                (graph::const_iterator, std::function<bool(const_iterator)>)                                      const;
+        friend search_path          graph::ucs                  (graph::const_iterator, std::function<bool(const_iterator)>)                                      const;
+        friend search_path          graph::astar                (graph::const_iterator, std::function<bool(const_iterator)>, std::function<Cost(const_iterator)>) const;
+        friend dijkstra_path        graph::dijkstra             (graph::const_iterator)                                                                           const;
 
-        friend bool path_comparator::operator()(const search_path &, const search_path &);
+        friend bool path_comparator::operator()(const search_path &, const search_path &) const;
 
         using Container = std::deque<std::pair<graph::const_iterator, Cost>>;
 
@@ -495,7 +497,11 @@ class graph {
       public:
         path_comparator(std::function<Cost(const_iterator)> heuristic);
 
-        bool operator() (const search_path &, const search_path &);
+        bool operator() (const search_path &, const search_path &) const;
+    };
+
+    struct iterator_comparator {
+        bool operator()(const const_iterator &, const const_iterator &) const;
     };
 
     bool is_cyclic_rec(const_iterator current, std::list<const_iterator> path) const;

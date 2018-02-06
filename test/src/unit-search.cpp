@@ -7,9 +7,10 @@
 #if defined(TEST_SINGLE_HEADER_FILE)
     #include "graph.hpp"
 #else
-    #include "GraphSearch.h"
+    #include "Graph.h"
 #endif
 
+// TODO
 TEST_CASE("search") {
     SECTION("search_path") {
         using Graph = graph_undirected<std::string, int, double>;
@@ -56,5 +57,24 @@ TEST_CASE("search") {
             })};
 
         CHECK(p.total_cost() == 36);
+    }
+
+    SECTION("dijkstra") {
+        using Graph = graph_undirected<std::string, int, double>;
+
+        Graph g;
+        g["node 1"] = 1;
+        g["node 2"] = 2;
+        g["node 3"] = 3;
+        g["node 4"] = 4;
+        g("node 1", "node 2") = 12;
+        g("node 1", "node 3") = 13;
+        g("node 3", "node 2") = 32;
+        g("node 2", "node 4") = 24;
+
+        Graph::dijkstra_path p{g.dijkstra("node 1")};
+        CHECK(p[g.cbegin()].second == 0);
+        CHECK(p[g.find("node 2")].first.size() == 1);
+        CHECK(p[g.find("node 2")].second == 12);
     }
 }

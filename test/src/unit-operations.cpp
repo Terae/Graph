@@ -542,4 +542,40 @@ TEST_CASE("operations") {
             CHECK(edges[2].target() == g.find("node 4"));
         }
     }
+
+    SECTION("is_cyclic() const") {
+        SECTION("directed") {
+            Graph_directed g;
+            g("A", "B");
+            g("B", "C");
+            g("C", "D");
+            g("D", "E");
+            g("E", "F");
+            g("A", "F");
+            g("C", "I");
+            g("I", "G");
+            g("G", "H");
+            CHECK_FALSE(g.is_cyclic());
+
+            g("H", "I");
+            CHECK(g.is_cyclic());
+        }
+
+        /*SECTION("undirected") {
+            Graph_undirected g;
+            g("A", "B");
+            CHECK_FALSE(g.is_cyclic());
+            g("B", "C");
+            g("C", "D");
+            g("D", "E");
+            g("E", "F");
+            g("C", "I");
+            g("I", "G");
+            g("G", "H");
+            CHECK_FALSE(g.is_cyclic());
+
+            g("A", "F");
+            CHECK(g.is_cyclic());
+        }*/
+    }
 }
