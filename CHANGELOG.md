@@ -1,7 +1,10 @@
 # Change Log
 
-## [v1.1.1](https://github.com/terae/graph/releases/tag/v1.1.0) (2018-01-25)
-[Full Changelog](https://github.com/terae/compare/v1.1.0...v1.1.1)
+## [v1.1.2](https://github.com/terae/graph/releases/tag/v1.1.2) (2018-02-06)
+[Full Changelog](https://github.com/terae/graph/compare/v1.1.1...v1.1.2)
+
+## [v1.1.1](https://github.com/terae/graph/releases/tag/v1.1.1) (2018-01-25)
+[Full Changelog](https://github.com/terae/graph/compare/v1.1.0...v1.1.1)
 
 ## [v1.1.0](https://github.com/terae/graph/releases/tag/v1.1.0) (2018-01-17)
 [Full Changelog](https://github.com/terae/graph/compare/v1.0.1...v1.1.0)
