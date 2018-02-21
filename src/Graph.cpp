@@ -1485,9 +1485,8 @@ typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::ucs(con
 
 template <class Key, class T, class Cost, Nature Nat>
 typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::astar(key_type start, Key target, std::function<Cost(const_iterator)> heuristic) const {
-    std::list<const_iterator> l;
-    l.emplace_back(find(target));
-    return astar(find(start), l, heuristic);
+    const_iterator it{find(target)};
+    return astar(find(start), [ &it](const_iterator node) -> bool { return it == node; }, heuristic);
 }
 
 template <class Key, class T, class Cost, Nature Nat>
@@ -1508,9 +1507,7 @@ typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::astar(k
 
 template <class Key, class T, class Cost, Nature Nat>
 typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::astar(const_iterator start, const_iterator target, std::function<Cost(const_iterator)> heuristic) const {
-    std::list<const_iterator> l;
-    l.emplace_back(target);
-    return astar(start, l, heuristic);
+    return astar(start, [ &target](const_iterator node) -> bool { return target == node; }, heuristic);
 }
 
 template <class Key, class T, class Cost, Nature Nat>
@@ -1563,40 +1560,78 @@ typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::astar(c
 
 ////
 template <class Key, class T, class Cost, Nature Nat>
-typename graph<Key, T, Cost, Nat>::dijkstra_path graph<Key, T, Cost, Nat>::dijkstra(key_type start) const {
-    return dijkstra(find(start));
+typename graph<Key, T, Cost, Nat>::shortest_paths graph<Key, T, Cost, Nat>::dijkstra(key_type start) const {
+    return dijkstra(find(start), [](const_iterator) {
+        return false;
+    });
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-typename graph<Key, T, Cost, Nat>::dijkstra_path graph<Key, T, Cost, Nat>::dijkstra(const_iterator start) const {
+typename graph<Key, T, Cost, Nat>::shortest_paths graph<Key, T, Cost, Nat>::dijkstra(key_type start, key_type target) const {
+    const_iterator it{find(target)};
+    return dijkstra(find(start), [ &it](const_iterator node) -> bool { return it == node; });
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+typename graph<Key, T, Cost, Nat>::shortest_paths graph<Key, T, Cost, Nat>::dijkstra(key_type start, std::list<key_type> target_list) const {
+    std::list<const_iterator> l;
+    for (key_type k : target_list) {
+        l.emplace_back(find(k));
+    }
+    return dijkstra(find(start), l);
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+typename graph<Key, T, Cost, Nat>::shortest_paths graph<Key, T, Cost, Nat>::dijkstra(key_type start, std::function<bool(key_type)> is_goal) const {
+    return dijkstra(find(start), [ &is_goal](const_iterator it) {
+        return is_goal(it->first);
+    });
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+typename graph<Key, T, Cost, Nat>::shortest_paths graph<Key, T, Cost, Nat>::dijkstra(const_iterator start) const {
+    return dijkstra(start, [](const_iterator) {
+        return false;
+    });
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+typename graph<Key, T, Cost, Nat>::shortest_paths graph<Key, T, Cost, Nat>::dijkstra(const_iterator start, const_iterator target) const {
+    return dijkstra(start, [ &target](const_iterator node) -> bool { return target == node; });
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+typename graph<Key, T, Cost, Nat>::shortest_paths graph<Key, T, Cost, Nat>::dijkstra(const_iterator start, std::list<const_iterator> target_list) const {
+    return dijkstra(start, [ &target_list](const_iterator node) -> bool { return std::find(target_list.cbegin(), target_list.cend(), node) != target_list.cend(); });
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+typename graph<Key, T, Cost, Nat>::shortest_paths graph<Key, T, Cost, Nat>::dijkstra(const_iterator start, std::function<bool(const_iterator)> is_goal) const {
     struct pair_iterator_comparator {
         bool operator()(const std::pair<const_iterator, Cost> &lhs, const std::pair<const_iterator, Cost> &rhs) const {
-            return true;
+            return lhs.second < rhs.second;
         }
     };
 
     //! Initialization
 
     const Cost nul_cost{Cost()};
-    std::set<std::pair<const_iterator, Cost>, pair_iterator_comparator> set_preprocessing;
+    std::priority_queue<std::pair<const_iterator, Cost>, std::vector<std::pair<const_iterator, Cost>>, pair_iterator_comparator> Q;
 
-    dijkstra_path result;
+    shortest_paths result(start);
     for (const_iterator it{cbegin()}; it != cend(); ++it) {
-        search_path p;
-        p.push_back({it, nul_cost});
-        result.emplace(it, std::make_pair(p, infinity));
+        result.emplace(it, std::make_pair(cend(), infinity));
     }
-
-    //! Dijkstra algorithm
+    Q.emplace(start, nul_cost);
     /// d(start, start) == nul_cost;
-    set_preprocessing.insert(std::make_pair(start, nul_cost));
+    result[start].first = start;
     result[start].second = nul_cost;
 
-    while (!set_preprocessing.empty()) {
-        std::pair<const_iterator, Cost> tmp{*(set_preprocessing.begin())};
-        set_preprocessing.erase(set_preprocessing.begin());
+    //! Dijkstra's algorithm
 
-        const_iterator u{tmp.first};
+    while (!Q.empty()) {
+        const_iterator u{Q.top().first};
+        Q.pop();
 
         std::vector<typename node::edge> adj{get_out_edges(u)};
         for (typename std::vector<typename node::edge>::const_iterator it{adj.cbegin()}; it != adj.cend(); ++it) {
@@ -1607,28 +1642,24 @@ typename graph<Key, T, Cost, Nat>::dijkstra_path graph<Key, T, Cost, Nat>::dijks
             Cost dist_u{result[u].second};
             Cost dist_v{result[v].second};
 
-            /// Existing shortest path to v through u
-            if (dist_v > dist_u + cost) {
-                if (dist_v != infinity) {
-                    auto i{set_preprocessing.find(std::make_pair(v, dist_v))};
-                    if (i != set_preprocessing.cend()) {
-                        set_preprocessing.erase(i);
-                    }
-                }
+            Cost alt{dist_u + cost};
 
-                dist_v = dist_u + cost;
-                result[v].second = dist_v;
-                set_preprocessing.insert(std::make_pair(v, dist_v));
-
-                if (u != start) {
-                    result[v].first.push_back({u, cost});
-                }
+            /// Existing shortest path to v through u with a cost of alt
+            if (alt < dist_v) {
+                result[v].second = alt;
+                result[v].first = u;
+                Q.emplace(v, alt);
             }
+        }
+
+        if (is_goal(u)) {
+            break;
         }
     }
 
     return result;
 }
+
 /////////////////////////////
 ///// search_path class /////
 /////////////////////////////
@@ -1655,12 +1686,69 @@ bool graph<Key, T, Cost, Nat>::search_path::contain(const graph::const_iterator 
     return false;
 }
 
+////////////////////////////////
+///// shortest_paths class /////
+////////////////////////////////
+
+template <class Key, class T, class Cost, Nature Nat>
+graph<Key, T, Cost, Nat>::shortest_paths::shortest_paths(graph::const_iterator start) {
+    _start = start;
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+graph<Key, T, Cost, Nat>::shortest_paths::shortest_paths(const shortest_paths &p) : Container(p) {
+    _start = p._start;
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+typename graph<Key, T, Cost, Nat>::const_iterator graph<Key, T, Cost, Nat>::shortest_paths::get_previous(graph::const_iterator current) const {
+    return find(current)->second.first;
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::shortest_paths::get_path(graph::key_type target) const {
+    for (const_iterator it{cbegin()}; it != cend(); ++it) {
+        if (it->first->first == target) {
+            return get_path(it->first);
+        }
+    }
+    return graph::search_path();
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::shortest_paths::get_path(graph::const_iterator target) const {
+    graph::search_path result;
+    graph::shortest_paths::const_iterator current{find(target)}, previous{find(current->second.first)};
+
+    do {
+        result.emplace_front(current->first, current->second.second - previous->second.second);
+        current = previous;
+        previous = find(current->second.first);
+    } while (current->first != _start);
+
+    if (target != _start) {
+        result.emplace_front(_start, Cost());
+    }
+
+    return result;
+}
+
+///template <class Key, class T, class Cost, Nature Nat>
+///std::ostream &graph<Key, T, Cost, Nat>::operator<<(std::ostream &os, const typename graph::search_path &sp) {
+///    Cost count{};
+///    for (const std::pair<typename graph<Key, T, Cost, Nat>::const_iterator, Cost> &p : sp) {
+///       count += p.second;
+///        os << "-> " << p.first->first << " (" << count << ") ";
+///    }
+///    return os;
+///}
+
 template <class Key, class T, class Cost, Nature Nat>
 graph<Key, T, Cost, Nat>::path_comparator::path_comparator(std::function<Cost(const_iterator)> heuristic) : _heuristic(heuristic) {}
 
 template <class Key, class T, class Cost, Nature Nat>
 bool graph<Key, T, Cost, Nat>::path_comparator::operator() (const search_path &p1, const search_path &p2) const {
-    return (p1.total_cost() + _heuristic(p1.back().first)) > (p2.total_cost() + _heuristic(p2.back().first));
+    return (p2.total_cost() + _heuristic(p2.back().first)) < (p1.total_cost() + _heuristic(p1.back().first));
 }
 
 template <class Key, class T, class Cost, Nature Nat>

@@ -61,6 +61,7 @@ class graph {
     class node;
     using Degree = detail::basic_degree<Nat>;
     class search_path;
+    class shortest_paths;
 
   private:
     using PtrNode  = std::shared_ptr<node>;
@@ -434,21 +435,31 @@ class graph {
     search_path astar(const_iterator start, std::function<bool(const_iterator)> is_goal,     std::function<Cost(const_iterator)> heuristic) const;
 
     ///
-    /// @brief dijkstra class
+    /// @brief Dijkstra Search
     /// @see https://en.wikipedia.org/wiki/dijkstra%27s_algorithm
     /// @since version 1.1
     ///
-    using dijkstra_path = std::map<const_iterator, std::pair<search_path, Cost>, iterator_comparator>;
-    dijkstra_path dijkstra(key_type       start) const;
-    dijkstra_path dijkstra(const_iterator start) const;
+    //                               destination               previous node   dist
+    //using dijkstra_return = std::map<const_iterator, std::pair<const_iterator, Cost>, iterator_comparator>;
+    //using shortest_paths = std::map<const_iterator, std::pair<search_path, Cost>, iterator_comparator>;
+    shortest_paths dijkstra(key_type       start)                                                  const;
+    shortest_paths dijkstra(key_type       start, key_type                            target)      const; // TODO
+    shortest_paths dijkstra(key_type       start, std::list<key_type>                 target_list) const; // TODO
+    shortest_paths dijkstra(key_type       start, std::function<bool(key_type)>       is_goal)     const; // TODO
+
+    shortest_paths dijkstra(const_iterator start)                                                  const;
+    shortest_paths dijkstra(const_iterator start, const_iterator                      target)      const; // TODO
+    shortest_paths dijkstra(const_iterator start, std::list<const_iterator>           target_list) const; // TODO
+    shortest_paths dijkstra(const_iterator start, std::function<bool(const_iterator)> is_goal)     const; // TODO
 
     class search_path final : private std::deque<std::pair<graph::const_iterator, Cost>> {
-        template <bool> friend search_path   graph::abstract_first_search(graph::const_iterator, std::function<bool(const_iterator)>)                                      const;
-        friend search_path          graph::dls                  (graph::const_iterator, std::function<bool(const_iterator)>, size_type)                           const;
-        friend search_path          graph::iddfs                (graph::const_iterator, std::function<bool(const_iterator)>)                                      const;
-        friend search_path          graph::ucs                  (graph::const_iterator, std::function<bool(const_iterator)>)                                      const;
-        friend search_path          graph::astar                (graph::const_iterator, std::function<bool(const_iterator)>, std::function<Cost(const_iterator)>) const;
-        friend dijkstra_path        graph::dijkstra             (graph::const_iterator)                                                                           const;
+        template <bool> friend search_path graph::abstract_first_search(graph::const_iterator, std::function<bool(const_iterator)>)                             const;
+        friend search_path        graph::dls                  (graph::const_iterator, std::function<bool(const_iterator)>, size_type)                           const;
+        friend search_path        graph::iddfs                (graph::const_iterator, std::function<bool(const_iterator)>)                                      const;
+        friend search_path        graph::ucs                  (graph::const_iterator, std::function<bool(const_iterator)>)                                      const;
+        friend search_path        graph::astar                (graph::const_iterator, std::function<bool(const_iterator)>, std::function<Cost(const_iterator)>) const;
+
+        friend class shortest_paths;
 
         friend bool path_comparator::operator()(const search_path &, const search_path &) const;
 
@@ -483,9 +494,76 @@ class graph {
         using Container::pop_front;
         using Container::swap;
 
+        using Container::push_back;
+        using Container::emplace_back;
+
         Cost total_cost() const;
 
         bool contain(const graph::const_iterator &) const;
+
+        friend std::ostream &operator<<(std::ostream &os, const typename graph::search_path &sp) {
+            Cost count{};
+            for (const std::pair<typename graph<Key, T, Cost, Nat>::const_iterator, Cost> &p : sp) {
+                os << "-> " << p.first->first << " (" << (count += p.second) << ") ";
+            }
+            return os;
+        }
+    };
+
+    ///
+    /// @brief Return data of shortest paths from a single source node to all the other nodes
+    ///
+    /// Data structure as a map<destination_node, pair<previous_node, distance>>
+    /// Used by Dijkstra and Bellman-Ford algorithms
+    ///
+    /// @since version 1.1
+    ///
+    class shortest_paths final : private std::map<graph::const_iterator, std::pair<graph::const_iterator, Cost>, iterator_comparator> {
+        graph::const_iterator _start;
+
+        friend shortest_paths graph::dijkstra(graph::const_iterator, std::function<bool(const_iterator)>) const;
+
+        using Container = std::map<graph::const_iterator, std::pair<graph::const_iterator, Cost>, iterator_comparator>;
+
+        shortest_paths(graph::const_iterator start);
+
+      public:
+        using value_type             = typename Container::value_type;
+        using mapped_type            = typename Container::mapped_type;
+        using reference              = typename Container::reference;
+        using const_reference        = typename Container::const_reference;
+        using iterator               = typename Container::iterator;
+        using const_iterator         = typename Container::const_iterator;
+        using reverse_iterator       = typename Container::reverse_iterator;
+        using const_reverse_iterator = typename Container::const_reverse_iterator;
+
+        using Container::begin;
+        using Container::cbegin;
+        using Container::rbegin;
+        using Container::crbegin;
+        using Container::end;
+        using Container::cend;
+        using Container::rend;
+        using Container::crend;
+
+        shortest_paths(const shortest_paths &);
+        virtual ~shortest_paths() = default;
+
+        using Container::empty;
+        using Container::size;
+
+        //! @return the father of current in the optimal path from _start to current
+        inline graph::const_iterator get_previous(graph::const_iterator current) const;
+
+        //! @return the re-build path from the start node to the target
+        search_path get_path(graph::key_type target) const;
+        search_path get_path(graph::const_iterator target) const;
+
+        friend std::ostream &operator<<(std::ostream &os, const shortest_paths &dp) {
+            for (auto p : dp) {
+                os << dp.get_path(p.first) << std::endl;
+            }
+        }
     };
 
   private:

@@ -12,7 +12,9 @@ execute_process(
 include_directories(third-party/benchpress/src/benchpress)
 
 # copy test files to build folder
-file(COPY ${CMAKE_SOURCE_DIR}/benchmarks/files/astar.cpp.json ${CMAKE_SOURCE_DIR}/benchmarks/files/astar.rust.json DESTINATION files)
+set(bench_files files/search.cpp.json
+                files/search.rust.json)
+file(COPY ${bench_files} DESTINATION files)
 
 # benchmark binary
 add_executable(graph_benchmarks src/benchmarks.cpp)

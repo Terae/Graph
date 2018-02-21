@@ -13,7 +13,7 @@
 #include <sstream>
 #include <thread>
 
-#define MAX 500
+#define MAX 300 // 500
 
 struct Coord {
     int x, y;
@@ -50,7 +50,7 @@ struct StartUp {
 };
 StartUp startup;
 
-enum class EMode { input, output, make_complete, astar/*, search*/ };
+enum class EMode { input, output, make_complete, astar, dijkstra };
 
 static void bench(benchpress::context &ctx, const EMode mode) {
     graph_undirected<Coord, int, double> grid_graph;
@@ -115,14 +115,27 @@ static void bench(benchpress::context &ctx, const EMode mode) {
         /// Benchmarking A* Search algorithm
         case EMode::astar: {
             graph_directed<std::string, int, int> g;
-            //g.load("/home/terae/Programs/Graph/benchmarks/files/astar.json");
             // My own JSON serialization
-            g.load("files/astar.cpp.json");
+            //g.load("files/search.cpp.json");
             // rust JSON serialization
-            //g.DEBUG_load_from_json("astar.rust.json");
+            g.DEBUG_load_from_json_rust("files/search.rust.json");
+
             ctx.reset_timer();
             for (size_t i{0}; i < ctx.num_iterations(); ++i) {
                 graph_directed<std::string, int, int>::search_path p{g.astar("START", "END", [](const graph_directed<std::string, int, int>::const_iterator &) -> int { return 5; })};
+            }
+
+            break;
+        }
+
+        /// Benchmarking Dijkstra Search Algorithm
+        case EMode::dijkstra: {
+            graph_directed<std::string, int, int> g;
+            g.DEBUG_load_from_json_rust("files/search.rust.json");
+
+            ctx.reset_timer();
+            for (size_t i{0}; i < ctx.num_iterations(); ++i) {
+                graph_directed<std::string, int, int>::shortest_paths p{g.dijkstra("START")};
             }
 
             break;
@@ -138,4 +151,5 @@ static void bench(benchpress::context &ctx, const EMode mode) {
 BENCHMARKING_I(EMode::input,         "parse    grid_graph.txt")
 BENCHMARKING_I(EMode::output,        "dump     grid_graph.txt")
 BENCHMARKING_I(EMode::make_complete, "make_complete a graph of 1000 nodes")
-BENCHMARKING_I(EMode::astar,         "astar on a graph of 1000 nodes")
+BENCHMARKING_I(EMode::astar,         "astar    on a graph of 50 nodes")
+BENCHMARKING_I(EMode::dijkstra,      "dijkstra on a graph of 50 nodes")

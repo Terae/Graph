@@ -53,6 +53,17 @@ matrix:
         - bash <(curl -s https://codecov.io/bash)
         - coveralls --build-root test --include src --gcov 'gcov-5' --gcov-options '\-lp'
 
+    # Benchmarks
+    - os: linux
+      compiler: gcc
+      env:
+        - COMPILER=g++-7
+        - CMAKE_OPTIONS=-DENABLE_BENCHMARKING=ON -DENABLE_TESTING=OFF -DENABLE_EXAMPLES=OFF
+      addons:
+        apt:
+          sources: ['ubunntu-toolchain-r-test']
+          packages: ['g++-7']
+
     # clang sanitizer
     #- os: linux
     #  compiler: clang

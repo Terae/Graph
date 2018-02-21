@@ -73,10 +73,11 @@ int main() {
         if (it->first == TARGET) {
             return straight_line_Bucharest[it->first];
         }
+        return std::numeric_limits<int>::max();
     };
     Map::search_path pastar{map.astar(START, TARGET, heuristic)};
 
-    Map::dijkstra_path pdijkstra{map.dijkstra(START)};
+    //Map::dijkstra_path pdijkstra{map.dijkstra(START)};
 
     const size_t nr_digits_iddfs{static_cast<size_t>(piddfs.empty() ? 0 : log10(piddfs.size()) + 1)};
     cout << "\nCalculation of the shortest path from '" << START << "' to 'Bucharest' with several search algorithms:\n"

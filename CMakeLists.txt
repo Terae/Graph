@@ -32,7 +32,7 @@ project(${LIBRARY_NAME} LANGUAGES CXX VERSION 1.1.2)
 ##
 option(ENABLE_EXAMPLES     "Build examples." ON)
 option(ENABLE_TESTING      "Build the unit tests." ON)
-option(ENABLE_BENCHMARKING "Build benchmarks suite" ON)
+option(ENABLE_BENCHMARKING "Build benchmarks suite" OFF)
 
 ##
 ## TARGET

@@ -39,7 +39,9 @@
     "NODE_36",
     "NODE_37",
     "NODE_38",
-    "NODE_39"
+    "NODE_39",
+    "START",
+    "END"
   ],
   "node_holes": [],
   "edge_property": "directed",
@@ -1412,6 +1414,26 @@
     [
       39,
       38,
+      null
+    ],
+    [
+      40,
+      0,
+      null
+    ],
+    [
+      0,
+      40,
+      null
+    ],
+    [
+      41,
+      2,
+      null
+    ],
+    [
+      2,
+      41,
       null
     ]
   ]
