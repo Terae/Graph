@@ -149,7 +149,7 @@ class graph {
     explicit graph();
 
     /// istream constructor
-    graph(std::istream &);
+    explicit graph(std::istream &);
 
     /// copy constructor
     graph(const graph &);
@@ -570,7 +570,7 @@ class graph {
         std::function<Cost(const_iterator)> _heuristic;
 
       public:
-        path_comparator(std::function<Cost(const_iterator)> heuristic);
+        explicit path_comparator(std::function<Cost(const_iterator)> heuristic);
 
         bool operator() (const search_path &, const search_path &) const;
     };

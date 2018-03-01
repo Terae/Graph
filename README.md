@@ -33,7 +33,7 @@ The Graph library is a STL-like library which can be used as an `std::` containe
 
 ## Integration
 
-The library is header-only. To install and use simply copy the single required file `[graph.hpp](https://github.com/terae/blob/dev/single_include/graph.hpp)` in your directory. After that, all you need to do is add
+The library is header-only. To install and use simply copy the single required file `[graph.hpp](https://github.com/terae/graph/blob/dev/single_include/graph.hpp)` in your directory. After that, all you need to do is add
 
 ```c++
 #include "graph.hpp"
@@ -111,7 +111,7 @@ In essence, a graph is a set of _nodes_ with any number of _edges_ in between. E
 
 One of the most common things to do with graphs is running algorithms to solve common graph problems. Therefore this library is being used as the basis for implementations for a number of commonly used graph algorithms:
 
-```
+
 |                                                      Name                                                      |     Initial    | Complete? | Optimal? | Time complexity |     Space complexity     |                     Description                     |
 |:--------------------------------------------------------------------------------------------------------------:|:--------------:|:---------:|:--------:|:---------------:|:------------------------:|:---------------------------------------------------:|
 |                   [Breadth-First Search](https://en.wikipedia.org/wiki/breadth-first_search)                   |     **BFS**    |    YES    |    YES   |      O(b^d)     |          O(b^d)          |                  Uses a FIFO queue                  |
@@ -121,7 +121,6 @@ One of the most common things to do with graphs is running algorithms to solve c
 |                  [Uniform-Cost Search](https://en.wikipedia.org/wiki/Talk:uniform-cost_search)                 |     **UCS**    |    YES    |    YES   |  O(b^(1+C\*/E)) |      O(b^(1+C\*/E))      | Uses a queue ordered by the lowest path cost `g(n)` |
 |                             [A*](https://en.wikipedia.org/wiki/A*_search_algorithm)                            |     **A\***    |    YES    |    YES   |                 | O((\|V\|+\|E\|)log\|V\|) |          **Optimally efficient  algorithm**         |
 |                         [Dijkstra](https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm)                       |  **Dijkstra**  |    YES    |    YES   |     O(\|V\|)    | O(\|V\| * log\|V\| + \|E\|) |       Find the shortest paths between nodes         |
-```
 
 <!-- - Moore-Bellman-Ford (MBF) - Counting number of hops (simple BFS) * [Minimum spanning tree (MST)](https://en.wikipedia.org/wiki/Minimum_spanning_tree) - Kruskal - Prim * [Traveling salesman problem (TSP)](https://en.wikipedia.org/wiki/Travelling_salesman_problem) - Bruteforce algorithm - Minimum spanning tree heuristic (TSP MST heuristic) - Nearest neighbor heuristic (NN heuristic) * Maximum flow - [Edmonds-Karp](https://en.wikipedia.org/wiki/Edmonds%E2%80%93Karp_algorithm) * Minimum cost flow (MCF) - Cycle canceling - Successive shortest path * Maximum matching - Flow algorithm -->
 

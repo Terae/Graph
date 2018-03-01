@@ -1,6 +1,6 @@
 #!/bin/bash
 
-dir=`git rev-parse --show-toplevel`
+dir=$(git rev-parse --show-toplevel)
 
 cd "$dir/doc"
 
@@ -25,6 +25,6 @@ then
 	read -r -p "Are you sure you want to push? [y/N] " response
 	if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]]
 	then
-		git push
+		git push origin master
 	fi
 fi

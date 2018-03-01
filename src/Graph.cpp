@@ -1691,14 +1691,10 @@ bool graph<Key, T, Cost, Nat>::search_path::contain(const graph::const_iterator 
 ////////////////////////////////
 
 template <class Key, class T, class Cost, Nature Nat>
-graph<Key, T, Cost, Nat>::shortest_paths::shortest_paths(graph::const_iterator start) {
-    _start = start;
-}
+graph<Key, T, Cost, Nat>::shortest_paths::shortest_paths(graph::const_iterator start) : _start(start) {}
 
 template <class Key, class T, class Cost, Nature Nat>
-graph<Key, T, Cost, Nat>::shortest_paths::shortest_paths(const shortest_paths &p) : Container(p) {
-    _start = p._start;
-}
+graph<Key, T, Cost, Nat>::shortest_paths::shortest_paths(const shortest_paths &p) : Container(p), _start(p._start) {}
 
 template <class Key, class T, class Cost, Nature Nat>
 typename graph<Key, T, Cost, Nat>::const_iterator graph<Key, T, Cost, Nat>::shortest_paths::get_previous(graph::const_iterator current) const {

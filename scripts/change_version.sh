@@ -1,6 +1,6 @@
 #!/bin/bash
 
-dir=`git rev-parse --show-toplevel`
+dir=$(git rev-parse --show-toplevel)
 
 if [[ $# != 1 ]]; then
 	echo "Usage: $0 <version>"
