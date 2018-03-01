@@ -195,8 +195,8 @@ class graph {
     const std::optional<Cost> operator()(const_iterator,   const_iterator)   const;
     const std::optional<Cost> operator()(const key_type &, const key_type &) const;
 #else
-    const Cost operator()(const_iterator it1, const_iterator it2)  const;
-    const Cost operator()(const key_type &k1, const key_type &k2)  const;
+    const Cost operator()(const_iterator,   const_iterator)   const;
+    const Cost operator()(const key_type &, const key_type &) const;
 #endif
     ///
     //! @section Modifiers
@@ -222,7 +222,7 @@ class graph {
     bool add_edge(const_iterator,   const_iterator,   Cost = std::numeric_limits<Cost>::epsilon());
     bool add_edge(const key_type &, const key_type &, Cost = std::numeric_limits<Cost>::epsilon());
 
-    void link_all_nodes(Cost cost);
+    void link_all_nodes(Cost);
 
     //! Deleters
 
@@ -439,18 +439,15 @@ class graph {
     /// @see https://en.wikipedia.org/wiki/dijkstra%27s_algorithm
     /// @since version 1.1
     ///
-    //                               destination               previous node   dist
-    //using dijkstra_return = std::map<const_iterator, std::pair<const_iterator, Cost>, iterator_comparator>;
-    //using shortest_paths = std::map<const_iterator, std::pair<search_path, Cost>, iterator_comparator>;
     shortest_paths dijkstra(key_type       start)                                                  const;
-    shortest_paths dijkstra(key_type       start, key_type                            target)      const; // TODO
-    shortest_paths dijkstra(key_type       start, std::list<key_type>                 target_list) const; // TODO
-    shortest_paths dijkstra(key_type       start, std::function<bool(key_type)>       is_goal)     const; // TODO
+    shortest_paths dijkstra(key_type       start, key_type                            target)      const;
+    shortest_paths dijkstra(key_type       start, std::list<key_type>                 target_list) const;
+    shortest_paths dijkstra(key_type       start, std::function<bool(key_type)>       is_goal)     const;
 
     shortest_paths dijkstra(const_iterator start)                                                  const;
-    shortest_paths dijkstra(const_iterator start, const_iterator                      target)      const; // TODO
-    shortest_paths dijkstra(const_iterator start, std::list<const_iterator>           target_list) const; // TODO
-    shortest_paths dijkstra(const_iterator start, std::function<bool(const_iterator)> is_goal)     const; // TODO
+    shortest_paths dijkstra(const_iterator start, const_iterator                      target)      const;
+    shortest_paths dijkstra(const_iterator start, std::list<const_iterator>           target_list) const;
+    shortest_paths dijkstra(const_iterator start, std::function<bool(const_iterator)> is_goal)     const;
 
     class search_path final : private std::deque<std::pair<graph::const_iterator, Cost>> {
         template <bool> friend search_path graph::abstract_first_search(graph::const_iterator, std::function<bool(const_iterator)>)                             const;
@@ -559,9 +556,9 @@ class graph {
         search_path get_path(graph::key_type target) const;
         search_path get_path(graph::const_iterator target) const;
 
-        friend std::ostream &operator<<(std::ostream &os, const shortest_paths &dp) {
-            for (auto p : dp) {
-                os << dp.get_path(p.first) << std::endl;
+        friend std::ostream &operator<<(std::ostream &os, const shortest_paths &sp) {
+            for (auto p : sp) {
+                os << sp.get_path(p.first) << std::endl;
             }
         }
     };

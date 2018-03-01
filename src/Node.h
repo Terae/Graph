@@ -117,7 +117,7 @@ class basic_node {
 
     inline Data get() const;
 
-    Cost &get_cost(const Container &other);
+    Cost &get_cost(Container other);
     const Cost  get_cost(constContainer   other) const;
 
     Cost &operator[](Container      other);

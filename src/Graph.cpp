@@ -1637,7 +1637,7 @@ typename graph<Key, T, Cost, Nat>::shortest_paths graph<Key, T, Cost, Nat>::dijk
         for (typename std::vector<typename node::edge>::const_iterator it{adj.cbegin()}; it != adj.cend(); ++it) {
             const_iterator v{it->target()};
 
-            Cost cost{v->second->get_cost(u)};
+            Cost cost{u->second->get_cost(v)};
 
             Cost dist_u{result[u].second};
             Cost dist_v{result[v].second};
@@ -1720,11 +1720,11 @@ typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::shortes
     graph::search_path result;
     graph::shortest_paths::const_iterator current{find(target)}, previous{find(current->second.first)};
 
-    do {
-        result.emplace_front(current->first, current->second.second - previous->second.second);
+    while (previous != cend() && current->first != _start) {
+        result.emplace_front(current->first, previous->second.second - current->second.second);
         current = previous;
         previous = find(current->second.first);
-    } while (current->first != _start);
+    }
 
     if (target != _start) {
         result.emplace_front(_start, Cost());

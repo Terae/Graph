@@ -72,9 +72,9 @@ TEST_CASE("search") {
         g("node 3", "node 2") = 32;
         g("node 2", "node 4") = 24;
 
-        Graph::dijkstra_path p{g.dijkstra("node 1")};
-        CHECK(p[g.cbegin()].second == 0);
-        CHECK(p[g.find("node 2")].first.size() == 1);
-        CHECK(p[g.find("node 2")].second == 12);
+        Graph::shortest_paths p{g.dijkstra("node 1")};
+        CHECK(p.get_path(g.cbegin()).total_cost() == 0);
+        CHECK(p.get_path("node 2").size() == 1);
+        CHECK(p.get_path("node 2").total_cost() == 12);
     }
 }
