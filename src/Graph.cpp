@@ -1039,8 +1039,8 @@ bool graph<Key, T, Cost, Nat>::operator==(const graph<K, D, C, N> &other) const 
     typedef typename graph<Key, T, Cost, Nat>::const_iterator Iterator1;
     typedef typename graph<K,   D,    C,   N>::const_iterator Iterator2;
 
-    typedef typename basic_node<T, Cost, typename graph<Key, T, Cost, Nat>::iterator, Iterator1>::edge Edge1;
-    typedef typename basic_node<D,    C, typename graph<K,   D, C,      N>::iterator, Iterator2>::edge Edge2;
+    typedef typename graph<Key, T, Cost, Nat>::node::edge Edge1;
+    typedef typename graph<K,   D, C,    N>  ::node::edge Edge2;
 
     if (get_nature()        != other.get_nature()    ||
             get_nbr_nodes() != other.get_nbr_nodes() ||
@@ -1521,12 +1521,14 @@ typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::astar(c
         GRAPH_THROW_WITH(invalid_argument, "Start point equals to graph::cend()")
     }
 
+    const Cost nul_cost{Cost()};
+
     std::list<const_iterator> expanded;
     std::priority_queue<search_path, std::vector<search_path>, path_comparator> frontier((path_comparator(heuristic)));
 
     {
         search_path p;
-        p.push_back({start, Cost()});
+        p.push_back({start, nul_cost});
         frontier.push(std::move(p));
     }
 
@@ -1546,6 +1548,11 @@ typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::astar(c
             std::vector<typename node::edge> legalActions{get_nature() == DIRECTED ? get_out_edges(last) : get_edges(last)};
 
             for (typename std::vector<typename node::edge>::const_iterator it{legalActions.cbegin()}; it != legalActions.cend(); ++it) {
+                //! Dijkstra's algorithm cannot be computed with negative weights.
+                if (it->cost() < nul_cost) {
+                    GRAPH_THROW(negative_edge)
+                }
+
                 search_path newPath{p};
                 newPath.push_back({it->target(), it->cost()});
                 frontier.push(newPath);
@@ -1607,6 +1614,10 @@ typename graph<Key, T, Cost, Nat>::shortest_paths graph<Key, T, Cost, Nat>::dijk
 
 template <class Key, class T, class Cost, Nature Nat>
 typename graph<Key, T, Cost, Nat>::shortest_paths graph<Key, T, Cost, Nat>::dijkstra(const_iterator start, std::function<bool(const_iterator)> is_goal) const {
+    if (start == cend()) {
+        GRAPH_THROW_WITH(invalid_argument, "Start point equals to graph::cend()")
+    }
+
     struct pair_iterator_comparator {
         bool operator()(const std::pair<const_iterator, Cost> &lhs, const std::pair<const_iterator, Cost> &rhs) const {
             return lhs.second < rhs.second;
@@ -1624,8 +1635,9 @@ typename graph<Key, T, Cost, Nat>::shortest_paths graph<Key, T, Cost, Nat>::dijk
     }
     Q.emplace(start, nul_cost);
     /// d(start, start) == nul_cost;
-    result[start].first = start;
-    result[start].second = nul_cost;
+    typename shortest_paths::iterator S{result.find(start)};
+    S->second.first = start;
+    S->second.second = nul_cost;
 
     //! Dijkstra's algorithm
 
@@ -1633,11 +1645,19 @@ typename graph<Key, T, Cost, Nat>::shortest_paths graph<Key, T, Cost, Nat>::dijk
         const_iterator u{Q.top().first};
         Q.pop();
 
+        if (is_goal(u)) {
+            break;
+        }
+
         std::vector<typename node::edge> adj{get_out_edges(u)};
-        for (typename std::vector<typename node::edge>::const_iterator it{adj.cbegin()}; it != adj.cend(); ++it) {
-            const_iterator v{it->target()};
+        for (typename std::vector<typename node::edge>::const_iterator edge{adj.cbegin()}; edge != adj.cend(); ++edge) {
+            const_iterator v{edge->target()};
 
             Cost cost{u->second->get_cost(v)};
+            //! Dijkstra's algorithm cannot be computed with negative weights.
+            if (cost < nul_cost) {
+                GRAPH_THROW(negative_edge)
+            }
 
             Cost dist_u{result[u].second};
             Cost dist_v{result[v].second};
@@ -1646,14 +1666,73 @@ typename graph<Key, T, Cost, Nat>::shortest_paths graph<Key, T, Cost, Nat>::dijk
 
             /// Existing shortest path to v through u with a cost of alt
             if (alt < dist_v) {
-                result[v].second = alt;
                 result[v].first = u;
+                result[v].second = alt;
                 Q.emplace(v, alt);
             }
         }
+    }
 
-        if (is_goal(u)) {
-            break;
+    return result;
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+typename graph<Key, T, Cost, Nat>::shortest_paths graph<Key, T, Cost, Nat>::bellman_ford(key_type start) const {
+    return bellman_ford(find(start));
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+typename graph<Key, T, Cost, Nat>::shortest_paths graph<Key, T, Cost, Nat>::bellman_ford(const_iterator start) const {
+    if (start == cend()) {
+        GRAPH_THROW_WITH(invalid_argument, "Start point equals to graph::cend()")
+    }
+
+    //! Initialization
+
+    shortest_paths result(start);
+    for (const_iterator it{cbegin()}; it != cend(); ++it) {
+        result.emplace(it, std::make_pair(cend(), infinity));
+    }
+    /// d(start, start) == nul_cost;
+    typename shortest_paths::iterator S{result.find(start)};
+    S->second.first = start;
+    S->second.second = Cost();
+
+    //! Relax edges repeatedly
+
+    bool finished{false};
+    for (size_type i{0}; i < get_nbr_edges() - 1 && !finished; ++i) {
+        finished = true;
+
+        for (const_iterator u{cbegin()}; u != cend(); ++u) {
+            std::vector<typename node::edge> adj{get_out_edges(u)};
+            for (typename std::vector<typename node::edge>::const_iterator edge{adj.cbegin()}; edge != adj.cend(); ++edge) {
+                const_iterator v{edge->target()};
+
+                Cost cost{u->second->get_cost(v)};
+                Cost dist_u{result[u].second};
+                Cost dist_v{result[v].second};
+
+                Cost alt{dist_u + cost};
+
+                if (alt < dist_v) {
+                    result[v].first = u;
+                    result[v].second = alt;
+                    finished = false;
+                }
+            }
+        }
+    }
+
+    //! Check for negative-weigh cycles
+
+    for (const_iterator u{cbegin()}; u != cend(); ++u) {
+        std::vector<typename node::edge> adj{get_out_edges(u)};
+        for (typename std::vector<typename node::edge>::const_iterator edge{adj.cbegin()}; edge != adj.cend(); ++edge) {
+            const_iterator v{edge->target()};
+            if (result[u].second + u->second->get_cost(v) < result[v].second) {
+                GRAPH_THROW(negative_weight_cycle)
+            }
         }
     }
 
@@ -1713,11 +1792,16 @@ typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::shortes
 
 template <class Key, class T, class Cost, Nature Nat>
 typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::shortest_paths::get_path(graph::const_iterator target) const {
+    graph::shortest_paths::const_iterator current{find(target)};
+    if (current == cend() || current->second.second == (std::numeric_limits<Cost>::has_infinity ? std::numeric_limits<Cost>::infinity() : std::numeric_limits<Cost>::max())) {
+        return search_path();
+    }
+
     graph::search_path result;
-    graph::shortest_paths::const_iterator current{find(target)}, previous{find(current->second.first)};
+    graph::shortest_paths::const_iterator previous{find(current->second.first)};
 
     while (previous != cend() && current->first != _start) {
-        result.emplace_front(current->first, previous->second.second - current->second.second);
+        result.emplace_front(current->first, current->second.second - previous->second.second);
         current = previous;
         previous = find(current->second.first);
     }

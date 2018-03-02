@@ -57,6 +57,7 @@ namespace detail {
     /// - @ref parse_error for exceptions indicating a parse error
     /// - @ref bad_graph for exceptions indicating a graph-logical error in the usage of the @ref graph class
     /// - @ref negative_edge for exceptions indicating a negative edge error, throwable in some search algorithms
+    /// - @ref negative_weight_cycle for exceptions indicating a negative-weight cycle error, throwable in some search algorithms
     /// - @ref not_complete for exceptions indicating a non-complete graph error, throwable in some search algorithms
     ///
     /// @since version 1.0.0
@@ -89,6 +90,7 @@ namespace detail {
     /// @sa @ref parse_error for exceptions indicating a parse error
     /// @sa @ref bad_graph for exceptions indicating a graph-logical error in the usage of the @ref graph class
     /// @sa @ref negative_edge for exceptions indicating a negative edge error, throwable in some search algorithms
+    /// @ref negative_weight_cycle for exceptions indicating a negative-weight cycle error, throwable in some search algorithms
     /// @sa @ref not_complete for exceptions indicating a non-complete graph error, throwable in some search algorithms
     ///
     /// @since version 1.0.0
@@ -122,6 +124,7 @@ namespace detail {
     /// @sa @ref parse_error for exceptions indicating a parse error
     /// @sa @ref bad_graph for exceptions indicating a graph-logical error in the usage of the @ref graph class
     /// @sa @ref negative_edge for exceptions indicating a negative edge error, throwable in some search algorithms
+    /// @sa @ref negative_weight_cycle for exceptions indicating a negative-weight cycle error, throwable in some search algorithms
     /// @sa @ref not_complete for exceptions indicating a non-complete graph error, throwable in some search algorithms
     ///
     /// @since version 1.0.0
@@ -160,6 +163,7 @@ namespace detail {
     /// @sa @ref unexpected_nullptr for exceptions indicating an unexpected nullptr in entry
     /// @sa @ref bad_graph for exceptions indicating a graph-logical error in the usage of the @ref graph class
     /// @sa @ref negative_edge for exceptions indicating a negative edge error, throwable in some search algorithms
+    /// @sa @ref negative_weight_cycle for exceptions indicating a negative-weight cycle error, throwable in some search algorithms
     /// @sa @ref not_complete for exceptions indicating a non-complete graph error, throwable in some search algorithms
     ///
     /// @since version 1.0.0
@@ -204,6 +208,7 @@ namespace detail {
     ///
     /// Subclasses:
     /// - @ref negative_edge for exceptions indicating a negative edge error, throwable in some search algorithms
+    /// - @ref negative_weight_cycle for exceptions indicating a negative-weight cycle error, throwable in some search algorithms
     /// - @ref not_complete for exceptions indicating a non-complete graph error, throwable in some search algorithms
     ///
     /// @sa @ref exception for the base class of the library exceptions
@@ -211,6 +216,7 @@ namespace detail {
     /// @sa @ref unexpected_nullptr for exceptions indicating an unexpected nullptr in entry
     /// @sa @ref parse_error for exceptions indicating a parse error
     /// @sa @ref negative_edge for exceptions indicating a negative edge error, throwable in some search algorithms
+    /// @sa @ref negative_weight_cycle for exceptions indicating a negative-weight cycle error, throwable in some search algorithms
     /// @sa @ref not_complete for exceptions indicating a non-complete graph error, throwable in some search algorithms
     ///
     /// @since version 1.0.0
@@ -235,6 +241,7 @@ namespace detail {
     /// @sa @ref unexpected_nullptr for exceptions indicating an unexpected nullptr in entry
     /// @sa @ref parse_error for exceptions indicating a parse error
     /// @sa @ref bad_graph for exceptions indicating a graph-logical error in the usage of the @ref graph class
+    /// @sa @ref negative_weight_cycle for exceptions indicating a negative-weight cycle error, throwable in some search algorithms
     /// @sa @ref not_complete for exceptions indicating a non-complete graph error, throwable in some search algorithms
     ///
     /// @since version 1.0.0
@@ -257,6 +264,39 @@ namespace detail {
     };
 
     ///
+    /// @brief exception indicating a negative edge error
+    ///
+    /// This exception is thrown by the library when a graph has at least a negative edge.
+    /// Negative edges are a problem in some search algorithms.
+    ///
+    /// @sa @ref exception for the base class of the library exceptions
+    /// @sa @ref invalid_argument for exceptions indicating invalid arguments given to some function
+    /// @sa @ref unexpected_nullptr for exceptions indicating an unexpected nullptr in entry
+    /// @sa @ref parse_error for exceptions indicating a parse error
+    /// @sa @ref bad_graph for exceptions indicating a graph-logical error in the usage of the @ref graph class
+    /// @sa @ref negative_edge for exceptions indicating a negative edge error, throwable in some search algorithms
+    /// @sa @ref not_complete for exceptions indicating a non-complete graph error, throwable in some search algorithms
+    ///
+    /// @since version 1.0.0
+    ///
+    struct negative_weight_cycle final : public bad_graph {
+        ///
+        /// @brief create a negative_weight_cycle exception
+        /// @param[in] function_name the function from which the exceptions occurs (returned by the __FUNCTION__ macro)
+        /// @param[in] what_arg the explanatory string
+        /// @return unexpected_nullptr object
+        ///
+        static negative_weight_cycle create(const std::string &function_name,
+                                            const std::string &what_arg = "Negative-weight cycle") {
+            std::string w{bad_graph::name("negative_weight_cycle") + what_arg + " when calling '" + function_name + "'."};
+            return negative_weight_cycle(w.c_str());
+        }
+
+      private:
+        explicit negative_weight_cycle(const char* what_arg) : bad_graph(what_arg) {}
+    };
+
+    ///
     /// @brief exception indicating a not-complete graph error
     ///
     /// This exception is thrown by the library when a graph is not complete.
@@ -268,6 +308,7 @@ namespace detail {
     /// @sa @ref parse_error for exceptions indicating a parse error
     /// @sa @ref bad_graph for exceptions indicating a graph-logical error in the usage of the @ref graph class
     /// @sa @ref negative_edge for exceptions indicating a negative edge error, throwable in some search algorithms
+    /// @sa @ref negative_weight_cycle for exceptions indicating a negative-weight cycle error, throwable in some search algorithms
     ///
     /// @since version 1.0.0
     ///

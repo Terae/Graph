@@ -422,7 +422,13 @@ class graph {
     search_path ucs(const_iterator start, std::function<bool(const_iterator)> is_goal)     const;
 
     ///
-    /// @brief A* Search
+    /// @brief A* shortest path algorithm
+    ///
+    /// Computes the shortest path from @param start to @param target, including the total path cost.
+    /// @param target is implicitly given via the @is_goal call_back, which should return `true` if the given node is the target node.
+    /// Edge costs must be non-negative. Use Bellman-Ford's algorithm instead.
+    /// The function @param heuristic should return the estimated cost to the target for a particular node. For the algorithm to find the actual shortest path, it should be admissible, meaning that it should never overestimate the actual cost to get nearest goal node. Estimate costs must also be non-negative.
+    ///
     /// @see https://en.wikipedia.org/wiki/A*_search_algorithm
     /// @since version 1.1
     ///
@@ -436,6 +442,11 @@ class graph {
 
     ///
     /// @brief Dijkstra Search
+    ///
+    /// Computes the shortest paths from @param start to every reachable node.
+    /// Edge costs must be non-negative.
+    /// If a particular target is given, then the algorithm terminates once the goal node's cost is calculated.
+    ///
     /// @see https://en.wikipedia.org/wiki/dijkstra%27s_algorithm
     /// @since version 1.1
     ///
@@ -449,12 +460,25 @@ class graph {
     shortest_paths dijkstra(const_iterator start, std::list<const_iterator>           target_list) const;
     shortest_paths dijkstra(const_iterator start, std::function<bool(const_iterator)> is_goal)     const;
 
+    ///
+    /// @brief Bellman-Ford Search
+    ///
+    /// Computes shortest paths from node @param start to every reachable node.
+    /// Negative edge costs are permitted, but the graph must not have a cycle of negative weights.
+    ///
+    /// @see https://en.wikipedia.org/wiki/Bellman%E2%80%93Ford_algorithm
+    /// @since version 1.1
+    ///
+    shortest_paths bellman_ford(key_type       start) const;
+    shortest_paths bellman_ford(const_iterator start) const;
+
     class search_path final : private std::deque<std::pair<graph::const_iterator, Cost>> {
-        template <bool> friend search_path graph::abstract_first_search(graph::const_iterator, std::function<bool(const_iterator)>)                             const;
-        friend search_path        graph::dls                  (graph::const_iterator, std::function<bool(const_iterator)>, size_type)                           const;
-        friend search_path        graph::iddfs                (graph::const_iterator, std::function<bool(const_iterator)>)                                      const;
-        friend search_path        graph::ucs                  (graph::const_iterator, std::function<bool(const_iterator)>)                                      const;
-        friend search_path        graph::astar                (graph::const_iterator, std::function<bool(const_iterator)>, std::function<Cost(const_iterator)>) const;
+        template <bool> friend search_path graph::abstract_first_search(graph::const_iterator, std::function<bool(const_iterator)>) const;
+
+        friend search_path graph::dls   (graph::const_iterator, std::function<bool(const_iterator)>, size_type)                           const;
+        friend search_path graph::iddfs (graph::const_iterator, std::function<bool(const_iterator)>)                                      const;
+        friend search_path graph::ucs   (graph::const_iterator, std::function<bool(const_iterator)>)                                      const;
+        friend search_path graph::astar (graph::const_iterator, std::function<bool(const_iterator)>, std::function<Cost(const_iterator)>) const;
 
         friend class shortest_paths;
 
@@ -518,7 +542,8 @@ class graph {
     class shortest_paths final : private std::map<graph::const_iterator, std::pair<graph::const_iterator, Cost>, iterator_comparator> {
         graph::const_iterator _start;
 
-        friend shortest_paths graph::dijkstra(graph::const_iterator, std::function<bool(const_iterator)>) const;
+        friend shortest_paths graph::dijkstra    (graph::const_iterator, std::function<bool(const_iterator)>) const;
+        friend shortest_paths graph::bellman_ford(graph::const_iterator)                                      const;
 
         using Container = std::map<graph::const_iterator, std::pair<graph::const_iterator, Cost>, iterator_comparator>;
 
@@ -565,7 +590,7 @@ class graph {
 
   private:
     //! Helper functions and classes
-    class path_comparator {
+    class path_comparator : public std::binary_function<search_path, search_path, bool> {
       private:
         std::function<Cost(const_iterator)> _heuristic;
 
@@ -575,7 +600,7 @@ class graph {
         bool operator() (const search_path &, const search_path &) const;
     };
 
-    struct iterator_comparator {
+    struct iterator_comparator : public std::binary_function<const_iterator, const_iterator, bool> {
         bool operator()(const const_iterator &, const const_iterator &) const;
     };
 
