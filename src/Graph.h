@@ -267,6 +267,11 @@ class graph {
     bool existing_edge(const_iterator,   const_iterator)   const;
     bool existing_edge(const key_type &, const key_type &) const;
 
+    /// Check if there exists a path starting at `from` and reaching `to`
+    /// If `from` and `to` are equal, this function returns true.
+    bool has_path_connecting(const_iterator,   const_iterator)   const;
+    bool has_path_connecting(const key_type &, const key_type &) const;
+
     inline size_type get_nbr_nodes() const noexcept;
     inline size_type get_nbr_edges() const noexcept;
 

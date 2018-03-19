@@ -457,6 +457,21 @@ template <class Key, class T, class Cost, Nature Nat>
 bool graph<Key, T, Cost, Nat>::existing_edge(const key_type &k1, const key_type &k2) const {
     return existing_edge(find(k1), find(k2));
 }
+template <class Key, class T, class Cost, Nature Nat>
+bool graph<Key, T, Cost, Nat>::has_path_connecting(const_iterator from, const_iterator to) const {
+    if (from == cend() || to == cend()) {
+        GRAPH_THROW(unexpected_nullptr)
+    }
+    if (from == to) {
+        return true;
+    }
+    return !dfs(from, to).empty();
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+bool graph<Key, T, Cost, Nat>::has_path_connecting(const key_type &from, const key_type &to) const {
+    return has_path_connecting(find(from), find(to));
+}
 
 template <class Key, class T, class Cost, Nature Nat>
 std::size_t graph<Key, T, Cost, Nat>::get_nbr_nodes() const noexcept {

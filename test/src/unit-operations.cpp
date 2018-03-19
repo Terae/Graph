@@ -113,6 +113,40 @@ TEST_CASE("operations") {
         }
     }
 
+    SECTION("has_path_connecting(const key_type &k1, const key_type &k2)") {
+        SECTION("directed") {
+            Graph_directed g;
+            g["unlinked node"];
+            g("node 1", "node 2");
+            g("node 2", "node 3");
+            g("node 2", "node 4");
+            g("node 4", "node 5");
+            g("node 6", "node 5");
+            CHECK_THROWS_WITH(g.has_path_connecting("node 1", "unexisting node"), "[graph.exception.unexpected_nullptr] Unexpected nullptr when calling 'has_path_connecting'.");
+            CHECK_THROWS_WITH(g.has_path_connecting("unexisting node", "node 5"), "[graph.exception.unexpected_nullptr] Unexpected nullptr when calling 'has_path_connecting'.");
+
+            CHECK(g.has_path_connecting("node 1", "node 5"));
+            CHECK_FALSE(g.has_path_connecting("node 1", "node 6"));
+            CHECK_FALSE(g.has_path_connecting("node 1", "unlinked node"));
+        }
+
+        SECTION("undirected") {
+            Graph_undirected g;
+            g["unlinked node"];
+            g("node 1", "node 2");
+            g("node 2", "node 3");
+            g("node 2", "node 4");
+            g("node 4", "node 5");
+            g("node 6", "node 5");
+            CHECK_THROWS_WITH(g.has_path_connecting("node 1", "unexisting node"), "[graph.exception.unexpected_nullptr] Unexpected nullptr when calling 'has_path_connecting'.");
+            CHECK_THROWS_WITH(g.has_path_connecting("unexisting node", "node 5"), "[graph.exception.unexpected_nullptr] Unexpected nullptr when calling 'has_path_connecting'.");
+
+            CHECK(g.has_path_connecting("node 1", "node 5"));
+            CHECK(g.has_path_connecting("node 1", "node 6"));
+            CHECK_FALSE(g.has_path_connecting("node 1", "unlinked node"));
+        }
+    }
+
     SECTION("get_nbr_nodes()") {
         Graph g;
         CHECK(g.get_nbr_nodes() == 0);
