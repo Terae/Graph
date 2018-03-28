@@ -669,9 +669,151 @@ bool graph<Key, T, Cost, Nat>::is_cyclic_rec(const_iterator current, std::list<c
     return false;
 }
 
+
+
+
 template <class Key, class T, class Cost, Nature Nat>
 bool graph<Key, T, Cost, Nat>::is_isomorphic() const {
+    // TODO
+}
 
+template <class Key, class T, class Cost, Nature Nat>
+std::vector<typename graph<Key, T, Cost, Nat>::const_iterator> graph<Key, T, Cost, Nat>::toposort() const {
+    // TODO
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+std::set<std::vector<typename graph<Key, T, Cost, Nat>::const_iterator>, typename graph<Key, T, Cost, Nat>::iterator_comparator> graph<Key, T, Cost, Nat>::kosaraju_scc() const {
+    // TODO
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+std::set<std::vector<typename graph<Key, T, Cost, Nat>::const_iterator>, typename graph<Key, T, Cost, Nat>::iterator_comparator> graph<Key, T, Cost, Nat>::tarjan_scc() const {
+    // TODO
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+std::size_t graph<Key, T, Cost, Nat>::connected_components() const {
+    // TODO
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+graph<Key, T, Cost, Nat> &graph<Key, T, Cost, Nat>::condensate(bool make_acyclic) {
+    // TODO
+}
+
+template <class Key, class T, class Cost, Nature Nat>
+std::vector<typename graph<Key, T, Cost, Nat>::const_iterator> graph<Key, T, Cost, Nat>::maximum_clique() const {
+    // TODO: fix the bug
+    /// queue of all unvisited nodes which can be part of a bigger clique
+    /*
+    std::function<size_type(const_iterator)> heuristic = [](const_iterator it) -> size_type { return it->second->degree().first; };
+    std::function<size_type(const_iterator, const_iterator)> comparator = [&heuristic](const_iterator it1, const_iterator it2) -> size_type { return heuristic(it1) > heuristic(it2); };
+    std::list<const_iterator> Q;
+    for (const_iterator it{cbegin()}; it != cend(); ++it) {
+        Q.emplace_back(it);
+    }
+    //std::copy(cbegin(), cend(), std::back_inserter(Q));
+    Q.sort(comparator);
+
+    std::vector<const_iterator> result;
+    std::function<size_type()> calculate_max_size = [&Q, &heuristic]() -> size_type {
+        for (size_type degree{heuristic(*Q.cbegin())}; degree > 0; --degree) {
+            if (std::count_if(Q.cbegin(), Q.cend(), [degree, &heuristic](const_iterator it) -> bool {
+            return heuristic(it) >= degree;
+            }) >= degree) {
+                return degree + 1;
+            }
+        }
+        return 0;
+    };
+    size_type max_size{calculate_max_size()};
+
+    while (!Q.empty() && result.size() <= max_size) {
+        // DEBUG
+        std::cout << "Values inside Q: ";
+        for (const_iterator I : Q) {
+            std::cout << I->first << " ";
+        }
+        std::cout << std::endl;
+
+        const_iterator N{*Q.cbegin()};
+        // DEBUG
+        std::cout << "N: " << N->first << std::endl;
+        std::vector<const_iterator> current_clique({N});
+
+        // TODO: loop until neighbors of N { for each neighbor of N inside of Q { . . . }; };
+        std::vector<typename node::edge> adj{get_out_edges(N)};
+        for (typename std::vector<typename node::edge>::const_iterator edge{adj.cbegin()}; edge != adj.cend(); ++edge) {
+            // DEBUG
+            std::cout << "Values inside current_clique: ";
+            for (const_iterator I : current_clique) {
+                std::cout << I->first << " ";
+            }
+            std::cout << std::endl;
+
+            const_iterator X{edge->target()};
+            if (std::find(Q.cbegin(), Q.cend(), X) == Q.cend()) {
+                continue;
+            }
+
+            bool part_of_clique{true};
+            for (const_iterator it : current_clique) {
+                if (!existing_edge(it, X)) {
+                    part_of_clique = false;
+                    break;
+                }
+            }
+            if (part_of_clique) {
+                current_clique.push_back(X);
+            } else {
+                if (result.size() < current_clique.size()) {
+                    result = current_clique;
+                    // DEBUG
+                    std::cout << "new clique discovered: size of " << result.size() << std::endl;
+                }
+                Q.remove(N);
+
+                std::function<bool(const_iterator)> PAF = [&result, &heuristic](const_iterator it) -> bool {
+                    return heuristic(it) < result.size();
+                };
+                Q.erase(std::remove_if(Q.begin(), Q.end(), PAF), Q.cend());
+                max_size = calculate_max_size();
+            }
+        }
+        // DEBUG
+        std::cout << std::endl;
+    }
+    return result;
+
+
+    // candidates <- sort each node in function of its degree
+    // max clique size <= degree_max() + 1
+    /// size of 6 : need 5 nodes with degree 5 (etc.)
+    // current_clique_size = 0
+    // result = null
+    // for each node N in candidates
+    //      current_clique = {N}
+    //      for each neighbor X of N ordered by its degree
+    //              if (X linked with all nodes of current_clique) then
+    //                      current_clique += {X}
+    //              else
+    //                      if (result.size < current_clique.size)
+    //                              result = current_clique
+    //                      candidates -= {N}
+    //                      for each node M in candidates
+    //                              if (M.degree <= result.size)
+    //                                      candidates -= {M}
+    ///                     same algorithm to search a possible solution as line 346 (enough nodes with enough degree to find a better clique)
+
+
+
+    // clique = NULL
+    // candidate = X (nodes of graph / candidate != NULL do
+    //                                      choose xi wih degree max
+    //                                      clique <- clique U {xi}
+    //                                      candidate <- candidats ∧ { xj / (xj, xi) € A} (intersection of candidate and neighbors of xi)
+    */
 }
 
 template <class Key, class T, class Cost, Nature Nat>

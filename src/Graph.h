@@ -10,6 +10,7 @@
 #include <iomanip>   /// setw
 #include <map>       /// map
 #include <queue>     /// queue
+#include <set>       /// set
 #include <vector>    /// vector
 
 #ifdef INCLUDE_JSON_FILE
@@ -305,6 +306,40 @@ class graph {
 
     // TODO
     bool is_isomorphic() const;
+
+    /// Perform a topological sort of a directed graph
+    /// If the graph was acyclic, return a `vector> of nodes in topological order: each node is ordered before its successors. Otherwise, it throws a `has_cycle` error. Self loops are also cycles.
+    // TODO
+    std::vector<const_iterator> toposort() const;
+
+    /// Computes the _strongly connected components_ using [Kosaraju's algorithm](https://en.wikipedia.org/wiki/Kosaraju%27s_algorithm)
+    /// Return a `set` where each element is a strongly connected component (scc). The order of the scc is their postorder (reverse topological sort)
+    /// For an undirected graph, the sccs are simply the connected components
+    /// This implementation is iterative and does two passes over the nodes
+    // TODO
+    std::set<std::vector<const_iterator>, iterator_comparator> kosaraju_scc() const;
+
+    /// Computes the _strongly connected components_ using [Tarjan's algorithm](https://en.wikipedia.org/wiki/Tarjan%27s_strongly_connected_components_algorithm)
+    /// Return a `set` where each element is a strongly connected component (scc). The order of the scc is their postorder (reverse topological sort)
+    /// For an undirected graph, the sccs are simply the connected components
+    /// This implementation is iterative and does one pass over the nodes
+    // TODO
+    std::set<std::vector<const_iterator>, iterator_comparator> tarjan_scc() const;
+
+    /// Return the number of connected components of the graph
+    /// For a directed graph, this is the _weakly_ connected components
+    // TODO
+    size_type connected_components() const;
+
+    /// Condenses every strongly connected component into a single node
+    /// @param make_acyclic If equals to `true`, self-loops are ignored, guaranteeing that the output is acyclic
+    // TODO
+    graph &condensate(bool make_acyclic = true);
+
+    /// Computes the [maximum clique](https://en.wikipedia.org/wiki/Clique_(graph_theory)) of the graph, e.g. the clique  such that there is not clique with more nodes
+    /// Return a `vector` where each element is in the clique
+    // TODO
+    std::vector<const_iterator> maximum_clique() const;
 
     ///
     //! @section Text functions

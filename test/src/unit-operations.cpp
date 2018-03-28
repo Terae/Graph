@@ -202,55 +202,6 @@ TEST_CASE("operations") {
         CHECK(g2.get_nature() == UNDIRECTED);
     }
 
-    //SECTION("set_nature(Nature new_nature)") {
-    //    SECTION("same nature") {
-    //        graph<string, int, double> g1(DIRECTED);
-    //        g1("node 1", "node 2") = 5.6;
-    //        g1("node 2", "node 3") = 6.5;
-    //        g1("node 1", "node 3") = 1.2;
-    //        g1.set_nature(DIRECTED);
-    //        CHECK(g1.get_nature() == DIRECTED);
-    //        CHECK(g1.get_nbr_edges() == 3);
-    //
-    //        graph<string, int, double> g2(UNDIRECTED);
-    //        g2("node 1", "node 2") = 5.6;
-    //        g2("node 2", "node 3") = 6.5;
-    //        g2("node 1", "node 3") = 1.2;
-    //        g2.set_nature(UNDIRECTED);
-    //        CHECK(g2.get_nature() == UNDIRECTED);
-    //        CHECK(g2.get_nbr_edges() == 3);
-    //    }
-    //
-    //    SECTION("directed -> undirected") {
-    //        graph<string, int, double> g(DIRECTED);
-    //        g("node 1", "node 2") = 1.2;
-    //        g("node 2", "node 3") = 2.3;
-    //        g("node 1", "node 3") = 1.3;
-    //        g("node 4", "node 5") = 4.5;
-    //        g.set_nature(UNDIRECTED);
-    //        CHECK(g.get_nature() == UNDIRECTED);
-    //        CHECK(g.get_nbr_edges() == 4);
-    //        CHECK(g("node 5", "node 4") == 4.5);
-    //        g("node 3", "node 1") = 3.1;
-    //        CHECK(g("node 1", "node 3") == 3.1);
-    //    }
-    //
-    //    SECTION("undirected -> directed") {
-    //        graph<string, int, double> g(UNDIRECTED);
-    //        g("node 1", "node 2") = 1.2;
-    //        g("node 2", "node 3") = 2.3;
-    //        g("node 1", "node 3") = 1.3;
-    //        g("node 4", "node 5") = 4.5;
-    //        g.set_nature(DIRECTED);
-    //        CHECK(g.get_nature() == DIRECTED);
-    //        CHECK(g.get_nbr_edges() == 8);
-    //        CHECK(g("node 3", "node 1") == 1.3);
-    //        g("node 2", "node 1") = 2.1;
-    //        CHECK(g("node 2", "node 1") == 2.1);
-    //        CHECK(g("node 1", "node 2") == 1.2);
-    //    }
-    //}
-
     SECTION("Degree") {
         CHECK(std::is_same<Graph_directed  ::Degree::value_type, std::pair<std::size_t, std::size_t>>::value);
         CHECK(std::is_same<Graph_undirected::Degree::value_type, std::size_t>                        ::value);
@@ -611,5 +562,18 @@ TEST_CASE("operations") {
             g("A", "F");
             CHECK(g.is_cyclic());
         }*/
+
+        SECTION("maximum_clique") {
+            Graph_undirected g;
+            g("A", "B");
+            g("A", "C");
+            g("B", "C");
+            g("B", "D");
+            g("B", "E");
+            g("C", "D");
+            g("C", "E");
+            g("D", "E");
+            CHECK(g.maximum_clique().size() == 4);
+        }
     }
 }

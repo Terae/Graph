@@ -1,4 +1,4 @@
-#include "../single_include/graph.hpp"
+#include <graph.hpp>
 
 #include <cmath>
 
@@ -77,17 +77,17 @@ int main() {
     };
     Map::search_path pastar{map.astar(START, TARGET, heuristic)};
 
-    //Map::dijkstra_path pdijkstra{map.dijkstra(START)};
+    Map::search_path pdijkstra{map.dijkstra(START).get_path(TARGET)};
 
     const size_t nr_digits_iddfs{static_cast<size_t>(piddfs.empty() ? 0 : log10(piddfs.size()) + 1)};
     cout << "\nCalculation of the shortest path from '" << START << "' to 'Bucharest' with several search algorithms:\n"
-         << "              | \x1B[34m\x1B[1mBreadth-First Search\x1B[0m |  \x1B[34m\x1B[1mDepth-First Search\x1B[0m  | \x1B[34m\x1B[1mDepth-Limited Search (5)\x1B[0m |  \x1B[34m\x1B[1mUniform-Cost Search\x1B[0m | \x1B[34m\x1B[1mIterative-Deepening Depth-First Search (" << piddfs.size() << ")\x1B[0m |       \x1B[34m\x1B[1mA* Search\x1B[0m      |\n"
-         << "--------------|----------------------|----------------------|--------------------------|----------------------|-------------------------------------------" << string(nr_digits_iddfs, '-') << "|----------------------|\n"
-         << "  Total cost  |\x1B[31m" << setw(13) << pbfs.total_cost() << "         \x1B[0m|\x1B[31m" << setw(14) << pdfs.total_cost() << "        \x1B[0m|\x1B[31m" << setw(15) << pdls.total_cost() << "           \x1B[0m|\x1B[31m" << setw(14) << pucs.total_cost() << "        \x1B[0m|\x1B[31m" << setw(25) << piddfs.total_cost() << string(nr_digits_iddfs, ' ') << "                  \x1B[0m|\x1B[31m" << setw(14) << pastar.total_cost() << "        \x1B[0m|\n"
-         << "              |                      |                      |                          |                      |                                            |                      |\n";
+         << "              | \x1B[34m\x1B[1mBreadth-First Search\x1B[0m |  \x1B[34m\x1B[1mDepth-First Search\x1B[0m  | \x1B[34m\x1B[1mDepth-Limited Search (5)\x1B[0m |  \x1B[34m\x1B[1mUniform-Cost Search\x1B[0m | \x1B[34m\x1B[1mIterative-Deepening Depth-First Search (" << piddfs.size() << ")\x1B[0m |       \x1B[34m\x1B[1mA* Search\x1B[0m      |        \x1B[34m\x1B[1mDijkstra\x1B[0m      |\n"
+         << "--------------|----------------------|----------------------|--------------------------|----------------------|-------------------------------------------" << string(nr_digits_iddfs, '-') << "|----------------------|----------------------|\n"
+         << "  Total cost  |\x1B[31m" << setw(13) << pbfs.total_cost() << "         \x1B[0m|\x1B[31m" << setw(14) << pdfs.total_cost() << "        \x1B[0m|\x1B[31m" << setw(15) << pdls.total_cost() << "           \x1B[0m|\x1B[31m" << setw(14) << pucs.total_cost() << "        \x1B[0m|\x1B[31m" << setw(25) << piddfs.total_cost() << string(nr_digits_iddfs, ' ') << "                  \x1B[0m|\x1B[31m" << setw(14) << pastar.total_cost() << "        \x1B[0m|\x1B[31m" << setw(14) << pdijkstra.total_cost() << "        \x1B[0m|\n"
+         << "              |                      |                      |                          |                      |                                            |                      |                      |\n";
 
-    int i{1}, col1{0}, col2{0}, col3{0}, col4{0}, col5{0}, col6{0};
-    for (; !(pbfs.empty() && pdfs.empty() && pdls.empty() && piddfs.empty() && pucs.empty() && pastar.empty()); ++i) {
+    int i{1}, col1{0}, col2{0}, col3{0}, col4{0}, col5{0}, col6{0}, col7{0};
+    for (; !(pbfs.empty() && pdfs.empty() && pdls.empty() && piddfs.empty() && pucs.empty() && pastar.empty() && pdijkstra.empty()); ++i) {
         cout << left << setw(13) << ("    Step " + to_string(i)) << " |" << right;
 
         if (!pbfs.empty()) {
@@ -148,7 +148,19 @@ int main() {
         } else {
             cout << string(12, ' ') << '-' << string(8, ' ');
         }
+        cout << " |";
+
+        if (!pdijkstra.empty()) {
+            auto p = pdijkstra.front();
+            pdijkstra.pop_front();
+            col7 += p.second;
+            cout << setw(21) << (p.first->first + " (" + to_string(col7) + ")");
+        } else {
+            cout << string(12, ' ') << '-' << string(8, ' ');
+        }
 
         cout << " |" << endl;
     }
+
+    return EXIT_SUCCESS;
 }
