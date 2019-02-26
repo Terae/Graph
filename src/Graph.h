@@ -625,6 +625,7 @@ class graph {
             for (auto p : sp) {
                 os << sp.get_path(p.first) << std::endl;
             }
+            return os;
         }
     };
 
