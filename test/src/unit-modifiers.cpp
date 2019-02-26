@@ -3,6 +3,7 @@
 //
 
 #include "catch.hpp"
+
 #if defined(TEST_SINGLE_HEADER_FILE)
     #include "graph.hpp"
 #else
@@ -252,28 +253,28 @@ TEST_CASE("modifiers") {
             }
         }
 
-        SECTION("link_all_nodes(Cost cost)") {
+        SECTION("make_complete(Cost cost)") {
             SECTION("directed") {
                 Graph_directed g;
                 for (int i{0}; i < 10; ++i) {
                     g["node " + to_string(i)] = i;
                 }
 
-                g.link_all_nodes(5);
+                g.make_complete(5);
                 CHECK(g.get_nbr_edges() == 90); // COMBINATION(10, 2) * 2
                 CHECK(g.existing_edge("node 2", "node 8"));
                 CHECK(g("node 3", "node 9") == 5);
 
-                g.link_all_nodes(80);
+                g.make_complete(80);
                 CHECK(g.get_nbr_edges() == 90);
                 CHECK(g("node 1", "node 2") == 80);
 
                 g("node 1", "new node") = 4;
-                g.link_all_nodes(50);
+                g.make_complete(50);
                 CHECK(g.get_nbr_edges() == 110); // COMBINATION(11, 2) * 2
                 CHECK(g("node 7", "new node") == 50);
 
-                g.link_all_nodes(numeric_limits<size_t>::max());
+                g.make_complete(numeric_limits<size_t>::max());
                 CHECK(g.get_nbr_edges() == 0);
             }
 
@@ -283,17 +284,17 @@ TEST_CASE("modifiers") {
                     g["node " + to_string(i)] = i;
                 }
 
-                g.link_all_nodes(5);
+                g.make_complete(5);
                 CHECK(g.get_nbr_edges() == 45);
                 CHECK(g.existing_edge("node 2", "node 8"));
                 CHECK(g("node 3", "node 9") == 5);
 
-                g.link_all_nodes(80);
+                g.make_complete(80);
                 CHECK(g.get_nbr_edges() == 45);
                 CHECK(g("node 1", "node 2") == 80);
 
                 g("node 1", "new node") = 4;
-                g.link_all_nodes(50);
+                g.make_complete(50);
                 CHECK(g.get_nbr_edges() == 55);
                 CHECK(g("node 7", "new node") == 50);
             }

@@ -168,7 +168,7 @@ const T graph<Key, T, Cost, Nat>::operator[](key_type &&k) const {
 #endif
 
 template <class Key, class T, class Cost, Nature Nat>
-Cost &graph<Key, T, Cost, Nat>::operator()(iterator it1, iterator it2) {
+typename graph<Key, T, Cost, Nat>::cost_type &graph<Key, T, Cost, Nat>::operator()(iterator it1, iterator it2) {
     if (!existing_edge(it1, it2)) {
         add_edge(it1, it2, infinity);
     }
@@ -177,7 +177,7 @@ Cost &graph<Key, T, Cost, Nat>::operator()(iterator it1, iterator it2) {
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-Cost &graph<Key, T, Cost, Nat>::operator()(const key_type &k1, const key_type &k2) {
+typename graph<Key, T, Cost, Nat>::cost_type &graph<Key, T, Cost, Nat>::operator()(const key_type &k1, const key_type &k2) {
     iterator it1{add_node(k1).first};
     iterator it2{add_node(k2).first};
 
@@ -186,17 +186,17 @@ Cost &graph<Key, T, Cost, Nat>::operator()(const key_type &k1, const key_type &k
 
 #if defined(GRAPH_HAS_CPP_17)
 template <class Key, class T, class Cost, Nature Nat>
-const std::optional<Cost> graph<Key, T, Cost, Nat>::operator()(const_iterator it1, const_iterator it2) const {
-    return existing_edge(it1, it2) ? std::optional<Cost>(it1->second->get_cost(it2)) : std::nullopt;
+const std::optional<typename graph<Key, T, Cost, Nat>::cost_type> graph<Key, T, Cost, Nat>::operator()(const_iterator it1, const_iterator it2) const {
+    return existing_edge(it1, it2) ? std::optional<cost_type>(it1->second->get_cost(it2)) : std::nullopt;
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-const std::optional<Cost> graph<Key, T, Cost, Nat>::operator()(const key_type &k1, const key_type &k2) const {
+const std::optional<typename graph<Key, T, Cost, Nat>::cost_type> graph<Key, T, Cost, Nat>::operator()(const key_type &k1, const key_type &k2) const {
     return operator()(find(k1), find(k2));
 }
 #else
 template <class Key, class T, class Cost, Nature Nat>
-const Cost graph<Key, T, Cost, Nat>::operator()(const_iterator it1, const_iterator it2) const {
+const typename graph<Key, T, Cost, Nat>::cost_type graph<Key, T, Cost, Nat>::operator()(const_iterator it1, const_iterator it2) const {
     if (!existing_edge(it1, it2)) {
         GRAPH_THROW_WITH(invalid_argument, "Unexistant edge")
     }
@@ -205,13 +205,13 @@ const Cost graph<Key, T, Cost, Nat>::operator()(const_iterator it1, const_iterat
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-const Cost graph<Key, T, Cost, Nat>::operator()(const key_type &k1, const key_type &k2) const {
+const typename graph<Key, T, Cost, Nat>::cost_type graph<Key, T, Cost, Nat>::operator()(const key_type &k1, const key_type &k2) const {
     return operator()(find(k1), find(k2));
 }
 #endif
 
 template <class Key, class T, class Cost, Nature Nat>
-std::pair<typename graph<Key, T, Cost, Nat>::iterator, bool> graph<Key, T, Cost, Nat>::insert(const graph<Key, T, Cost, Nat>::value_type &val) {
+std::pair<typename graph<Key, T, Cost, Nat>::iterator, bool> graph<Key, T, Cost, Nat>::insert(const graph<Key, T, cost_type, Nat>::value_type &val) {
     std::pair<iterator, bool> p{_nodes.insert(val)};
     p.first->second->set_iterator_values(p.first, end(), cend());
     return p;
@@ -269,7 +269,7 @@ std::pair<typename graph<Key, T, Cost, Nat>::iterator, bool> graph<Key, T, Cost,
 /// Modifiers
 
 template <class Key, class T, class Cost, Nature Nat>
-bool graph<Key, T, Cost, Nat>::add_edge(const_iterator it1, const_iterator it2, Cost cost) {
+bool graph<Key, T, Cost, Nat>::add_edge(const_iterator it1, const_iterator it2, cost_type cost) {
     std::pair<typename std::list<typename node::edge>::const_iterator, bool> new_edge{it1->second->add_edge(it2, cost)};
 
     if (get_nature() == UNDIRECTED) {
@@ -284,12 +284,12 @@ bool graph<Key, T, Cost, Nat>::add_edge(const_iterator it1, const_iterator it2, 
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-bool graph<Key, T, Cost, Nat>::add_edge(const key_type &k1, const key_type &k2, Cost cost) {
+bool graph<Key, T, Cost, Nat>::add_edge(const key_type &k1, const key_type &k2, cost_type cost) {
     return add_edge(emplace(k1).first, emplace(k2).first, cost);
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-void graph<Key, T, Cost, Nat>::link_all_nodes(Cost cost) {
+void graph<Key, T, Cost, Nat>::make_complete(cost_type cost) {
     clear_edges();
 
     if (cost != infinity) {
@@ -491,7 +491,7 @@ inline Nature graph<Key, T, Cost, Nat>::get_nature() const {
 ///template <class Key, class T, class Cost>
 ///void graph<Key, T, Cost>::set_nature(Nature new_nature) {
 ///    if (get_nature() != new_nature) {
-///        typedef std::list<typename basic_node<T, Cost, iterator, const_iterator>::edge> Set;
+///        typedef std::list<typename basic_node<T, cost_type, iterator, const_iterator>::edge> Set;
 ///        if (new_nature == DIRECTED) {
 ///            for (const_iterator it{cbegin()}; it != cend(); ++it) {
 ///                Set child{it->second->get_edges()};
@@ -988,7 +988,7 @@ void graph<Key, T, Cost, Nat>::parse_from_json(std::istream &is) {
     for (const nlohmann::json &edge : json["edges"]) {
         key_type from = edge["from"];
         key_type to = edge["to"];
-        Cost c;
+        cost_type c;
         if (edge["cost"].is_null()) {
             c = infinity;
         } else {
@@ -1038,8 +1038,8 @@ std::unique_ptr<std::string> graph<Key, T, Cost, Nat>::generate_grp() const {
     }
 
     data += "graph<" + detail::type_name<Key>() + ", " +
-            detail::type_name<T>() + ", " +
-            detail::type_name<Cost>() + "> {\n" +
+            detail::type_name<graphed_type>() + ", " +
+            detail::type_name<cost_type>() + "> {\n" +
             tab + "nodes: {\n";
 
     //! Displaying nodes:  "<name>"; "<value>",
@@ -1173,9 +1173,9 @@ void graph<Key, T, Cost, Nat>::parse_from_grp(std::istream &is) {
     } else {
         while (getline(is, line) && line.find("}") == std::string::npos) {
             std::istringstream iss{line};
-            Key from;
-            Key to;
-            Cost cost;
+            key_type from;
+            key_type to;
+            cost_type cost;
             detail::read_T(iss, from);
             detail::read_T(iss, to);
             detail::read_cost(iss, cost);
@@ -1297,7 +1297,7 @@ typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::abstrac
 
     {
         search_path p;
-        p.push_back({start, Cost()});
+        p.push_back({start, cost_type()});
         frontier.push_front(std::move(p));
     }
 
@@ -1463,7 +1463,7 @@ typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::dls(con
 
     {
         search_path p;
-        p.push_back({start, Cost()});
+        p.push_back({start, cost_type()});
         frontier.push_front(std::move(p));
     }
 
@@ -1599,12 +1599,12 @@ typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::ucs(con
 
     std::list<const_iterator> expanded;
     std::priority_queue<search_path, std::vector<search_path>, path_comparator> frontier((path_comparator([](const_iterator) {
-        return Cost();
+        return cost_type();
     })));
 
     {
         search_path p;
-        p.push_back({start, Cost()});
+        p.push_back({start, cost_type()});
         frontier.push(std::move(p));
     }
 
@@ -1641,13 +1641,13 @@ typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::ucs(con
 /////////////////////
 
 template <class Key, class T, class Cost, Nature Nat>
-typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::astar(key_type start, Key target, std::function<Cost(const_iterator)> heuristic) const {
+typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::astar(key_type start, Key target, std::function<cost_type(const_iterator)> heuristic) const {
     const_iterator it{find(target)};
     return astar(find(start), [ &it](const_iterator node) -> bool { return it == node; }, heuristic);
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::astar(key_type start, std::list<key_type> target_list, std::function<Cost(const_iterator)> heuristic) const {
+typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::astar(key_type start, std::list<key_type> target_list, std::function<cost_type(const_iterator)> heuristic) const {
     std::list<const_iterator> l;
     for (key_type k : target_list) {
         l.emplace_back(find(k));
@@ -1656,29 +1656,29 @@ typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::astar(k
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::astar(key_type start, std::function<bool(key_type)> is_goal, std::function<Cost(const_iterator)> heuristic) const {
+typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::astar(key_type start, std::function<bool(key_type)> is_goal, std::function<cost_type(const_iterator)> heuristic) const {
     return astar(find(start), [ &is_goal](const_iterator it) {
         return is_goal(it->first);
     }, heuristic);
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::astar(const_iterator start, const_iterator target, std::function<Cost(const_iterator)> heuristic) const {
+typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::astar(const_iterator start, const_iterator target, std::function<cost_type(const_iterator)> heuristic) const {
     return astar(start, [ &target](const_iterator node) -> bool { return target == node; }, heuristic);
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::astar(const_iterator start, std::list<const_iterator> target_list, std::function<Cost(const_iterator)> heuristic) const {
+typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::astar(const_iterator start, std::list<const_iterator> target_list, std::function<cost_type(const_iterator)> heuristic) const {
     return astar(start, [ &target_list](const_iterator node) -> bool { return std::find(target_list.cbegin(), target_list.cend(), node) != target_list.cend(); }, heuristic);
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::astar(const_iterator start, std::function<bool(const_iterator)> is_goal, std::function<Cost(const_iterator)> heuristic) const {
+typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::astar(const_iterator start, std::function<bool(const_iterator)> is_goal, std::function<cost_type(const_iterator)> heuristic) const {
     if (start == cend()) {
         GRAPH_THROW_WITH(invalid_argument, "Start point equals to graph::cend()")
     }
 
-    const Cost nul_cost{Cost()};
+    const cost_type nul_cost{cost_type()};
 
     std::list<const_iterator> expanded;
     std::priority_queue<search_path, std::vector<search_path>, path_comparator> frontier((path_comparator(heuristic)));
@@ -1776,15 +1776,15 @@ typename graph<Key, T, Cost, Nat>::shortest_paths graph<Key, T, Cost, Nat>::dijk
     }
 
     struct pair_iterator_comparator {
-        bool operator()(const std::pair<const_iterator, Cost> &lhs, const std::pair<const_iterator, Cost> &rhs) const {
+        bool operator()(const std::pair<const_iterator, cost_type> &lhs, const std::pair<const_iterator, cost_type> &rhs) const {
             return lhs.second < rhs.second;
         }
     };
 
     //! Initialization
 
-    const Cost nul_cost{Cost()};
-    std::priority_queue<std::pair<const_iterator, Cost>, std::vector<std::pair<const_iterator, Cost>>, pair_iterator_comparator> Q;
+    const cost_type nul_cost{cost_type()};
+    std::priority_queue<std::pair<const_iterator, cost_type>, std::vector<std::pair<const_iterator, cost_type>>, pair_iterator_comparator> Q;
 
     shortest_paths result(start);
     for (const_iterator it{cbegin()}; it != cend(); ++it) {
@@ -1810,16 +1810,16 @@ typename graph<Key, T, Cost, Nat>::shortest_paths graph<Key, T, Cost, Nat>::dijk
         for (typename std::vector<typename node::edge>::const_iterator edge{adj.cbegin()}; edge != adj.cend(); ++edge) {
             const_iterator v{edge->target()};
 
-            Cost cost{u->second->get_cost(v)};
+            cost_type cost{u->second->get_cost(v)};
             //! Dijkstra's algorithm cannot be computed with negative weights.
             if (cost < nul_cost) {
                 GRAPH_THROW(negative_edge)
             }
 
-            Cost dist_u{result[u].second};
-            Cost dist_v{result[v].second};
+            cost_type dist_u{result[u].second};
+            cost_type dist_v{result[v].second};
 
-            Cost alt{dist_u + cost};
+            cost_type alt{dist_u + cost};
 
             /// Existing shortest path to v through u with a cost of alt
             if (alt < dist_v) {
@@ -1853,7 +1853,7 @@ typename graph<Key, T, Cost, Nat>::shortest_paths graph<Key, T, Cost, Nat>::bell
     /// d(start, start) == nul_cost;
     typename shortest_paths::iterator S{result.find(start)};
     S->second.first = start;
-    S->second.second = Cost();
+    S->second.second = cost_type();
 
     //! Relax edges repeatedly
 
@@ -1866,11 +1866,11 @@ typename graph<Key, T, Cost, Nat>::shortest_paths graph<Key, T, Cost, Nat>::bell
             for (typename std::vector<typename node::edge>::const_iterator edge{adj.cbegin()}; edge != adj.cend(); ++edge) {
                 const_iterator v{edge->target()};
 
-                Cost cost{u->second->get_cost(v)};
-                Cost dist_u{result[u].second};
-                Cost dist_v{result[v].second};
+                cost_type cost{u->second->get_cost(v)};
+                cost_type dist_u{result[u].second};
+                cost_type dist_v{result[v].second};
 
-                Cost alt{dist_u + cost};
+                cost_type alt{dist_u + cost};
 
                 if (alt < dist_v) {
                     result[v].first = u;
@@ -1904,8 +1904,8 @@ template <class Key, class T, class Cost, Nature Nat>
 graph<Key, T, Cost, Nat>::search_path::search_path(const search_path &p) : Container(p) {}
 
 template <class Key, class T, class Cost, Nature Nat>
-Cost graph<Key, T, Cost, Nat>::search_path::total_cost() const {
-    Cost total{};
+typename graph<Key, T, Cost, Nat>::cost_type graph<Key, T, Cost, Nat>::search_path::total_cost() const {
+    cost_type total{};
     for (const_iterator it{cbegin()}; it != cend(); ++it) {
         total += it->second;
     }
@@ -1950,7 +1950,7 @@ typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::shortes
 template <class Key, class T, class Cost, Nature Nat>
 typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::shortest_paths::get_path(graph::const_iterator target) const {
     graph::shortest_paths::const_iterator current{find(target)};
-    if (current == cend() || current->second.second == (std::numeric_limits<Cost>::has_infinity ? std::numeric_limits<Cost>::infinity() : std::numeric_limits<Cost>::max())) {
+    if (current == cend() || current->second.second == (std::numeric_limits<cost_type>::has_infinity ? std::numeric_limits<cost_type>::infinity() : std::numeric_limits<cost_type>::max())) {
         return search_path();
     }
 
@@ -1964,7 +1964,7 @@ typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::shortes
     }
 
     if (target != _start) {
-        result.emplace_front(_start, Cost());
+        result.emplace_front(_start, cost_type());
     }
 
     return result;
@@ -1981,7 +1981,7 @@ typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::shortes
 ///}
 
 template <class Key, class T, class Cost, Nature Nat>
-graph<Key, T, Cost, Nat>::path_comparator::path_comparator(std::function<Cost(const_iterator)> heuristic) : _heuristic(heuristic) {}
+graph<Key, T, Cost, Nat>::path_comparator::path_comparator(std::function<cost_type(const_iterator)> heuristic) : _heuristic(heuristic) {}
 
 template <class Key, class T, class Cost, Nature Nat>
 bool graph<Key, T, Cost, Nat>::path_comparator::operator() (const search_path &p1, const search_path &p2) const {

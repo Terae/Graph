@@ -3,6 +3,7 @@
 //
 
 #include "catch.hpp"
+
 #if defined(TEST_SINGLE_HEADER_FILE)
     #include "graph.hpp"
 #else
@@ -194,7 +195,7 @@ TEST_CASE("constructors") {
                 g["node 1"] = 1;
                 g["node 2"] = 2;
                 g["node 3"] = 3;
-                g.link_all_nodes(4.2);
+                g.make_complete(4.2);
 
                 CHECK(g.get_nbr_nodes() == 3);
                 CHECK(g.get_nbr_edges() == 3);

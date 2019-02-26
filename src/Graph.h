@@ -71,7 +71,7 @@ class graph {
     MapNodes _nodes;
     std::size_t _num_edges = 0;
 
-    const Cost infinity = std::numeric_limits<Cost>::has_infinity ? std::numeric_limits<Cost>::infinity() :
+    const Cost infinity = std::numeric_limits<cost_type>::has_infinity ? std::numeric_limits<Cost>::infinity() :
                           std::numeric_limits<Cost>::max();
     class path_comparator;
     struct iterator_comparator;
@@ -106,6 +106,8 @@ class graph {
     using key_type     = Key;
     /// the type of stored values on a graph
     using graphed_type = T;
+    /// the type of a edge cost value
+    using cost_type = Cost;
     /// a type to represent container sizes
     using size_type    = std::size_t;
 
@@ -189,15 +191,15 @@ class graph {
     const graphed_type operator[](key_type &&) const;
 #endif
 
-    Cost &operator()(iterator,         iterator);
-    Cost &operator()(const key_type &, const key_type &);
+    cost_type &operator()(iterator,         iterator);
+    cost_type &operator()(const key_type &, const key_type &);
 
 #if defined(GRAPH_HAS_CPP_17)
-    const std::optional<Cost> operator()(const_iterator,   const_iterator)   const;
-    const std::optional<Cost> operator()(const key_type &, const key_type &) const;
+    const std::optional<cost_type> operator()(const_iterator,   const_iterator)   const;
+    const std::optional<cost_type> operator()(const key_type &, const key_type &) const;
 #else
-    const Cost operator()(const_iterator,   const_iterator)   const;
-    const Cost operator()(const key_type &, const key_type &) const;
+    const cost_type operator()(const_iterator,   const_iterator)   const;
+    const cost_type operator()(const key_type &, const key_type &) const;
 #endif
     ///
     //! @section Modifiers
@@ -220,10 +222,10 @@ class graph {
     std::pair<iterator, bool> add_node(const key_type &, const graphed_type &);
     std::pair<iterator, bool> add_node(const key_type &, const node &);
 
-    bool add_edge(const_iterator,   const_iterator,   Cost = std::numeric_limits<Cost>::epsilon());
-    bool add_edge(const key_type &, const key_type &, Cost = std::numeric_limits<Cost>::epsilon());
+    bool add_edge(const_iterator,   const_iterator,   cost_type = std::numeric_limits<cost_type>::epsilon());
+    bool add_edge(const key_type &, const key_type &, cost_type = std::numeric_limits<cost_type>::epsilon());
 
-    void link_all_nodes(Cost);
+    void make_complete(cost_type);
 
     //! Deleters
 
@@ -377,7 +379,7 @@ class graph {
     template<class K, class D, class C, Nature N> bool operator!=(const graph<K, D, C, N> &) const noexcept;
 
     /// CRTP: https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern
-    class node : public basic_node<graphed_type, Cost, iterator, const_iterator> {
+    class node : public basic_node<graphed_type, cost_type, iterator, const_iterator> {
       public:
         explicit node();
 
@@ -472,13 +474,13 @@ class graph {
     /// @see https://en.wikipedia.org/wiki/A*_search_algorithm
     /// @since version 1.1
     ///
-    search_path astar(key_type       start, key_type                            target,      std::function<Cost(const_iterator)> heuristic) const;
-    search_path astar(key_type       start, std::list<key_type>                 target_list, std::function<Cost(const_iterator)> heuristic) const;
-    search_path astar(key_type       start, std::function<bool(key_type)>       is_goal,     std::function<Cost(const_iterator)> heuristic) const;
+    search_path astar(key_type       start, key_type                            target,      std::function<cost_type(const_iterator)> heuristic) const;
+    search_path astar(key_type       start, std::list<key_type>                 target_list, std::function<cost_type(const_iterator)> heuristic) const;
+    search_path astar(key_type       start, std::function<bool(key_type)>       is_goal,     std::function<cost_type(const_iterator)> heuristic) const;
 
-    search_path astar(const_iterator start, const_iterator                      target,      std::function<Cost(const_iterator)> heuristic) const;
-    search_path astar(const_iterator start, std::list<const_iterator>           target_list, std::function<Cost(const_iterator)> heuristic) const;
-    search_path astar(const_iterator start, std::function<bool(const_iterator)> is_goal,     std::function<Cost(const_iterator)> heuristic) const;
+    search_path astar(const_iterator start, const_iterator                      target,      std::function<cost_type(const_iterator)> heuristic) const;
+    search_path astar(const_iterator start, std::list<const_iterator>           target_list, std::function<cost_type(const_iterator)> heuristic) const;
+    search_path astar(const_iterator start, std::function<bool(const_iterator)> is_goal,     std::function<cost_type(const_iterator)> heuristic) const;
 
     ///
     /// @brief Dijkstra Search
@@ -512,19 +514,19 @@ class graph {
     shortest_paths bellman_ford(key_type       start) const;
     shortest_paths bellman_ford(const_iterator start) const;
 
-    class search_path final : private std::deque<std::pair<graph::const_iterator, Cost>> {
+    class search_path final : private std::deque<std::pair<graph::const_iterator, cost_type>> {
         template <bool> friend search_path graph::abstract_first_search(graph::const_iterator, std::function<bool(const_iterator)>) const;
 
-        friend search_path graph::dls   (graph::const_iterator, std::function<bool(const_iterator)>, size_type)                           const;
-        friend search_path graph::iddfs (graph::const_iterator, std::function<bool(const_iterator)>)                                      const;
-        friend search_path graph::ucs   (graph::const_iterator, std::function<bool(const_iterator)>)                                      const;
-        friend search_path graph::astar (graph::const_iterator, std::function<bool(const_iterator)>, std::function<Cost(const_iterator)>) const;
+        friend search_path graph::dls   (graph::const_iterator, std::function<bool(const_iterator)>, size_type)                                const;
+        friend search_path graph::iddfs (graph::const_iterator, std::function<bool(const_iterator)>)                                           const;
+        friend search_path graph::ucs   (graph::const_iterator, std::function<bool(const_iterator)>)                                           const;
+        friend search_path graph::astar (graph::const_iterator, std::function<bool(const_iterator)>, std::function<cost_type(const_iterator)>) const;
 
         friend class shortest_paths;
 
         friend bool path_comparator::operator()(const search_path &, const search_path &) const;
 
-        using Container = std::deque<std::pair<graph::const_iterator, Cost>>;
+        using Container = std::deque<std::pair<graph::const_iterator, cost_type>>;
 
       public:
         using value_type             = typename Container::value_type;
@@ -558,13 +560,13 @@ class graph {
         using Container::push_back;
         using Container::emplace_back;
 
-        Cost total_cost() const;
+        cost_type total_cost() const;
 
         bool contain(const graph::const_iterator &) const;
 
         friend std::ostream &operator<<(std::ostream &os, const typename graph::search_path &sp) {
-            Cost count{};
-            for (const std::pair<typename graph<Key, T, Cost, Nat>::const_iterator, Cost> &p : sp) {
+            cost_type count{};
+            for (const std::pair<typename graph<Key, T, cost_type, Nat>::const_iterator, cost_type> &p : sp) {
                 os << "-> " << p.first->first << " (" << (count += p.second) << ") ";
             }
             return os;
@@ -579,13 +581,13 @@ class graph {
     ///
     /// @since version 1.1
     ///
-    class shortest_paths final : private std::map<graph::const_iterator, std::pair<graph::const_iterator, Cost>, iterator_comparator> {
+    class shortest_paths final : private std::map<graph::const_iterator, std::pair<graph::const_iterator, cost_type>, iterator_comparator> {
         graph::const_iterator _start;
 
         friend shortest_paths graph::dijkstra    (graph::const_iterator, std::function<bool(const_iterator)>) const;
         friend shortest_paths graph::bellman_ford(graph::const_iterator)                                      const;
 
-        using Container = std::map<graph::const_iterator, std::pair<graph::const_iterator, Cost>, iterator_comparator>;
+        using Container = std::map<graph::const_iterator, std::pair<graph::const_iterator, cost_type>, iterator_comparator>;
 
         shortest_paths(graph::const_iterator start);
 
@@ -633,10 +635,10 @@ class graph {
     //! Helper functions and classes
     class path_comparator : public std::binary_function<search_path, search_path, bool> {
       private:
-        std::function<Cost(const_iterator)> _heuristic;
+        std::function<cost_type(const_iterator)> _heuristic;
 
       public:
-        explicit path_comparator(std::function<Cost(const_iterator)> heuristic);
+        explicit path_comparator(std::function<cost_type(const_iterator)> heuristic);
 
         bool operator() (const search_path &, const search_path &) const;
     };

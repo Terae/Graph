@@ -106,7 +106,7 @@ static void bench(benchpress::context &ctx, const EMode mode) {
 
             ctx.reset_timer();
             for (size_t i{0}; i < ctx.num_iterations(); ++i) {
-                complete_graph.link_all_nodes(42.0);
+                complete_graph.make_complete(42.0);
             }
 
             break;
