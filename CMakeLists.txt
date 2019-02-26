@@ -25,13 +25,14 @@ set(LIBRARY_CMAKE_PROJECT_CONFIG_FILE "${LIBRARY_CMAKE_CONFIG_DIR}/${LIBRARY_NAM
 ##
 ## PROJECT
 ##
-project(${LIBRARY_NAME} LANGUAGES CXX VERSION 1.1.1)
+project(${LIBRARY_NAME} LANGUAGES CXX VERSION 1.1.2)
 
 ##
 ## OPTIONS
 ##
-option(ENABLE_EXAMPLES "Build examples." ON)
-option(ENABLE_TESTING  "Build the unit tests." ON)
+option(ENABLE_EXAMPLES     "Build examples." ON)
+option(ENABLE_TESTING      "Build the unit tests." ON)
+option(ENABLE_BENCHMARKING "Build benchmarks suite" OFF)
 
 ##
 ## TARGET
@@ -76,11 +77,30 @@ else ()
     message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
 endif ()
 
-# Update of Git submodules
-execute_process(
-        COMMAND git submodule update --init
-        WORKING_DIRECTORY ${Graph_SOURCE_DIR}
-)
+find_package(nlohmann_json QUIET)
+if(NOT nlohmann_json_FOUND)
+    message(STATUS "")
+    message(WARNING "Library nlohmann_json is not installed, you should include third-party/json/single_include/nlohmann/json.hpp file in your project")
+    message(WARNING "To install this library and guarantee the portability of your project, please run `make install_json`")
+    add_definitions(-DINCLUDE_JSON_FILE)
+
+    # Update of json Git submodule
+    execute_process(
+            COMMAND git submodule update --init --quiet ${Graph_SOURCE_DIR}/third-party/json
+            WORKING_DIRECTORY ${Graph_SOURCE_DIR}
+    )
+    execute_process(
+            COMMAND git checkout develop --force --quiet
+            WORKING_DIRECTORY ${Graph_SOURCE_DIR}/third-party/json
+    )
+
+    # Target to install the json library
+    file(MAKE_DIRECTORY ${Graph_SOURCE_DIR}/third-party/json/build)
+    add_custom_target(install_json
+                      COMMAND cmake ..
+                      COMMAND sudo make install -j 4
+                      WORKING_DIRECTORY ${Graph_SOURCE_DIR}/third-party/json/build)
+endif()
 
 function(enable_all_warnings TARGET)
     if("$CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
@@ -137,6 +157,15 @@ if(ENABLE_TESTING)
     enable_testing()
     include_directories(${LIBRARY_DEV_DIR})
     add_subdirectory(test)
+endif()
+
+##
+## BENCHMARKS
+## create and configure the benchmark target
+##
+if(ENABLE_BENCHMARKING)
+    include_directories(${LIBRARY_SOURCE_DIR})
+    add_subdirectory(benchmarks)
 endif()
 
 ##

@@ -3,6 +3,7 @@
 //
 
 #include "catch.hpp"
+
 #if defined(TEST_SINGLE_HEADER_FILE)
     #include "graph.hpp"
 #else
@@ -113,6 +114,40 @@ TEST_CASE("operations") {
         }
     }
 
+    SECTION("has_path_connecting(const key_type &k1, const key_type &k2)") {
+        SECTION("directed") {
+            Graph_directed g;
+            g["unlinked node"];
+            g("node 1", "node 2");
+            g("node 2", "node 3");
+            g("node 2", "node 4");
+            g("node 4", "node 5");
+            g("node 6", "node 5");
+            CHECK_THROWS_WITH(g.has_path_connecting("node 1", "unexisting node"), "[graph.exception.unexpected_nullptr] Unexpected nullptr when calling 'has_path_connecting'.");
+            CHECK_THROWS_WITH(g.has_path_connecting("unexisting node", "node 5"), "[graph.exception.unexpected_nullptr] Unexpected nullptr when calling 'has_path_connecting'.");
+
+            CHECK(g.has_path_connecting("node 1", "node 5"));
+            CHECK_FALSE(g.has_path_connecting("node 1", "node 6"));
+            CHECK_FALSE(g.has_path_connecting("node 1", "unlinked node"));
+        }
+
+        SECTION("undirected") {
+            Graph_undirected g;
+            g["unlinked node"];
+            g("node 1", "node 2");
+            g("node 2", "node 3");
+            g("node 2", "node 4");
+            g("node 4", "node 5");
+            g("node 6", "node 5");
+            CHECK_THROWS_WITH(g.has_path_connecting("node 1", "unexisting node"), "[graph.exception.unexpected_nullptr] Unexpected nullptr when calling 'has_path_connecting'.");
+            CHECK_THROWS_WITH(g.has_path_connecting("unexisting node", "node 5"), "[graph.exception.unexpected_nullptr] Unexpected nullptr when calling 'has_path_connecting'.");
+
+            CHECK(g.has_path_connecting("node 1", "node 5"));
+            CHECK(g.has_path_connecting("node 1", "node 6"));
+            CHECK_FALSE(g.has_path_connecting("node 1", "unlinked node"));
+        }
+    }
+
     SECTION("get_nbr_nodes()") {
         Graph g;
         CHECK(g.get_nbr_nodes() == 0);
@@ -167,55 +202,6 @@ TEST_CASE("operations") {
         graph_undirected<string, int> g2;
         CHECK(g2.get_nature() == UNDIRECTED);
     }
-
-    //SECTION("set_nature(Nature new_nature)") {
-    //    SECTION("same nature") {
-    //        graph<string, int, double> g1(DIRECTED);
-    //        g1("node 1", "node 2") = 5.6;
-    //        g1("node 2", "node 3") = 6.5;
-    //        g1("node 1", "node 3") = 1.2;
-    //        g1.set_nature(DIRECTED);
-    //        CHECK(g1.get_nature() == DIRECTED);
-    //        CHECK(g1.get_nbr_edges() == 3);
-    //
-    //        graph<string, int, double> g2(UNDIRECTED);
-    //        g2("node 1", "node 2") = 5.6;
-    //        g2("node 2", "node 3") = 6.5;
-    //        g2("node 1", "node 3") = 1.2;
-    //        g2.set_nature(UNDIRECTED);
-    //        CHECK(g2.get_nature() == UNDIRECTED);
-    //        CHECK(g2.get_nbr_edges() == 3);
-    //    }
-    //
-    //    SECTION("directed -> undirected") {
-    //        graph<string, int, double> g(DIRECTED);
-    //        g("node 1", "node 2") = 1.2;
-    //        g("node 2", "node 3") = 2.3;
-    //        g("node 1", "node 3") = 1.3;
-    //        g("node 4", "node 5") = 4.5;
-    //        g.set_nature(UNDIRECTED);
-    //        CHECK(g.get_nature() == UNDIRECTED);
-    //        CHECK(g.get_nbr_edges() == 4);
-    //        CHECK(g("node 5", "node 4") == 4.5);
-    //        g("node 3", "node 1") = 3.1;
-    //        CHECK(g("node 1", "node 3") == 3.1);
-    //    }
-    //
-    //    SECTION("undirected -> directed") {
-    //        graph<string, int, double> g(UNDIRECTED);
-    //        g("node 1", "node 2") = 1.2;
-    //        g("node 2", "node 3") = 2.3;
-    //        g("node 1", "node 3") = 1.3;
-    //        g("node 4", "node 5") = 4.5;
-    //        g.set_nature(DIRECTED);
-    //        CHECK(g.get_nature() == DIRECTED);
-    //        CHECK(g.get_nbr_edges() == 8);
-    //        CHECK(g("node 3", "node 1") == 1.3);
-    //        g("node 2", "node 1") = 2.1;
-    //        CHECK(g("node 2", "node 1") == 2.1);
-    //        CHECK(g("node 1", "node 2") == 1.2);
-    //    }
-    //}
 
     SECTION("Degree") {
         CHECK(std::is_same<Graph_directed  ::Degree::value_type, std::pair<std::size_t, std::size_t>>::value);
@@ -540,6 +526,56 @@ TEST_CASE("operations") {
             CHECK(edges[0].cost() == 12);
             CHECK(edges[1].cost() == 13);
             CHECK(edges[2].target() == g.find("node 4"));
+        }
+    }
+
+    SECTION("is_cyclic() const") {
+        SECTION("directed") {
+            Graph_directed g;
+            g("A", "B");
+            g("B", "C");
+            g("C", "D");
+            g("D", "E");
+            g("E", "F");
+            g("A", "F");
+            g("C", "I");
+            g("I", "G");
+            g("G", "H");
+            CHECK_FALSE(g.is_cyclic());
+
+            g("H", "I");
+            CHECK(g.is_cyclic());
+        }
+
+        /*SECTION("undirected") {
+            Graph_undirected g;
+            g("A", "B");
+            CHECK_FALSE(g.is_cyclic());
+            g("B", "C");
+            g("C", "D");
+            g("D", "E");
+            g("E", "F");
+            g("C", "I");
+            g("I", "G");
+            g("G", "H");
+            CHECK_FALSE(g.is_cyclic());
+
+            g("A", "F");
+            CHECK(g.is_cyclic());
+        }*/
+
+        SECTION("maximum_clique") {
+            Graph_undirected g;
+            g("A", "B");
+            g("A", "C");
+            g("B", "C");
+            g("B", "D");
+            g("B", "E");
+            g("C", "D");
+            g("C", "E");
+            g("D", "E");
+            // TODO: fix the `maximum_clique` function
+            //CHECK(g.maximum_clique().size() == 4);
         }
     }
 }

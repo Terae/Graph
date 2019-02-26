@@ -13,7 +13,7 @@
 #include <sstream>
 #include <thread>
 
-#define MAX 500
+#define MAX 300 // 500
 
 struct Coord {
     int x, y;
@@ -50,7 +50,7 @@ struct StartUp {
 };
 StartUp startup;
 
-enum class EMode { input, output, make_complete, astar/*, search*/ };
+enum class EMode { input, output, make_complete, astar, dijkstra };
 
 static void bench(benchpress::context &ctx, const EMode mode) {
     graph_undirected<Coord, int, double> grid_graph;
@@ -106,7 +106,7 @@ static void bench(benchpress::context &ctx, const EMode mode) {
 
             ctx.reset_timer();
             for (size_t i{0}; i < ctx.num_iterations(); ++i) {
-                complete_graph.link_all_nodes(42.0);
+                complete_graph.make_complete(42.0);
             }
 
             break;
@@ -114,53 +114,28 @@ static void bench(benchpress::context &ctx, const EMode mode) {
 
         /// Benchmarking A* Search algorithm
         case EMode::astar: {
-            Graph_grid g;
-            for (int x{-4 * MAX + 1}; x < 4 * MAX; ++x) {
-                for (int y{-4 * MAX + 1}; y < 4 * MAX; ++y) {
-                    g[ {x, y}] = x * 100000 + y;
-                }
-            }
-
-            int a{0}, b{0}, c{0}, d{0};
-            // all nodes linked in the upper-right corner
-            for (int x{0}; x < 4 * MAX; ++x) {
-                for (int y{0}; y < 4 * MAX; ++y) {
-                    a += g.add_edge({x, y}, {x, y + 1}, 1);
-                    a += g.add_edge({x, y}, {x + 1, y}, 1);
-                }
-            }
-            std::default_random_engine generator;
-            std::uniform_int_distribution<int> negative(-4 * MAX + 1, 0);
-            std::uniform_int_distribution<int> positive(0,      4 * MAX);
-
-            for (int i{0}; i < 200000; ++i) {
-                int x{positive(generator)};
-                int y{negative(generator)};
-                b += g.add_edge({x, y}, {x, y + 1}, 1);
-                b += g.add_edge({x, y}, {x + 1, y}, 1);
-            }
-
-            for (int i{0}; i < 200000; ++i) {
-                int x{negative(generator)};
-                int y{positive(generator)};
-                c += g.add_edge({x, y}, {x, y + 1}, 1);
-                c += g.add_edge({x, y}, {x + 1, y}, 1);
-            }
-
-            for (int i{0}; i < 400000; ++i) {
-                int x{negative(generator)};
-                int y{negative(generator)};
-                d += g.add_edge({x, y}, {x, y + 1}, 1);
-                d += g.add_edge({x, y}, {x + 1, y}, 1);
-            }
+            graph_directed<std::string, int, int> g;
+            // My own JSON serialization
+            //g.load("files/search.cpp.json");
+            // rust JSON serialization
+            g.DEBUG_load_from_json_rust("files/search.rust.json");
 
             ctx.reset_timer();
             for (size_t i{0}; i < ctx.num_iterations(); ++i) {
-                auto astar = search::make_astar(g, Coord(4 * MAX, 4 * MAX));
-                auto search_result = astar.run(g.find({-4 * MAX + 1, -4 * MAX + 1}), [](const Graph_grid::const_iterator & it) -> int {
-                    // Return Manhattan distance
-                    return std::abs(4 * MAX - it->first.x) + std::abs(4 * MAX - it->first.y);
-                });
+                graph_directed<std::string, int, int>::search_path p{g.astar("START", "END", [](const graph_directed<std::string, int, int>::const_iterator &) -> int { return 5; })};
+            }
+
+            break;
+        }
+
+        /// Benchmarking Dijkstra Search Algorithm
+        case EMode::dijkstra: {
+            graph_directed<std::string, int, int> g;
+            g.DEBUG_load_from_json_rust("files/search.rust.json");
+
+            ctx.reset_timer();
+            for (size_t i{0}; i < ctx.num_iterations(); ++i) {
+                graph_directed<std::string, int, int>::shortest_paths p{g.dijkstra("START")};
             }
 
             break;
@@ -176,4 +151,5 @@ static void bench(benchpress::context &ctx, const EMode mode) {
 BENCHMARKING_I(EMode::input,         "parse    grid_graph.txt")
 BENCHMARKING_I(EMode::output,        "dump     grid_graph.txt")
 BENCHMARKING_I(EMode::make_complete, "make_complete a graph of 1000 nodes")
-BENCHMARKING_I(EMode::astar,         "astar on a graph of 1000 nodes")
+BENCHMARKING_I(EMode::astar,         "astar    on a graph of 50 nodes")
+BENCHMARKING_I(EMode::dijkstra,      "dijkstra on a graph of 50 nodes")

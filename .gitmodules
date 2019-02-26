@@ -1,6 +1,9 @@
 [submodule "test/third-party/catch"]
 	path = test/third-party/catch
 	url = https://github.com/philsquared/Catch.git
+[submodule "third-party/json"]
+	path = third-party/json
+	url = https://github.com/nlohmann/json
 [submodule "benchmarks/third-party/benchpress"]
 	path = benchmarks/third-party/benchpress
-	url = https://github.com/sbs-ableton/benchpress
+	url = https://github.com/cjgdev/benchpress.git

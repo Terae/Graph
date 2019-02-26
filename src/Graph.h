@@ -9,7 +9,15 @@
 #include <fstream>   /// setw, operator<<
 #include <iomanip>   /// setw
 #include <map>       /// map
+#include <queue>     /// queue
+#include <set>       /// set
 #include <vector>    /// vector
+
+#ifdef INCLUDE_JSON_FILE
+    #include "../third-party/json/single_include/nlohmann/json.hpp"
+#else
+    #include <nlohmann/json.hpp>
+#endif
 
 /// C++ language standard detection
 #if   (defined(__cplusplus) && __cplusplus >= 201703L) || (defined(_MSC_VER)   && _MSC_VER > 1900 && defined(_HAS_CXX17) && _HAS_CXX17 == 1)
@@ -53,6 +61,8 @@ class graph {
   public:
     class node;
     using Degree = detail::basic_degree<Nat>;
+    class search_path;
+    class shortest_paths;
 
   private:
     using PtrNode  = std::shared_ptr<node>;
@@ -61,10 +71,10 @@ class graph {
     MapNodes _nodes;
     std::size_t _num_edges = 0;
 
-    const Cost infinity = std::numeric_limits<Cost>::has_infinity ? std::numeric_limits<Cost>::infinity() :
+    const Cost infinity = std::numeric_limits<cost_type>::has_infinity ? std::numeric_limits<Cost>::infinity() :
                           std::numeric_limits<Cost>::max();
-
-    std::ostream &print(std::ostream &os) const;
+    class path_comparator;
+    struct iterator_comparator;
 
   public:
 
@@ -96,6 +106,8 @@ class graph {
     using key_type     = Key;
     /// the type of stored values on a graph
     using graphed_type = T;
+    /// the type of a edge cost value
+    using cost_type = Cost;
     /// a type to represent container sizes
     using size_type    = std::size_t;
 
@@ -140,7 +152,7 @@ class graph {
     explicit graph();
 
     /// istream constructor
-    graph(std::istream &);
+    explicit graph(std::istream &);
 
     /// copy constructor
     graph(const graph &);
@@ -179,15 +191,15 @@ class graph {
     const graphed_type operator[](key_type &&) const;
 #endif
 
-    Cost &operator()(iterator,         iterator);
-    Cost &operator()(const key_type &, const key_type &);
+    cost_type &operator()(iterator,         iterator);
+    cost_type &operator()(const key_type &, const key_type &);
 
 #if defined(GRAPH_HAS_CPP_17)
-    const std::optional<Cost> operator()(const_iterator,   const_iterator)   const;
-    const std::optional<Cost> operator()(const key_type &, const key_type &) const;
+    const std::optional<cost_type> operator()(const_iterator,   const_iterator)   const;
+    const std::optional<cost_type> operator()(const key_type &, const key_type &) const;
 #else
-    const Cost operator()(const_iterator it1, const_iterator it2)  const;
-    const Cost operator()(const key_type &k1, const key_type &k2)  const;
+    const cost_type operator()(const_iterator,   const_iterator)   const;
+    const cost_type operator()(const key_type &, const key_type &) const;
 #endif
     ///
     //! @section Modifiers
@@ -210,10 +222,10 @@ class graph {
     std::pair<iterator, bool> add_node(const key_type &, const graphed_type &);
     std::pair<iterator, bool> add_node(const key_type &, const node &);
 
-    bool add_edge(const_iterator,   const_iterator,   Cost = std::numeric_limits<Cost>::epsilon());
-    bool add_edge(const key_type &, const key_type &, Cost = std::numeric_limits<Cost>::epsilon());
+    bool add_edge(const_iterator,   const_iterator,   cost_type = std::numeric_limits<cost_type>::epsilon());
+    bool add_edge(const key_type &, const key_type &, cost_type = std::numeric_limits<cost_type>::epsilon());
 
-    void link_all_nodes(Cost cost);
+    void make_complete(cost_type);
 
     //! Deleters
 
@@ -258,6 +270,11 @@ class graph {
     bool existing_edge(const_iterator,   const_iterator)   const;
     bool existing_edge(const key_type &, const key_type &) const;
 
+    /// Check if there exists a path starting at `from` and reaching `to`
+    /// If `from` and `to` are equal, this function returns true.
+    bool has_path_connecting(const_iterator,   const_iterator)   const;
+    bool has_path_connecting(const key_type &, const key_type &) const;
+
     inline size_type get_nbr_nodes() const noexcept;
     inline size_type get_nbr_edges() const noexcept;
 
@@ -271,12 +288,12 @@ class graph {
 
     std::map<key_type, Degree> degrees() const;
 
-    template <class = typename std::enable_if<detail::is_directed  <Nat>::value>>
+    template <class = typename std::enable_if<detail::is_directed<Nat>::value>>
     std::vector<typename node::edge> get_in_edges (const_iterator)   const;
-    template <class = typename std::enable_if<detail::is_directed  <Nat>::value>>
+    template <class = typename std::enable_if<detail::is_directed<Nat>::value>>
     inline std::vector<typename node::edge> get_in_edges (const key_type &) const;
 
-    template <class = typename std::enable_if<detail::is_directed  <Nat>::value>>
+    template <class = typename std::enable_if<detail::is_directed<Nat>::value>>
     inline std::vector<typename node::edge> get_out_edges(const_iterator)   const;
     template <class = typename std::enable_if<detail::is_directed  <Nat>::value>>
     inline std::vector<typename node::edge> get_out_edges(const key_type &) const;
@@ -286,24 +303,73 @@ class graph {
     template <class = typename std::enable_if<detail::is_undirected<Nat>::value>>
     inline std::vector<typename node::edge> get_edges    (const key_type &) const;
 
-    // TODO
+    template <class = typename std::enable_if<detail::is_directed<Nat>::value>>
     bool is_cyclic() const;
 
     // TODO
     bool is_isomorphic() const;
 
+    /// Perform a topological sort of a directed graph
+    /// If the graph was acyclic, return a `vector> of nodes in topological order: each node is ordered before its successors. Otherwise, it throws a `has_cycle` error. Self loops are also cycles.
+    // TODO
+    std::vector<const_iterator> toposort() const;
+
+    /// Computes the _strongly connected components_ using [Kosaraju's algorithm](https://en.wikipedia.org/wiki/Kosaraju%27s_algorithm)
+    /// Return a `set` where each element is a strongly connected component (scc). The order of the scc is their postorder (reverse topological sort)
+    /// For an undirected graph, the sccs are simply the connected components
+    /// This implementation is iterative and does two passes over the nodes
+    // TODO
+    std::set<std::vector<const_iterator>, iterator_comparator> kosaraju_scc() const;
+
+    /// Computes the _strongly connected components_ using [Tarjan's algorithm](https://en.wikipedia.org/wiki/Tarjan%27s_strongly_connected_components_algorithm)
+    /// Return a `set` where each element is a strongly connected component (scc). The order of the scc is their postorder (reverse topological sort)
+    /// For an undirected graph, the sccs are simply the connected components
+    /// This implementation is iterative and does one pass over the nodes
+    // TODO
+    std::set<std::vector<const_iterator>, iterator_comparator> tarjan_scc() const;
+
+    /// Return the number of connected components of the graph
+    /// For a directed graph, this is the _weakly_ connected components
+    // TODO
+    size_type connected_components() const;
+
+    /// Condenses every strongly connected component into a single node
+    /// @param make_acyclic If equals to `true`, self-loops are ignored, guaranteeing that the output is acyclic
+    // TODO
+    graph &condensate(bool make_acyclic = true);
+
+    /// Computes the [maximum clique](https://en.wikipedia.org/wiki/Clique_(graph_theory)) of the graph, e.g. the clique  such that there is not clique with more nodes
+    /// Return a `vector` where each element is in the clique
+    // TODO
+    std::vector<const_iterator> maximum_clique() const;
+
     ///
     //! @section Text functions
     ///
 
+    /// Display a JSON representation
     template<class K, class D, class C, Nature N> friend std::ostream &operator<<(std::ostream &, const graph<K, D, C, N> &);
+    /// Try to load from JSON and then from FILE
     template<class K, class D, class C, Nature N> friend std::istream &operator>>(std::istream &,       graph<K, D, C, N> &);
 
-    void   save(const char* filepath) const;
-    graph &load(const char* filepath);
+    /// Load a graph from a file; .DOT not supported
+    void load(const char* filename);
 
-    /// @param name Optional; accepted characters: [a-zA-Z0-9_-]
-    std::ostream &generate_dot(std::ostream &, const std::string &name = "") const;
+    /// .DOT format manipulation
+    /// @param graph_name Optional; accepted characters: [a-zA-Z0-9_-]
+    std::unique_ptr<std::string> generate_dot(const std::string &graph_name = "") const;
+    void save_to_dot (const char* filename,   const std::string &graph_name = "") const;
+
+    /// .JSON format manipulation
+    std::unique_ptr<nlohmann::json> generate_json() const;
+    void save_to_json  (const char* filename) const;
+    void parse_from_json(std::istream &);
+    [[deprecated]] void DEBUG_load_from_json_rust(const char*);
+
+    /// graph format manipulation
+    std::unique_ptr<std::string> generate_grp() const;
+    void save_to_grp  (const char* filename) const;
+    void parse_from_grp(std::istream &);
 
     ///
     //! @section Bool operators
@@ -313,19 +379,278 @@ class graph {
     template<class K, class D, class C, Nature N> bool operator!=(const graph<K, D, C, N> &) const noexcept;
 
     /// CRTP: https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern
-    class node : public basic_node<T, Cost, iterator, const_iterator> {
+    class node : public basic_node<graphed_type, cost_type, iterator, const_iterator> {
       public:
         explicit node();
 
-        explicit node(const T &);
+        explicit node(const graphed_type &);
 
-        node &operator=(const T &);
+        node &operator=(const graphed_type &);
 
       private:
         friend class graph;
 
         void set_iterator_values(iterator this_, iterator end, const_iterator cend);
     };
+
+    ///
+    //! @section Search algorithms
+    ///
+
+    ///
+    /// @brief Breadth-First Search class
+    /// @see https://en.wikipedia.org/wiki/Breadth-First_Search
+    /// @since version 1.1
+    ///
+    search_path bfs(key_type       start, key_type                            target)      const;
+    search_path bfs(key_type       start, std::list<key_type>                 target_list) const;
+    search_path bfs(key_type       start, std::function<bool(key_type)>       is_goal)     const;
+
+    search_path bfs(const_iterator start, const_iterator                      target)      const;
+    search_path bfs(const_iterator start, std::list<const_iterator>           target_list) const;
+    search_path bfs(const_iterator start, std::function<bool(const_iterator)> is_goal)     const;
+
+    ///
+    /// @brief Depth-First Search class
+    /// @see https://en.wikipedia.org/wiki/Depth-First_Search
+    /// @since version 1.1
+    ///
+    search_path dfs(key_type       start, key_type                            target)      const;
+    search_path dfs(key_type       start, std::list<key_type>                 target_list) const;
+    search_path dfs(key_type       start, std::function<bool(key_type)>       is_goal)     const;
+
+    search_path dfs(const_iterator start, const_iterator                      target)      const;
+    search_path dfs(const_iterator start, std::list<const_iterator>           target_list) const;
+    search_path dfs(const_iterator start, std::function<bool(const_iterator)> is_goal)     const;
+
+    ///
+    /// @brief Depth-Limited Search class
+    /// @see https://en.wikipedia.org/wiki/Iterative_Deepening_Depth-First_Search
+    /// @param depth Predetermined depth limit to create a Depth-Limited Search (fix DFS's loop problem). Have to be well choose, in function of the problem.
+    /// @since version 1.1
+    ///
+    search_path dls(key_type       start, key_type                            target,      size_type depth) const;
+    search_path dls(key_type       start, std::list<key_type>                 target_list, size_type depth) const;
+    search_path dls(key_type       start, std::function<bool(key_type)>       is_goal,     size_type depth) const;
+
+    search_path dls(const_iterator start, const_iterator                      target,      size_type depth) const;
+    search_path dls(const_iterator start, std::list<const_iterator>           target_list, size_type depth) const;
+    search_path dls(const_iterator start, std::function<bool(const_iterator)> is_goal,     size_type depth) const;
+
+    ///
+    /// @brief Iterative-Deepening Depth-First Search
+    /// @see https://en.wikipedia.org/wiki/Iterative_Deepening_Depth-First_Search
+    /// @since version 1.1
+    ///
+    search_path iddfs(key_type       start, key_type                            target)      const;
+    search_path iddfs(key_type       start, std::list<key_type>                 target_list) const;
+    search_path iddfs(key_type       start, std::function<bool(key_type)>       is_goal)     const;
+
+    search_path iddfs(const_iterator start, const_iterator                      target)      const;
+    search_path iddfs(const_iterator start, std::list<const_iterator>           target_list) const;
+    search_path iddfs(const_iterator start, std::function<bool(const_iterator)> is_goal)     const;
+
+    ///
+    /// @brief Uniform-Cost Search
+    /// @see https://en.wikipedia.org/wiki/Talk:Uniform-Cost_Search
+    /// @since version 1.1
+    ///
+    search_path ucs(key_type       start, key_type                            target)      const;
+    search_path ucs(key_type       start, std::list<key_type>                 target_list) const;
+    search_path ucs(key_type       start, std::function<bool(key_type)>       is_goal)     const;
+
+    search_path ucs(const_iterator start, const_iterator                      target)      const;
+    search_path ucs(const_iterator start, std::list<const_iterator>           target_list) const;
+    search_path ucs(const_iterator start, std::function<bool(const_iterator)> is_goal)     const;
+
+    ///
+    /// @brief A* shortest path algorithm
+    ///
+    /// Computes the shortest path from @param start to @param target, including the total path cost.
+    /// @param target is implicitly given via the @is_goal call_back, which should return `true` if the given node is the target node.
+    /// Edge costs must be non-negative. Use Bellman-Ford's algorithm instead.
+    /// The function @param heuristic should return the estimated cost to the target for a particular node. For the algorithm to find the actual shortest path, it should be admissible, meaning that it should never overestimate the actual cost to get nearest goal node. Estimate costs must also be non-negative.
+    ///
+    /// @see https://en.wikipedia.org/wiki/A*_search_algorithm
+    /// @since version 1.1
+    ///
+    search_path astar(key_type       start, key_type                            target,      std::function<cost_type(const_iterator)> heuristic) const;
+    search_path astar(key_type       start, std::list<key_type>                 target_list, std::function<cost_type(const_iterator)> heuristic) const;
+    search_path astar(key_type       start, std::function<bool(key_type)>       is_goal,     std::function<cost_type(const_iterator)> heuristic) const;
+
+    search_path astar(const_iterator start, const_iterator                      target,      std::function<cost_type(const_iterator)> heuristic) const;
+    search_path astar(const_iterator start, std::list<const_iterator>           target_list, std::function<cost_type(const_iterator)> heuristic) const;
+    search_path astar(const_iterator start, std::function<bool(const_iterator)> is_goal,     std::function<cost_type(const_iterator)> heuristic) const;
+
+    ///
+    /// @brief Dijkstra Search
+    ///
+    /// Computes the shortest paths from @param start to every reachable node.
+    /// Edge costs must be non-negative.
+    /// If a particular target is given, then the algorithm terminates once the goal node's cost is calculated.
+    ///
+    /// @see https://en.wikipedia.org/wiki/dijkstra%27s_algorithm
+    /// @since version 1.1
+    ///
+    shortest_paths dijkstra(key_type       start)                                                  const;
+    shortest_paths dijkstra(key_type       start, key_type                            target)      const;
+    shortest_paths dijkstra(key_type       start, std::list<key_type>                 target_list) const;
+    shortest_paths dijkstra(key_type       start, std::function<bool(key_type)>       is_goal)     const;
+
+    shortest_paths dijkstra(const_iterator start)                                                  const;
+    shortest_paths dijkstra(const_iterator start, const_iterator                      target)      const;
+    shortest_paths dijkstra(const_iterator start, std::list<const_iterator>           target_list) const;
+    shortest_paths dijkstra(const_iterator start, std::function<bool(const_iterator)> is_goal)     const;
+
+    ///
+    /// @brief Bellman-Ford Search
+    ///
+    /// Computes shortest paths from node @param start to every reachable node.
+    /// Negative edge costs are permitted, but the graph must not have a cycle of negative weights.
+    ///
+    /// @see https://en.wikipedia.org/wiki/Bellman%E2%80%93Ford_algorithm
+    /// @since version 1.1
+    ///
+    shortest_paths bellman_ford(key_type       start) const;
+    shortest_paths bellman_ford(const_iterator start) const;
+
+    class search_path final : private std::deque<std::pair<graph::const_iterator, cost_type>> {
+        template <bool> friend search_path graph::abstract_first_search(graph::const_iterator, std::function<bool(const_iterator)>) const;
+
+        friend search_path graph::dls   (graph::const_iterator, std::function<bool(const_iterator)>, size_type)                                const;
+        friend search_path graph::iddfs (graph::const_iterator, std::function<bool(const_iterator)>)                                           const;
+        friend search_path graph::ucs   (graph::const_iterator, std::function<bool(const_iterator)>)                                           const;
+        friend search_path graph::astar (graph::const_iterator, std::function<bool(const_iterator)>, std::function<cost_type(const_iterator)>) const;
+
+        friend class shortest_paths;
+
+        friend bool path_comparator::operator()(const search_path &, const search_path &) const;
+
+        using Container = std::deque<std::pair<graph::const_iterator, cost_type>>;
+
+      public:
+        using value_type             = typename Container::value_type;
+        using reference              = typename Container::reference;
+        using const_reference        = typename Container::const_reference;
+        using iterator               = typename Container::iterator;
+        using const_iterator         = typename Container::const_iterator;
+        using reverse_iterator       = typename Container::reverse_iterator;
+        using const_reverse_iterator = typename Container::const_reverse_iterator;
+
+        using Container::begin;
+        using Container::cbegin;
+        using Container::rbegin;
+        using Container::crbegin;
+        using Container::end;
+        using Container::cend;
+        using Container::rend;
+        using Container::crend;
+
+        search_path() = default;
+        search_path(const search_path &);
+        virtual ~search_path() = default;
+
+        using Container::empty;
+        using Container::size;
+        using Container::clear;
+        using Container::front;
+        using Container::pop_front;
+        using Container::swap;
+
+        using Container::push_back;
+        using Container::emplace_back;
+
+        cost_type total_cost() const;
+
+        bool contain(const graph::const_iterator &) const;
+
+        friend std::ostream &operator<<(std::ostream &os, const typename graph::search_path &sp) {
+            cost_type count{};
+            for (const std::pair<typename graph<Key, T, cost_type, Nat>::const_iterator, cost_type> &p : sp) {
+                os << "-> " << p.first->first << " (" << (count += p.second) << ") ";
+            }
+            return os;
+        }
+    };
+
+    ///
+    /// @brief Return data of shortest paths from a single source node to all the other nodes
+    ///
+    /// Data structure as a map<destination_node, pair<previous_node, distance>>
+    /// Used by Dijkstra and Bellman-Ford algorithms
+    ///
+    /// @since version 1.1
+    ///
+    class shortest_paths final : private std::map<graph::const_iterator, std::pair<graph::const_iterator, cost_type>, iterator_comparator> {
+        graph::const_iterator _start;
+
+        friend shortest_paths graph::dijkstra    (graph::const_iterator, std::function<bool(const_iterator)>) const;
+        friend shortest_paths graph::bellman_ford(graph::const_iterator)                                      const;
+
+        using Container = std::map<graph::const_iterator, std::pair<graph::const_iterator, cost_type>, iterator_comparator>;
+
+        shortest_paths(graph::const_iterator start);
+
+      public:
+        using value_type             = typename Container::value_type;
+        using mapped_type            = typename Container::mapped_type;
+        using reference              = typename Container::reference;
+        using const_reference        = typename Container::const_reference;
+        using iterator               = typename Container::iterator;
+        using const_iterator         = typename Container::const_iterator;
+        using reverse_iterator       = typename Container::reverse_iterator;
+        using const_reverse_iterator = typename Container::const_reverse_iterator;
+
+        using Container::begin;
+        using Container::cbegin;
+        using Container::rbegin;
+        using Container::crbegin;
+        using Container::end;
+        using Container::cend;
+        using Container::rend;
+        using Container::crend;
+
+        shortest_paths(const shortest_paths &);
+        virtual ~shortest_paths() = default;
+
+        using Container::empty;
+        using Container::size;
+
+        //! @return the father of current in the optimal path from _start to current
+        inline graph::const_iterator get_previous(graph::const_iterator current) const;
+
+        //! @return the re-build path from the start node to the target
+        search_path get_path(graph::key_type target) const;
+        search_path get_path(graph::const_iterator target) const;
+
+        friend std::ostream &operator<<(std::ostream &os, const shortest_paths &sp) {
+            for (auto p : sp) {
+                os << sp.get_path(p.first) << std::endl;
+            }
+            return os;
+        }
+    };
+
+  private:
+    //! Helper functions and classes
+    class path_comparator : public std::binary_function<search_path, search_path, bool> {
+      private:
+        std::function<cost_type(const_iterator)> _heuristic;
+
+      public:
+        explicit path_comparator(std::function<cost_type(const_iterator)> heuristic);
+
+        bool operator() (const search_path &, const search_path &) const;
+    };
+
+    struct iterator_comparator : public std::binary_function<const_iterator, const_iterator, bool> {
+        bool operator()(const const_iterator &, const const_iterator &) const;
+    };
+
+    bool is_cyclic_rec(const_iterator current, std::list<const_iterator> path) const;
+
+    /// @tparam insertFront Specialization parameter between dfs (`true`) and bfs (`false`) using respectively a `std::stack` and a `std::queue`
+    template <bool insertFront> search_path abstract_first_search(const_iterator start, std::function<bool(const_iterator)> is_goal)     const;
 };
 
 template <class Key, class T, class Cost = std::size_t>

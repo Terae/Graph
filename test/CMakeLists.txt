@@ -69,6 +69,11 @@ endif()
 # Catch library with the main function to speed up build #
 ##########################################################
 
+execute_process(
+        COMMAND git submodule update --init ${Graph_SOURCE_DIR}/test/third-party/catch
+        WORKING_DIRECTORY ${Graph_SOURCE_DIR}
+)
+
 add_library(catch_main OBJECT "src/unit.cpp")
 
 set_target_properties(catch_main PROPERTIES
@@ -77,7 +82,7 @@ set_target_properties(catch_main PROPERTIES
                       COMPILE_DEFINITIONS "$<$<CXX_COMPILER_ID:MSVC>:_SCL_SECURE_NO_WARNINGS>"
                       COMPILE_OPTIONS "$<$<CXX_COMPILER_ID:MSVC>:/EHsc;$<$<CONFIG:Release>:/Od>>"
                       )
-target_include_directories(catch_main PRIVATE "third-party/catch/single_include")
+target_include_directories(catch_main PRIVATE "third-party/catch/single_include/catch2")
 
 # https://stackoverflow.com/questions/2368811/how-to-set-warning-level-in-cmake
 if(MSVC)
@@ -99,6 +104,7 @@ endif()
 ##########################################
 
 file(GLOB files "src/unit-*.cpp")
+list(REMOVE_ITEM files "${CMAKE_SOURCE_DIR}/test/src/unit-nodes.cpp")
 foreach(file ${files})
     get_filename_component(file_basename ${file} NAME_WE)
     string(REGEX REPLACE "unit-([^$]+)" "test-graph-\\1" testcase ${file_basename})
@@ -110,7 +116,7 @@ foreach(file ${files})
                           )
     enable_all_warnings(${testcase})
     target_compile_definitions(${testcase} PRIVATE CATCH_CONFIG_FAST_COMPILE)
-    target_include_directories(${testcase} PRIVATE "src" "third-party/catch/single_include")
+    target_include_directories(${testcase} PRIVATE "src" "third-party/catch/single_include/catch2")
 
     add_test(NAME "${testcase}_default"
              COMMAND ${testcase} ${CATCH_TEST_FILTER}
@@ -145,7 +151,7 @@ add_executable(${GRAPH_UNITTEST_TARGET_NAME}
 
 enable_all_warnings("check_graph")
 
-target_include_directories(${GRAPH_UNITTEST_TARGET_NAME} PRIVATE "src" "third-party/catch/single_include")
+target_include_directories(${GRAPH_UNITTEST_TARGET_NAME} PRIVATE "src" "third-party/catch/single_include/catch2")
 
 add_test(NAME "${GRAPH_UNITTEST_TARGET_NAME}_default"
          COMMAND ${GRAPH_UNITTEST_TARGET_NAME}

@@ -1,0 +1,1565 @@
+{
+    "edges": [
+        {
+            "cost": 0,
+            "from": "END",
+            "to": "NODE_15"
+        },
+        {
+            "cost": 0,
+            "from": "END",
+            "to": "NODE_17"
+        },
+        {
+            "cost": 0,
+            "from": "END",
+            "to": "NODE_24"
+        },
+        {
+            "cost": 0,
+            "from": "END",
+            "to": "NODE_25"
+        },
+        {
+            "cost": 0,
+            "from": "END",
+            "to": "NODE_27"
+        },
+        {
+            "cost": 0,
+            "from": "END",
+            "to": "NODE_28"
+        },
+        {
+            "cost": 0,
+            "from": "END",
+            "to": "NODE_29"
+        },
+        {
+            "cost": 0,
+            "from": "END",
+            "to": "NODE_3"
+        },
+        {
+            "cost": 0,
+            "from": "END",
+            "to": "NODE_33"
+        },
+        {
+            "cost": 0,
+            "from": "END",
+            "to": "NODE_9"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_0",
+            "to": "NODE_12"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_0",
+            "to": "NODE_16"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_0",
+            "to": "NODE_17"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_0",
+            "to": "NODE_24"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_0",
+            "to": "NODE_26"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_0",
+            "to": "NODE_28"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_0",
+            "to": "NODE_29"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_0",
+            "to": "NODE_30"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_0",
+            "to": "NODE_34"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_1",
+            "to": "NODE_0"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_1",
+            "to": "NODE_10"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_1",
+            "to": "NODE_17"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_1",
+            "to": "NODE_26"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_1",
+            "to": "NODE_27"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_1",
+            "to": "NODE_29"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_1",
+            "to": "NODE_31"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_1",
+            "to": "NODE_35"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_1",
+            "to": "START"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_10",
+            "to": "NODE_11"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_11",
+            "to": "NODE_10"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_11",
+            "to": "NODE_12"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_12",
+            "to": "NODE_10"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_19",
+            "to": "NODE_2"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_19",
+            "to": "NODE_21"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_19",
+            "to": "NODE_23"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_19",
+            "to": "NODE_3"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_19",
+            "to": "NODE_38"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_19",
+            "to": "NODE_39"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_19",
+            "to": "NODE_4"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_19",
+            "to": "NODE_6"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_2",
+            "to": "NODE_12"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_2",
+            "to": "NODE_19"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_2",
+            "to": "NODE_21"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_2",
+            "to": "NODE_22"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_2",
+            "to": "NODE_30"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_2",
+            "to": "NODE_37"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_2",
+            "to": "NODE_39"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_2",
+            "to": "NODE_4"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_2",
+            "to": "NODE_5"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_20",
+            "to": "NODE_13"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_20",
+            "to": "NODE_19"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_20",
+            "to": "NODE_2"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_20",
+            "to": "NODE_21"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_20",
+            "to": "NODE_25"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_20",
+            "to": "NODE_31"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_20",
+            "to": "NODE_37"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_20",
+            "to": "NODE_38"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_20",
+            "to": "NODE_4"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_20",
+            "to": "NODE_8"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_21",
+            "to": "NODE_14"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_21",
+            "to": "NODE_19"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_21",
+            "to": "NODE_2"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_21",
+            "to": "NODE_20"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_21",
+            "to": "NODE_24"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_21",
+            "to": "NODE_32"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_21",
+            "to": "NODE_37"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_21",
+            "to": "NODE_38"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_21",
+            "to": "NODE_39"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_21",
+            "to": "NODE_7"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_22",
+            "to": "NODE_2"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_22",
+            "to": "NODE_23"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_22",
+            "to": "NODE_24"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_22",
+            "to": "NODE_25"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_22",
+            "to": "NODE_27"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_22",
+            "to": "NODE_28"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_22",
+            "to": "NODE_33"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_22",
+            "to": "NODE_38"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_22",
+            "to": "NODE_6"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_22",
+            "to": "NODE_7"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_22",
+            "to": "NODE_8"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_23",
+            "to": "NODE_11"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_23",
+            "to": "NODE_19"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_23",
+            "to": "NODE_22"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_23",
+            "to": "NODE_24"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_23",
+            "to": "NODE_25"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_23",
+            "to": "NODE_27"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_23",
+            "to": "NODE_28"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_23",
+            "to": "NODE_29"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_23",
+            "to": "NODE_34"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_23",
+            "to": "NODE_37"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_23",
+            "to": "NODE_5"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_23",
+            "to": "NODE_7"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_23",
+            "to": "NODE_8"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_24",
+            "to": "NODE_25"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_24",
+            "to": "NODE_35"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_24",
+            "to": "NODE_4"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_24",
+            "to": "NODE_5"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_24",
+            "to": "NODE_6"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_24",
+            "to": "NODE_8"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_25",
+            "to": "NODE_18"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_25",
+            "to": "NODE_20"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_25",
+            "to": "NODE_22"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_25",
+            "to": "NODE_23"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_25",
+            "to": "NODE_24"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_25",
+            "to": "NODE_25"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_25",
+            "to": "NODE_36"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_25",
+            "to": "NODE_39"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_25",
+            "to": "NODE_5"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_25",
+            "to": "NODE_6"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_25",
+            "to": "NODE_7"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_26",
+            "to": "NODE_0"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_26",
+            "to": "NODE_1"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_26",
+            "to": "NODE_11"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_26",
+            "to": "NODE_15"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_26",
+            "to": "NODE_26"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_26",
+            "to": "NODE_27"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_26",
+            "to": "NODE_28"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_26",
+            "to": "NODE_29"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_26",
+            "to": "NODE_3"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_26",
+            "to": "NODE_33"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_27",
+            "to": "END"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_27",
+            "to": "NODE_1"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_27",
+            "to": "NODE_12"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_27",
+            "to": "NODE_16"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_27",
+            "to": "NODE_23"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_27",
+            "to": "NODE_24"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_27",
+            "to": "NODE_26"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_27",
+            "to": "NODE_28"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_27",
+            "to": "NODE_29"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_27",
+            "to": "NODE_30"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_27",
+            "to": "NODE_34"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_31",
+            "to": "NODE_1"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_31",
+            "to": "NODE_11"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_31",
+            "to": "NODE_12"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_31",
+            "to": "NODE_14"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_31",
+            "to": "NODE_20"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_31",
+            "to": "NODE_28"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_31",
+            "to": "NODE_3"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_31",
+            "to": "NODE_30"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_31",
+            "to": "NODE_32"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_31",
+            "to": "NODE_39"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_32",
+            "to": "NODE_11"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_32",
+            "to": "NODE_12"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_32",
+            "to": "NODE_13"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_32",
+            "to": "NODE_21"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_32",
+            "to": "NODE_29"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_32",
+            "to": "NODE_3"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_32",
+            "to": "NODE_30"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_32",
+            "to": "NODE_31"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_32",
+            "to": "NODE_4"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_33",
+            "to": "END"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_33",
+            "to": "NODE_16"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_33",
+            "to": "NODE_17"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_33",
+            "to": "NODE_18"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_33",
+            "to": "NODE_22"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_33",
+            "to": "NODE_26"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_33",
+            "to": "NODE_34"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_33",
+            "to": "NODE_35"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_33",
+            "to": "NODE_36"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_33",
+            "to": "NODE_5"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_34",
+            "to": "NODE_0"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_34",
+            "to": "NODE_15"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_34",
+            "to": "NODE_17"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_34",
+            "to": "NODE_18"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_34",
+            "to": "NODE_23"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_34",
+            "to": "NODE_27"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_34",
+            "to": "NODE_33"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_34",
+            "to": "NODE_35"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_34",
+            "to": "NODE_36"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_34",
+            "to": "NODE_6"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_35",
+            "to": "NODE_1"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_35",
+            "to": "NODE_15"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_35",
+            "to": "NODE_16"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_35",
+            "to": "NODE_18"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_35",
+            "to": "NODE_24"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_35",
+            "to": "NODE_28"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_35",
+            "to": "NODE_33"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_35",
+            "to": "NODE_34"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_35",
+            "to": "NODE_36"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_35",
+            "to": "NODE_7"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_36",
+            "to": "NODE_10"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_36",
+            "to": "NODE_15"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_36",
+            "to": "NODE_16"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_36",
+            "to": "NODE_17"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_36",
+            "to": "NODE_25"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_36",
+            "to": "NODE_29"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_36",
+            "to": "NODE_33"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_36",
+            "to": "NODE_34"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_36",
+            "to": "NODE_35"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_36",
+            "to": "NODE_8"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_37",
+            "to": "NODE_11"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_37",
+            "to": "NODE_2"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_37",
+            "to": "NODE_20"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_37",
+            "to": "NODE_21"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_37",
+            "to": "NODE_23"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_37",
+            "to": "NODE_3"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_37",
+            "to": "NODE_38"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_37",
+            "to": "NODE_39"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_37",
+            "to": "NODE_4"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_37",
+            "to": "NODE_6"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_38",
+            "to": "NODE_12"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_38",
+            "to": "NODE_19"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_38",
+            "to": "NODE_20"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_38",
+            "to": "NODE_21"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_38",
+            "to": "NODE_22"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_38",
+            "to": "NODE_30"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_38",
+            "to": "NODE_37"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_38",
+            "to": "NODE_39"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_38",
+            "to": "NODE_4"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_38",
+            "to": "NODE_5"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_39",
+            "to": "NODE_0"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_39",
+            "to": "NODE_13"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_39",
+            "to": "NODE_19"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_39",
+            "to": "NODE_2"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_39",
+            "to": "NODE_21"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_39",
+            "to": "NODE_25"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_39",
+            "to": "NODE_31"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_39",
+            "to": "NODE_37"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_39",
+            "to": "NODE_38"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_39",
+            "to": "NODE_4"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_39",
+            "to": "NODE_8"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_4",
+            "to": "NODE_0"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_4",
+            "to": "NODE_14"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_4",
+            "to": "NODE_19"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_4",
+            "to": "NODE_2"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_4",
+            "to": "NODE_20"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_4",
+            "to": "NODE_24"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_4",
+            "to": "NODE_32"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_4",
+            "to": "NODE_37"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_4",
+            "to": "NODE_38"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_4",
+            "to": "NODE_39"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_4",
+            "to": "NODE_7"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_5",
+            "to": "NODE_0"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_5",
+            "to": "NODE_15"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_5",
+            "to": "NODE_2"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_5",
+            "to": "NODE_23"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_5",
+            "to": "NODE_24"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_5",
+            "to": "NODE_25"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_5",
+            "to": "NODE_33"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_5",
+            "to": "NODE_38"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_5",
+            "to": "NODE_6"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_5",
+            "to": "NODE_7"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_5",
+            "to": "NODE_8"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_6",
+            "to": "NODE_0"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_6",
+            "to": "NODE_16"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_6",
+            "to": "NODE_19"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_6",
+            "to": "NODE_22"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_6",
+            "to": "NODE_24"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_6",
+            "to": "NODE_25"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_6",
+            "to": "NODE_34"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_6",
+            "to": "NODE_37"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_6",
+            "to": "NODE_5"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_6",
+            "to": "NODE_7"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_6",
+            "to": "NODE_8"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_7",
+            "to": "NODE_0"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_7",
+            "to": "NODE_17"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_7",
+            "to": "NODE_21"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_7",
+            "to": "NODE_22"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_7",
+            "to": "NODE_23"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_7",
+            "to": "NODE_25"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_7",
+            "to": "NODE_35"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_7",
+            "to": "NODE_4"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_7",
+            "to": "NODE_5"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_7",
+            "to": "NODE_6"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_7",
+            "to": "NODE_8"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_8",
+            "to": "NODE_0"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_8",
+            "to": "NODE_18"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_8",
+            "to": "NODE_20"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_8",
+            "to": "NODE_22"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_8",
+            "to": "NODE_23"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_8",
+            "to": "NODE_24"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_8",
+            "to": "NODE_36"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_8",
+            "to": "NODE_39"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_8",
+            "to": "NODE_5"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_8",
+            "to": "NODE_6"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_8",
+            "to": "NODE_7"
+        },
+        {
+            "cost": 0,
+            "from": "NODE_9",
+            "to": "END"
+        },
+        {
+            "cost": 0,
+            "from": "START",
+            "to": "NODE_1"
+        }
+    ],
+    "nature": 100,
+    "nodes": [
+        {
+            "key": "END",
+            "value": 0
+        },
+        {
+            "key": "NODE_0",
+            "value": 0
+        },
+        {
+            "key": "NODE_1",
+            "value": 0
+        },
+        {
+            "key": "NODE_10",
+            "value": 0
+        },
+        {
+            "key": "NODE_11",
+            "value": 0
+        },
+        {
+            "key": "NODE_12",
+            "value": 0
+        },
+        {
+            "key": "NODE_13",
+            "value": 0
+        },
+        {
+            "key": "NODE_14",
+            "value": 0
+        },
+        {
+            "key": "NODE_15",
+            "value": 0
+        },
+        {
+            "key": "NODE_16",
+            "value": 0
+        },
+        {
+            "key": "NODE_17",
+            "value": 0
+        },
+        {
+            "key": "NODE_18",
+            "value": 0
+        },
+        {
+            "key": "NODE_19",
+            "value": 0
+        },
+        {
+            "key": "NODE_2",
+            "value": 0
+        },
+        {
+            "key": "NODE_20",
+            "value": 0
+        },
+        {
+            "key": "NODE_21",
+            "value": 0
+        },
+        {
+            "key": "NODE_22",
+            "value": 0
+        },
+        {
+            "key": "NODE_23",
+            "value": 0
+        },
+        {
+            "key": "NODE_24",
+            "value": 0
+        },
+        {
+            "key": "NODE_25",
+            "value": 0
+        },
+        {
+            "key": "NODE_26",
+            "value": 0
+        },
+        {
+            "key": "NODE_27",
+            "value": 0
+        },
+        {
+            "key": "NODE_28",
+            "value": 0
+        },
+        {
+            "key": "NODE_29",
+            "value": 0
+        },
+        {
+            "key": "NODE_3",
+            "value": 0
+        },
+        {
+            "key": "NODE_30",
+            "value": 0
+        },
+        {
+            "key": "NODE_31",
+            "value": 0
+        },
+        {
+            "key": "NODE_32",
+            "value": 0
+        },
+        {
+            "key": "NODE_33",
+            "value": 0
+        },
+        {
+            "key": "NODE_34",
+            "value": 0
+        },
+        {
+            "key": "NODE_35",
+            "value": 0
+        },
+        {
+            "key": "NODE_36",
+            "value": 0
+        },
+        {
+            "key": "NODE_37",
+            "value": 0
+        },
+        {
+            "key": "NODE_38",
+            "value": 0
+        },
+        {
+            "key": "NODE_39",
+            "value": 0
+        },
+        {
+            "key": "NODE_4",
+            "value": 0
+        },
+        {
+            "key": "NODE_5",
+            "value": 0
+        },
+        {
+            "key": "NODE_6",
+            "value": 0
+        },
+        {
+            "key": "NODE_7",
+            "value": 0
+        },
+        {
+            "key": "NODE_8",
+            "value": 0
+        },
+        {
+            "key": "NODE_9",
+            "value": 0
+        },
+        {
+            "key": "START",
+            "value": 0
+        }
+    ]
+}

@@ -23,6 +23,7 @@
 
 #include <functional> /// function
 #include <limits>     /// numeric_limits
+#include <sstream>
 
 /// #define COUNT_ARGS(...) std::tuple_size<decltype(std::make_tuple(__VA_ARGS__))>::value
 
@@ -57,7 +58,9 @@ namespace detail {
     /// - @ref parse_error for exceptions indicating a parse error
     /// - @ref bad_graph for exceptions indicating a graph-logical error in the usage of the @ref graph class
     /// - @ref negative_edge for exceptions indicating a negative edge error, throwable in some search algorithms
+    /// - @ref negative_weight_cycle for exceptions indicating a negative-weight cycle error, throwable in some search algorithms
     /// - @ref not_complete for exceptions indicating a non-complete graph error, throwable in some search algorithms
+    /// - @ref has_cycle for exceptions indicating a cycle error, throwable in some algorithms
     ///
     /// @since version 1.0.0
     ///
@@ -89,7 +92,9 @@ namespace detail {
     /// @sa @ref parse_error for exceptions indicating a parse error
     /// @sa @ref bad_graph for exceptions indicating a graph-logical error in the usage of the @ref graph class
     /// @sa @ref negative_edge for exceptions indicating a negative edge error, throwable in some search algorithms
+    /// @sa @ref negative_weight_cycle for exceptions indicating a negative-weight cycle error, throwable in some search algorithms
     /// @sa @ref not_complete for exceptions indicating a non-complete graph error, throwable in some search algorithms
+    /// @sa @ref has_cycle for exceptions indicating a cycle error, throwable in some algorithms
     ///
     /// @since version 1.0.0
     ///
@@ -122,7 +127,9 @@ namespace detail {
     /// @sa @ref parse_error for exceptions indicating a parse error
     /// @sa @ref bad_graph for exceptions indicating a graph-logical error in the usage of the @ref graph class
     /// @sa @ref negative_edge for exceptions indicating a negative edge error, throwable in some search algorithms
+    /// @sa @ref negative_weight_cycle for exceptions indicating a negative-weight cycle error, throwable in some search algorithms
     /// @sa @ref not_complete for exceptions indicating a non-complete graph error, throwable in some search algorithms
+    /// @sa @ref has_cycle for exceptions indicating a cycle error, throwable in some algorithms
     ///
     /// @since version 1.0.0
     ///
@@ -160,7 +167,9 @@ namespace detail {
     /// @sa @ref unexpected_nullptr for exceptions indicating an unexpected nullptr in entry
     /// @sa @ref bad_graph for exceptions indicating a graph-logical error in the usage of the @ref graph class
     /// @sa @ref negative_edge for exceptions indicating a negative edge error, throwable in some search algorithms
+    /// @sa @ref negative_weight_cycle for exceptions indicating a negative-weight cycle error, throwable in some search algorithms
     /// @sa @ref not_complete for exceptions indicating a non-complete graph error, throwable in some search algorithms
+    /// @sa @ref has_cycle for exceptions indicating a cycle error, throwable in some algorithms
     ///
     /// @since version 1.0.0
     ///
@@ -204,13 +213,16 @@ namespace detail {
     ///
     /// Subclasses:
     /// - @ref negative_edge for exceptions indicating a negative edge error, throwable in some search algorithms
+    /// - @ref negative_weight_cycle for exceptions indicating a negative-weight cycle error, throwable in some search algorithms
     /// - @ref not_complete for exceptions indicating a non-complete graph error, throwable in some search algorithms
+    /// - @ref has_cycle for exceptions indicating a cycle error, throwable in some algorithms
     ///
     /// @sa @ref exception for the base class of the library exceptions
     /// @sa @ref invalid_argument for exceptions indicating invalid arguments given to some function
     /// @sa @ref unexpected_nullptr for exceptions indicating an unexpected nullptr in entry
     /// @sa @ref parse_error for exceptions indicating a parse error
     /// @sa @ref negative_edge for exceptions indicating a negative edge error, throwable in some search algorithms
+    /// @sa @ref negative_weight_cycle for exceptions indicating a negative-weight cycle error, throwable in some search algorithms
     /// @sa @ref not_complete for exceptions indicating a non-complete graph error, throwable in some search algorithms
     ///
     /// @since version 1.0.0
@@ -235,7 +247,9 @@ namespace detail {
     /// @sa @ref unexpected_nullptr for exceptions indicating an unexpected nullptr in entry
     /// @sa @ref parse_error for exceptions indicating a parse error
     /// @sa @ref bad_graph for exceptions indicating a graph-logical error in the usage of the @ref graph class
+    /// @sa @ref negative_weight_cycle for exceptions indicating a negative-weight cycle error, throwable in some search algorithms
     /// @sa @ref not_complete for exceptions indicating a non-complete graph error, throwable in some search algorithms
+    /// @sa @ref has_cycle for exceptions indicating a cycle error, throwable in some algorithms
     ///
     /// @since version 1.0.0
     ///
@@ -257,6 +271,40 @@ namespace detail {
     };
 
     ///
+    /// @brief exception indicating a negative edge error
+    ///
+    /// This exception is thrown by the library when a graph has at least a negative edge.
+    /// Negative edges are a problem in some search algorithms.
+    ///
+    /// @sa @ref exception for the base class of the library exceptions
+    /// @sa @ref invalid_argument for exceptions indicating invalid arguments given to some function
+    /// @sa @ref unexpected_nullptr for exceptions indicating an unexpected nullptr in entry
+    /// @sa @ref parse_error for exceptions indicating a parse error
+    /// @sa @ref bad_graph for exceptions indicating a graph-logical error in the usage of the @ref graph class
+    /// @sa @ref negative_edge for exceptions indicating a negative edge error, throwable in some search algorithms
+    /// @sa @ref not_complete for exceptions indicating a non-complete graph error, throwable in some search algorithms
+    /// @sa @ref has_cycle for exceptions indicating a cycle error, throwable in some algorithms
+    ///
+    /// @since version 1.0.0
+    ///
+    struct negative_weight_cycle final : public bad_graph {
+        ///
+        /// @brief create a negative_weight_cycle exception
+        /// @param[in] function_name the function from which the exceptions occurs (returned by the __FUNCTION__ macro)
+        /// @param[in] what_arg the explanatory string
+        /// @return unexpected_nullptr object
+        ///
+        static negative_weight_cycle create(const std::string &function_name,
+                                            const std::string &what_arg = "Negative-weight cycle") {
+            std::string w{bad_graph::name("negative_weight_cycle") + what_arg + " when calling '" + function_name + "'."};
+            return negative_weight_cycle(w.c_str());
+        }
+
+      private:
+        explicit negative_weight_cycle(const char* what_arg) : bad_graph(what_arg) {}
+    };
+
+    ///
     /// @brief exception indicating a not-complete graph error
     ///
     /// This exception is thrown by the library when a graph is not complete.
@@ -268,6 +316,8 @@ namespace detail {
     /// @sa @ref parse_error for exceptions indicating a parse error
     /// @sa @ref bad_graph for exceptions indicating a graph-logical error in the usage of the @ref graph class
     /// @sa @ref negative_edge for exceptions indicating a negative edge error, throwable in some search algorithms
+    /// @sa @ref negative_weight_cycle for exceptions indicating a negative-weight cycle error, throwable in some search algorithms
+    /// @sa @ref has_cycle for exceptions indicating a cycle error, throwable in some algorithms
     ///
     /// @since version 1.0.0
     ///
@@ -289,6 +339,40 @@ namespace detail {
     };
 
     ///
+    /// @brief exception indicating a not-complete graph error
+    ///
+    /// This exception is thrown by the library when a graph is not complete.
+    /// A non-complete graph is a problem in some search algorithms.
+    ///
+    /// @sa @ref exception for the base class of the library exceptions
+    /// @sa @ref invalid_argument for exceptions indicating invalid arguments given to some function
+    /// @sa @ref unexpected_nullptr for exceptions indicating an unexpected nullptr in entry
+    /// @sa @ref parse_error for exceptions indicating a parse error
+    /// @sa @ref bad_graph for exceptions indicating a graph-logical error in the usage of the @ref graph class
+    /// @sa @ref negative_edge for exceptions indicating a negative edge error, throwable in some search algorithms
+    /// @sa @ref negative_weight_cycle for exceptions indicating a negative-weight cycle error, throwable in some search algorithms
+    /// @sa @ref not_complete for exceptions indicating a non-complete graph error, throwable in some search algorithms
+    ///
+    /// @since version 1.0.0
+    ///
+    struct has_cycle final : public bad_graph {
+        ///
+        /// @brief create a not_complete exception
+        /// @param[in] function_name the function from which the exceptions occurs (returned by the __FUNCTION__ macro)
+        /// @param[in] what_arg the explanatory string
+        /// @return unexpected_nullptr object
+        ///
+        static has_cycle create(const std::string &function_name,
+                                const std::string &what_arg = "Graph with a cycle") {
+            std::string w{bad_graph::name("has_cycle") + what_arg + " when calling '" + function_name + "'."};
+            return has_cycle(w.c_str());
+        }
+
+      private:
+        explicit has_cycle(const char* what_arg) : bad_graph(what_arg) {}
+    };
+
+    ///
     //! SECTION degree
     ///
 
@@ -303,12 +387,14 @@ namespace detail {
     ///
     /// @since version 1.0.0
     ///
+    ///
 
     template <Nature> class basic_degree;
 
     template <> class basic_degree<DIRECTED> {
       public:
         using value_type = std::pair<std::size_t, std::size_t>;
+        using type = basic_degree<DIRECTED>;
 
         basic_degree(const value_type &degree) : _deg(degree) {};
         basic_degree(std::size_t in, std::size_t out) : basic_degree(std::make_pair(in, out)) {};
@@ -317,15 +403,18 @@ namespace detail {
             return _deg;
         }
 
-        bool operator==(const basic_degree &d) const {
-            return _deg == d._deg;
+        friend bool operator==(const type &t1, const type &t2) {
+            return t1._deg == t2._deg;
         }
-        bool operator==(const value_type &v)   const {
-            return _deg == v;
+        friend bool operator==(const value_type &v, const type &t) {
+            return t._deg == v;
+        }
+        friend bool operator==(const type &t, const value_type &v) {
+            return t._deg == v;
         }
 
-        bool operator< (const basic_degree &d) const {
-            return _deg < d._deg;
+        friend bool operator< (const type &t1, const type &t2) {
+            return t1._deg < t2._deg;
         }
 
         static basic_degree max() {
@@ -342,6 +431,7 @@ namespace detail {
     template <> class basic_degree<UNDIRECTED> {
       public:
         using value_type = std::size_t;
+        using type = basic_degree<UNDIRECTED>;
 
         basic_degree(const value_type &d) : _deg(d) {}
         basic_degree(std::size_t in, std::size_t out) : basic_degree(std::max(in, out)) {}
@@ -350,15 +440,18 @@ namespace detail {
             return _deg;
         }
 
-        bool operator==(const basic_degree &d) const {
-            return _deg == d._deg;
+        friend bool operator==(const type &t1, const type &t2) {
+            return t1._deg == t2._deg;
         }
-        bool operator==(const value_type &v)   const {
-            return _deg == v;
+        friend bool operator==(const value_type &v, const type &t) {
+            return t._deg == v;
+        }
+        friend bool operator==(const type &t, const value_type &v) {
+            return t._deg == v;
         }
 
-        bool operator< (const basic_degree &d) const {
-            return _deg < d._deg;
+        friend bool operator< (const type &t1, const type &t2) {
+            return t1._deg < t2._deg;
         }
 
         static basic_degree max() {

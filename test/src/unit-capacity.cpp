@@ -3,6 +3,7 @@
 //
 
 #include "catch.hpp"
+
 #if defined(TEST_SINGLE_HEADER_FILE)
     #include "graph.hpp"
 #else

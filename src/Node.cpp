@@ -110,7 +110,7 @@ inline Data basic_node<Data, Cost, Container, constContainer>::get() const {
 }
 
 template <class Data, class Cost, class Container, class constContainer>
-Cost &basic_node<Data, Cost, Container, constContainer>::get_cost(const Container &other) {
+Cost &basic_node<Data, Cost, Container, constContainer>::get_cost(Container other) {
     std::shared_ptr<basic_node<Data, Cost, Container, constContainer>> ptr(detail::get_value(other, end_container));
 
     if (ptr == nullptr) {
