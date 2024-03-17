@@ -66,7 +66,7 @@ namespace detail {
     ///
     struct exception : public std::exception {
         //! returns the explanatory string
-        const char* what() const noexcept override {
+        [[nodiscard]] const char* what() const noexcept override {
             return m.what();
         }
 
@@ -396,10 +396,10 @@ namespace detail {
         using value_type = std::pair<std::size_t, std::size_t>;
         using type = basic_degree<DIRECTED>;
 
-        basic_degree(const value_type &degree) : _deg(degree) {};
+        explicit basic_degree(value_type degree) : _deg(std::move(degree)) {};
         basic_degree(std::size_t in, std::size_t out) : basic_degree(std::make_pair(in, out)) {};
 
-        inline value_type get_degree() const {
+        [[nodiscard]] inline value_type get_degree() const {
             return _deg;
         }
 
@@ -418,10 +418,10 @@ namespace detail {
         }
 
         static basic_degree max() {
-            return basic_degree(std::numeric_limits<std::size_t>::max(), std::numeric_limits<std::size_t>::max());
+            return {std::numeric_limits<std::size_t>::max(), std::numeric_limits<std::size_t>::max()};
         }
         static basic_degree min() {
-            return basic_degree(std::numeric_limits<std::size_t>::min(), std::numeric_limits<std::size_t>::min());
+            return {std::numeric_limits<std::size_t>::min(), std::numeric_limits<std::size_t>::min()};
         }
 
       private:
@@ -433,10 +433,10 @@ namespace detail {
         using value_type = std::size_t;
         using type = basic_degree<UNDIRECTED>;
 
-        basic_degree(const value_type &d) : _deg(d) {}
+        explicit basic_degree(const value_type &d) : _deg(d) {}
         basic_degree(std::size_t in, std::size_t out) : basic_degree(std::max(in, out)) {}
 
-        inline value_type get_degree() const {
+        [[nodiscard]] inline value_type get_degree() const {
             return _deg;
         }
 
@@ -476,6 +476,7 @@ namespace detail {
     template <>       struct is_undirected<UNDIRECTED> : public std::true_type  { };
 
 #include <memory>
+#include <utility>
 
     //! distinguish value type between map::iterator and shared_ptr: @see https://stackoverflow.com/a/31409532
     template <typename... >
@@ -521,7 +522,7 @@ namespace detail {
     std::string type_name() {
         int status;
         std::string tname{typeid(T).name()};
-        char* demangled_name{abi::__cxa_demangle(tname.c_str(), NULL, NULL, &status)};
+        char* demangled_name{abi::__cxa_demangle(tname.c_str(), nullptr, nullptr, &status)};
 
         if (status == 0) {
             tname = demangled_name;
@@ -569,7 +570,7 @@ namespace detail {
     std::istream &read_cost(std::istream &is, C &c) {
         std::string str = std::string(std::istreambuf_iterator<char>(is),
                                       std::istreambuf_iterator<char>());
-        if (str.find_first_of("\"") == std::string::npos &&
+        if (str.find_first_of('\"') == std::string::npos &&
                 str.find_first_of("infinity") != std::string::npos)
             c = std::numeric_limits<C>::has_infinity ? std::numeric_limits<C>::infinity() :
                 std::numeric_limits<C>::max();

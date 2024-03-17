@@ -2,6 +2,8 @@
 // Created by Terae on 01/08/17.
 //
 
+#include <utility>
+
 #include "catch.hpp"
 
 #if defined(TEST_SINGLE_HEADER_FILE)
@@ -149,7 +151,7 @@ TEST_CASE("constructors") {
 
         SECTION("graph of struct types") {
             struct key {
-                explicit key(const string &n, int v) : name(n), value(v) {}
+                explicit key(string n, int v) : name(std::move(n)), value(v) {}
                 string name;
                 int value;
                 bool operator<(const key &other) const {

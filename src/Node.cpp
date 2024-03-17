@@ -95,7 +95,7 @@ basic_node<Data, Cost, Container, constContainer> &basic_node<Data, Cost, Contai
 }
 
 template <class Data, class Cost, class Container, class constContainer>
-basic_node<Data, Cost, Container, constContainer>::~basic_node() {}
+basic_node<Data, Cost, Container, constContainer>::~basic_node() = default;
 
 /// Element access
 
@@ -129,7 +129,7 @@ Cost &basic_node<Data, Cost, Container, constContainer>::get_cost(Container othe
 }
 
 template <class Data, class Cost, class Container, class constContainer>
-const Cost basic_node<Data, Cost, Container, constContainer>::get_cost(constContainer other) const {
+Cost basic_node<Data, Cost, Container, constContainer>::get_cost(constContainer other) const {
     std::shared_ptr<basic_node<Data, Cost, Container, constContainer>> ptr(detail::get_value(other, cend_container));
 
     if (ptr == nullptr) {
@@ -151,7 +151,7 @@ Cost &basic_node<Data, Cost, Container, constContainer>::operator[](Container ot
 }
 
 template <class Data, class Cost, class Container, class constContainer>
-const Cost basic_node<Data, Cost, Container, constContainer>::operator[](constContainer other) const {
+Cost basic_node<Data, Cost, Container, constContainer>::operator[](constContainer other) const {
     return get_cost(other);
 }
 

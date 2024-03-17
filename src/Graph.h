@@ -164,7 +164,7 @@ class graph {
     graph &operator=(const graph &);
 
     /// move assignment operator
-    graph &operator=(graph &&);
+    graph &operator=(graph &&) noexcept ;
 
     virtual ~graph();
 
@@ -172,11 +172,11 @@ class graph {
     //! @section Capacity
     ///
 
-    bool empty() const noexcept;
+    [[nodiscard]] bool empty() const noexcept;
 
-    size_type size() const noexcept;
+    [[nodiscard]] size_type size() const noexcept;
 
-    size_type max_size() const noexcept;
+    [[nodiscard]] size_type max_size() const noexcept;
 
     ///
     //! @section Element access
@@ -186,20 +186,20 @@ class graph {
     graphed_type &operator[](key_type &&);
 
 #if defined(GRAPH_HAS_CPP_17)
-    const std::optional<graphed_type> operator[](key_type &&) const;
+    std::optional<graphed_type> operator[](key_type &&) const;
 #else
-    const graphed_type operator[](key_type &&) const;
+    graphed_type operator[](key_type &&) const;
 #endif
 
     cost_type &operator()(iterator,         iterator);
     cost_type &operator()(const key_type &, const key_type &);
 
 #if defined(GRAPH_HAS_CPP_17)
-    const std::optional<cost_type> operator()(const_iterator,   const_iterator)   const;
-    const std::optional<cost_type> operator()(const key_type &, const key_type &) const;
+    std::optional<cost_type> operator()(const_iterator,   const_iterator)   const;
+    std::optional<cost_type> operator()(const key_type &, const key_type &) const;
 #else
-    const cost_type operator()(const_iterator,   const_iterator)   const;
-    const cost_type operator()(const key_type &, const key_type &) const;
+    cost_type operator()(const_iterator,   const_iterator)   const;
+    cost_type operator()(const key_type &, const key_type &) const;
 #endif
     ///
     //! @section Modifiers
@@ -306,6 +306,7 @@ class graph {
     template <class = typename std::enable_if<detail::is_directed<Nat>::value>>
     bool is_cyclic() const;
 
+    /*
     // TODO
     bool is_isomorphic() const;
 
@@ -342,6 +343,7 @@ class graph {
     /// Return a `vector` where each element is in the clique
     // TODO
     std::vector<const_iterator> maximum_clique() const;
+    */
 
     ///
     //! @section Text functions
@@ -589,7 +591,7 @@ class graph {
 
         using Container = std::map<graph::const_iterator, std::pair<graph::const_iterator, cost_type>, iterator_comparator>;
 
-        shortest_paths(graph::const_iterator start);
+        explicit shortest_paths(graph::const_iterator start);
 
       public:
         using value_type             = typename Container::value_type;

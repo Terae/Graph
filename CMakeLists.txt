@@ -1,5 +1,5 @@
 message(STATUS "CMake version: ${CMAKE_VERSION}")
-cmake_minimum_required(VERSION 2.8.8)
+cmake_minimum_required(VERSION 3.5)
 
 # Choose new behaviour for CMP0048
 # See https://cmake.org/cmake/help/v3.0/policy/CMP0048.html for more details

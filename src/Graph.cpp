@@ -2,6 +2,7 @@
 /// Created by Terae on 06/12/17.
 ///
 
+#include <memory>
 #include <set>
 
 template <class Key, class T, class Cost, Nature Nat>
@@ -109,7 +110,7 @@ graph<Key, T, Cost, Nat> &graph<Key, T, Cost, Nat>::operator=(const graph &g) {
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-graph<Key, T, Cost, Nat> &graph<Key, T, Cost, Nat>::operator=(graph &&g) {
+graph<Key, T, Cost, Nat> &graph<Key, T, Cost, Nat>::operator=(graph &&g) noexcept {
     //! If there is a self-reference: bug in the client part that should be fixed
     if (this == &g) {
         GRAPH_THROW_WITH(invalid_argument, "Self-reference in the client part")
@@ -119,7 +120,7 @@ graph<Key, T, Cost, Nat> &graph<Key, T, Cost, Nat>::operator=(graph &&g) {
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-graph<Key, T, Cost, Nat>::~graph() {}
+graph<Key, T, Cost, Nat>::~graph() = default;
 
 /// Capacity
 
@@ -151,13 +152,13 @@ T &graph<Key, T, Cost, Nat>::operator[](key_type &&k) {
 
 #if defined(GRAPH_HAS_CPP_17)
 template <class Key, class T, class Cost, Nature Nat>
-const std::optional<T> graph<Key, T, Cost, Nat>::operator[](key_type &&k) const {
+std::optional<T> graph<Key, T, Cost, Nat>::operator[](key_type &&k) const {
     const_iterator it{find(k)};
     return it == cend() ? std::nullopt : std::optional<T>(it->second->get());
 }
 #else
 template <class Key, class T, class Cost, Nature Nat>
-const T graph<Key, T, Cost, Nat>::operator[](key_type &&k) const {
+T graph<Key, T, Cost, Nat>::operator[](key_type &&k) const {
     const_iterator it{find(k)};
     if (it == cend()) {
         GRAPH_THROW_WITH(invalid_argument, "Unexistant node")
@@ -186,17 +187,17 @@ typename graph<Key, T, Cost, Nat>::cost_type &graph<Key, T, Cost, Nat>::operator
 
 #if defined(GRAPH_HAS_CPP_17)
 template <class Key, class T, class Cost, Nature Nat>
-const std::optional<typename graph<Key, T, Cost, Nat>::cost_type> graph<Key, T, Cost, Nat>::operator()(const_iterator it1, const_iterator it2) const {
+std::optional<typename graph<Key, T, Cost, Nat>::cost_type> graph<Key, T, Cost, Nat>::operator()(const_iterator it1, const_iterator it2) const {
     return existing_edge(it1, it2) ? std::optional<cost_type>(it1->second->get_cost(it2)) : std::nullopt;
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-const std::optional<typename graph<Key, T, Cost, Nat>::cost_type> graph<Key, T, Cost, Nat>::operator()(const key_type &k1, const key_type &k2) const {
+std::optional<typename graph<Key, T, Cost, Nat>::cost_type> graph<Key, T, Cost, Nat>::operator()(const key_type &k1, const key_type &k2) const {
     return operator()(find(k1), find(k2));
 }
 #else
 template <class Key, class T, class Cost, Nature Nat>
-const typename graph<Key, T, Cost, Nat>::cost_type graph<Key, T, Cost, Nat>::operator()(const_iterator it1, const_iterator it2) const {
+typename graph<Key, T, Cost, Nat>::cost_type graph<Key, T, Cost, Nat>::operator()(const_iterator it1, const_iterator it2) const {
     if (!existing_edge(it1, it2)) {
         GRAPH_THROW_WITH(invalid_argument, "Unexistant edge")
     }
@@ -205,7 +206,7 @@ const typename graph<Key, T, Cost, Nat>::cost_type graph<Key, T, Cost, Nat>::ope
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-const typename graph<Key, T, Cost, Nat>::cost_type graph<Key, T, Cost, Nat>::operator()(const key_type &k1, const key_type &k2) const {
+typename graph<Key, T, Cost, Nat>::cost_type graph<Key, T, Cost, Nat>::operator()(const key_type &k1, const key_type &k2) const {
     return operator()(find(k1), find(k2));
 }
 #endif
@@ -671,7 +672,7 @@ bool graph<Key, T, Cost, Nat>::is_cyclic_rec(const_iterator current, std::list<c
 
 
 
-
+/*
 template <class Key, class T, class Cost, Nature Nat>
 bool graph<Key, T, Cost, Nat>::is_isomorphic() const {
     // TODO
@@ -701,9 +702,10 @@ template <class Key, class T, class Cost, Nature Nat>
 graph<Key, T, Cost, Nat> &graph<Key, T, Cost, Nat>::condensate(bool make_acyclic) {
     // TODO
 }
+*/
 
-template <class Key, class T, class Cost, Nature Nat>
-std::vector<typename graph<Key, T, Cost, Nat>::const_iterator> graph<Key, T, Cost, Nat>::maximum_clique() const {
+//template <class Key, class T, class Cost, Nature Nat>
+//std::vector<typename graph<Key, T, Cost, Nat>::const_iterator> graph<Key, T, Cost, Nat>::maximum_clique() const {
     // TODO: fix the bug
     /// queue of all unvisited nodes which can be part of a bigger clique
     /*
@@ -814,7 +816,7 @@ std::vector<typename graph<Key, T, Cost, Nat>::const_iterator> graph<Key, T, Cos
     //                                      clique <- clique U {xi}
     //                                      candidate <- candidats ∧ { xj / (xj, xi) € A} (intersection of candidate and neighbors of xi)
     */
-}
+//}
 
 template <class Key, class T, class Cost, Nature Nat>
 std::ostream &operator<<(std::ostream &os, const graph<Key, T, Cost, Nat> &g) {
@@ -841,8 +843,8 @@ std::istream &operator>>(std::istream &is, graph<Key, T, Cost, Nat> &g) {
 template <class Key, class T, class Cost, Nature Nat>
 void graph<Key, T, Cost, Nat>::load(const char* filename) {
     const char* dot = strrchr(filename, '.');
-    std::string extension{""};
-    if (dot != NULL && dot != filename) {
+    std::string extension;
+    if (dot != nullptr && dot != filename) {
         extension = dot + 1;
     }
 
@@ -872,7 +874,7 @@ std::unique_ptr<std::string> graph<Key, T, Cost, Nat>::generate_dot(const std::s
     const std::string tab{"    "};
 
     //! Displaying nature + graph name
-    if (graph_name.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-") != graph_name.npos) {
+    if (graph_name.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-") != std::string::npos) {
         GRAPH_THROW_WITH(invalid_argument, "Wrong graph name given; accepted characters: [a-zA-Z0-9_-]")
     }
 
@@ -922,7 +924,7 @@ std::unique_ptr<std::string> graph<Key, T, Cost, Nat>::generate_dot(const std::s
     }
     dot += '}';
 
-    return std::unique_ptr<std::string>(new std::string(std::forward<std::string>(dot)));
+    return std::make_unique<std::string>(std::forward<std::string>(dot));
 }
 
 template <class Key, class T, class Cost, Nature Nat>
@@ -958,7 +960,7 @@ std::unique_ptr<nlohmann::json> graph<Key, T, Cost, Nat>::generate_json() const 
             json["edges"][p]["cost"] = edge->cost();
         }
     }
-    return std::unique_ptr<nlohmann::json>(new nlohmann::json(std::forward<nlohmann::json>(json)));
+    return std::make_unique<nlohmann::json>(std::forward<nlohmann::json>(json));
 }
 
 template <class Key, class T, class Cost, Nature Nat>
@@ -1121,7 +1123,7 @@ std::unique_ptr<std::string> graph<Key, T, Cost, Nat>::generate_grp() const {
         data += tab + "}\n}";
     }
 
-    return std::unique_ptr<std::string>(new std::string(std::forward<std::string>(data)));
+    return std::make_unique<std::string>(std::forward<std::string>(data));
 }
 
 template <class Key, class T, class Cost, Nature Nat>
@@ -1155,7 +1157,7 @@ void graph<Key, T, Cost, Nat>::parse_from_grp(std::istream &is) {
     }
 
     clear();
-    while (getline(is, line) && line.find("}") == std::string::npos) {
+    while (getline(is, line) && line.find('}') == std::string::npos) {
         std::istringstream iss{line};
         Key key;
         T value;
@@ -1171,7 +1173,7 @@ void graph<Key, T, Cost, Nat>::parse_from_grp(std::istream &is) {
     else if (line != "    edges: {") {
         GRAPH_THROW_WITH(parse_error, static_cast<std::size_t>(is.tellg()), "Bad format for edges")
     } else {
-        while (getline(is, line) && line.find("}") == std::string::npos) {
+        while (getline(is, line) && line.find('}') == std::string::npos) {
             std::istringstream iss{line};
             key_type from;
             key_type to;
