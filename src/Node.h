@@ -118,10 +118,10 @@ class basic_node {
     inline Data get() const;
 
     Cost &get_cost(Container other);
-    const Cost  get_cost(constContainer   other) const;
+    Cost  get_cost(constContainer   other) const;
 
     Cost &operator[](Container      other);
-    const Cost  operator[](constContainer other) const;
+    Cost  operator[](constContainer other) const;
 
     ///
     //! @section Modifiers
@@ -166,7 +166,7 @@ class basic_node {
     ///
 
     /// @return pair<in degree, out degree>
-    inline std::pair<std::size_t, std::size_t> degree() const;
+    [[nodiscard]] inline std::pair<std::size_t, std::size_t> degree() const;
 
     bool existing_adjacent_node(constContainer other) const;
 };
