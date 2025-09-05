@@ -37,7 +37,7 @@ The Graph library is a STL-like library which can be used as an `std::` containe
 
 ## Integration
 
-The library is header-only. To install and use simply copy the single required file `[graph.hpp](https://github.com/terae/graph/blob/dev/single_include/graph.hpp)` in your directory. After that, all you need to do is add
+The library is header-only. To install and use simply copy the single required file [`graph.hpp`](https://raw.githubusercontent.com/terae/graph/refs/heads/main/single_include/graph.hpp) in your directory. After that, all you need to do is add
 
 ```c++
 #include "graph.hpp"
