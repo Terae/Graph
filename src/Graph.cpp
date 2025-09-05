@@ -902,9 +902,9 @@ std::unique_ptr<std::string> graph<Key, T, Cost, Nat>::generate_dot(const std::s
     }
 
     if (get_nature() == DIRECTED) {
-        for_each(cbegin(), cend(), [ =, &dot](const value_type & element) {
+        for_each(cbegin(), cend(), [this, &dot, tab](const value_type & element) {
             std::list<typename node::edge> child{element.second->get_edges()};
-            for_each(child.cbegin(), child.cend(), [ =, &dot](const typename node::edge & i) {
+            for_each(child.cbegin(), child.cend(), [this, &dot, tab, &element](const typename node::edge & i) {
                 if (i.cost() != infinity) {
                     std::stringstream ss;
                     ss << tab << element.first << " -> " << i.target()->first << '\n';
@@ -914,16 +914,16 @@ std::unique_ptr<std::string> graph<Key, T, Cost, Nat>::generate_dot(const std::s
         });
     } else { /// get_nature() == UNDIRECTED
         std::set<std::pair<Key, Key >> list_edges;
-        for_each(cbegin(), cend(), [ =, &dot, &list_edges](const value_type & element) {
+        for_each(cbegin(), cend(), [this, &dot, &list_edges](const value_type & element) {
             std::list<typename node::edge> child{element.second->get_edges()};
-            for_each(child.cbegin(), child.cend(), [ =, &dot, &list_edges](const typename node::edge & i) {
+            for_each(child.cbegin(), child.cend(), [&dot, &list_edges, &element](const typename node::edge & i) {
                 const Key min{std::min(element.first, i.target()->first)};
                 const Key max{std::max(element.first, i.target()->first)};
                 list_edges.emplace(std::make_pair(min, max));
             });
         });
 
-        for_each(list_edges.cbegin(), list_edges.cend(), [ =, &dot](const std::pair<Key, Key> &p) {
+        for_each(list_edges.cbegin(), list_edges.cend(), [&dot, tab](const std::pair<Key, Key> &p) {
             std::stringstream ss;
             ss << tab << p.first << " -- " << p.second << '\n';
             dot += ss.str();
@@ -1101,9 +1101,9 @@ std::unique_ptr<std::string> graph<Key, T, Cost, Nat>::generate_grp() const {
         });
 
         size_type p{0};
-        for_each(cbegin(), cend(), [ =, &data, &p](const value_type & element) {
+        for_each(cbegin(), cend(), [this, &data, &p, tab, max_size_1, max_size_2](const value_type & element) {
             std::list<typename node::edge> child{element.second->get_edges()};
-            for_each(child.cbegin(), child.cend(), [ =, &data, &p](const typename node::edge & i) {
+            for_each(child.cbegin(), child.cend(), [this, &data, &p, tab, &element, max_size_1, max_size_2](const typename node::edge & i) {
                 ostringstream out_1, out_2;
                 out_1 << '"' << element.first     << "\",";
                 out_2 << '"' << i.target()->first << "\",";

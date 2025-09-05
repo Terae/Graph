@@ -48,13 +48,21 @@ target_include_directories(
 
 # set the Standard version
 include(CheckCXXCompilerFlag)
+check_cxx_compiler_flag("-std=c++23" COMPILER_SUPPORTS_CXX23)
 check_cxx_compiler_flag("-std=c++20" COMPILER_SUPPORTS_CXX20)
 check_cxx_compiler_flag("-std=c++17" COMPILER_SUPPORTS_CXX17)
 check_cxx_compiler_flag("-std=c++14" COMPILER_SUPPORTS_CXX14)
 check_cxx_compiler_flag("-std=c++11" COMPILER_SUPPORTS_CXX11)
 #check_cxx_compiler_flag("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
 
-if (COMPILER_SUPPORTS_CXX20)
+if (COMPILER_SUPPORTS_CXX23)
+    add_definitions(-std=c++23)
+    if(CMAKE_VERSION VERSION_GREATER 3.12)
+        set(CMAKE_CXX_STANDARD 23)
+    endif()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++23 -std=gnu++23")
+    message(STATUS "The compiler ${CMAKE_CXX_COMPILER} supports C++23")
+elseif (COMPILER_SUPPORTS_CXX20)
     add_definitions(-std=c++20)
     if(CMAKE_VERSION VERSION_GREATER 3.12)
         set(CMAKE_CXX_STANDARD 20)

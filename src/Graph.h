@@ -18,7 +18,13 @@
 #endif
 
 // C++ language standard detection
-#if (defined(__cplusplus) && __cplusplus >= 202002L) || \
+#if (defined(__cplusplus) && __cplusplus >= 202302L) || \
+    (defined(_MSVC_LANG) && _MSVC_LANG >= 202302L)
+    #define GRAPH_HAS_CPP_23
+    #define GRAPH_HAS_CPP_20
+    #define GRAPH_HAS_CPP_17
+    #define GRAPH_HAS_CPP_14
+#elif (defined(__cplusplus) && __cplusplus >= 202002L) || \
     (defined(_MSVC_LANG) && _MSVC_LANG >= 202002L)
     #define GRAPH_HAS_CPP_20
     #define GRAPH_HAS_CPP_17
@@ -139,6 +145,13 @@ class graph {
     /// @name Container types
     /// The canonical container types to use @ref Graph like any other STL container
     /// @{
+
+    // Concept validation for better error messages in C++20+
+#if defined(GRAPH_HAS_CPP_20)
+    static_assert(GraphKey<Key>, "Key type must satisfy GraphKey concept (copyable, equality_comparable, and totally_ordered)");
+    static_assert(GraphData<T>, "T type must satisfy GraphData concept (copyable)");
+    static_assert(GraphCost<Cost>, "Cost type must satisfy GraphCost concept (copyable, equality_comparable, totally_ordered, and supports arithmetic operations)");
+#endif
 
     /// The type of elements in a graph container
     using value_type   = std::pair<const Key, PtrNode>;

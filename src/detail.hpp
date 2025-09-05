@@ -4,6 +4,9 @@
 
 #ifndef ROOT_DETAIL_H
 #define ROOT_DETAIL_H
+#include <memory>
+#include <string>
+#include <istream>
 
 //! allow to disable exceptions
 #if (defined(__cpp_exceptions) || defined(__EXCEPTIONS) || defined(_CPPUNWIND)) && not defined(GRAPH_NOEXCEPTION)
@@ -506,7 +509,7 @@ namespace detail {
     ///template <class V, class = typename std::enable_if<!is_map_iterator<V>::value>::type>
     ///inline V get_value(const V& v, const V&) { return v; }
     /// map iterator
-    template <class V, class = std::enable_if_t<is_map_iterator<V>::value >>
+    template <class V, class = typename std::enable_if<is_map_iterator<V>::value>::type>
     typename std::iterator_traits<V>::value_type::second_type get_value(const V &v, const V &end) {
         if (v == end) {
             return static_cast<typename std::iterator_traits<V>::value_type::second_type>(nullptr);
@@ -567,7 +570,7 @@ namespace detail {
         return is;
     }
     template<> inline
-    std::istream & read_T<std::string>(std::istream &is, std::string &str) {
+    std::istream &read_T<std::string>(std::istream &is, std::string &str) {
         is.ignore(std::numeric_limits<std::streamsize>::max(), '"');
         std::getline(is, str, '"');
         return is;
@@ -575,9 +578,9 @@ namespace detail {
 
     template <class C>
     std::istream &read_cost(std::istream &is, C &c) {
-        const auto str = std::string(std::istreambuf_iterator(is),
+        const auto str = std::string(std::istreambuf_iterator<char>(is),
                                      std::istreambuf_iterator<char>());
-        if (str.find_first_of('\"') == std::string::npos &&
+        if (str.find_first_of('"') == std::string::npos &&
                 str.find_first_of("infinity") != std::string::npos)
             c = std::numeric_limits<C>::has_infinity ? std::numeric_limits<C>::infinity() :
                 std::numeric_limits<C>::max();
@@ -591,3 +594,13 @@ namespace detail {
 } /// namespace detail
 
 #endif /// ROOT_DETAIL_H
+
+// C++11 compatibility for make_unique
+#if !defined(GRAPH_HAS_CPP_14)
+namespace std {
+    template<typename T, typename... Args>
+    std::unique_ptr<T> make_unique(Args&&... args) {
+        return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
+    }
+}
+#endif

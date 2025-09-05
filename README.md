@@ -28,8 +28,12 @@ A STL-like graph library written in C++
 The Graph library is a STL-like library which can be used as an `std::` container. The class had these design goals:
 
 - **Intuitive syntax**. This container uses all the operator magic of modern C++ to achieve a good feeling in your code.
-- **Trivial integration**. The whole code consists of a single header file `graph.hpp`. No library, no subproject, no dependencies, no complex build system. The class is written in vanilla C++11\. All in all, everything should require no adjustment of your compiler flags or project settings.
+- **Trivial integration**. The whole code consists of a single header file `graph.hpp`. No library, no subproject, no dependencies, no complex build system. The class is written in vanilla C++11 with optional features for C++17, C++20, and C++23.
 - **Serious testing**. This class is heavily [unit-tested](https://github.com/terae/Structure/blob/master/tests/src/unit.cpp) and covers [100%](https://www.codacy.com/app/Terae/Graph?utm_source=github.com&utm_medium=referral&utm_content=Terae/Graph&utm_campaign=Badge_Grade) of the code. Furthermore, I checked with [Valgrind](http://www.valgrind.org/) that there are no memory leaks. To maintain high quality, the project is following the [Core Infrastructure Initiative (CII) best practices](https://bestpractices.coreinfrastructure.org/projects/1526).
+- **Modern C++ features**. The library automatically leverages modern C++ features when available:
+  - **C++17**: `std::optional` support for safer value access
+  - **C++20**: Concepts for better template error messages
+  - **C++23**: Full compatibility with the latest standard
 
 ## Integration
 
@@ -41,7 +45,12 @@ The library is header-only. To install and use simply copy the single required f
 
 to the files you want to process Graph.
 
-This library requires also Clang or GCC with `-std=c++11` enabled (or other compiler with sufficient C++11 or later support).
+This library requires Clang or GCC with `-std=c++11` or later enabled (or other compiler with sufficient C++ standard support). The library automatically detects and uses the highest available C++ standard:
+
+- **C++11/C++14**: Basic template support
+- **C++17**: Enhanced features including `std::optional` support
+- **C++20**: Concepts-based template constraints for better error messages
+- **C++23**: Full modern C++ support
 
 That's it.
 
@@ -127,10 +136,17 @@ One of the most common things to do with graphs is running algorithms to solve c
 
  ## Supported compilers
 
-Though it's 2017 already, the support for C++11 is still a bit sparse. Currently, the following compilers are known to work:
+The library supports a wide range of compilers across different C++ standards:
 
-- GCC 5.0 - 7.1 (and possibly later)
-- Clang 3.5 - 5.0 (and possibly later)
+### Modern C++ Support (Recommended)
+- **GCC 9+** - Full C++20/C++23 support
+- **Clang 10+** - Full C++20/C++23 support
+- **MSVC 19.20+** - Full C++20 support
+
+### Legacy Support
+- **GCC 5.0 - 8.x** - C++11/C++14/C++17 support
+- **Clang 3.5 - 9.x** - C++11/C++14/C++17 support
+- **MSVC 19.00+** - C++11/C++14/C++17 support
 
 Please note that `GCC 4.9` and earlier does not work.
 
@@ -144,8 +160,6 @@ GCC 7.2.0   | Ubuntu 14.04.5 LTS | g++-7 (Ubuntu 7.2.0-1ubuntu1~14.04) 7.2.0
 Clang 3.8.0 | Ubuntu 14.04.5 LTS | clang version 3.8.0-2ubuntu3~trusty5 (tags/RELEASE_380/final)
 Clang 3.9.1 | Ubuntu 14.04.5 LTS | clang version 3.9.1-4ubuntu3~14.04.3 (tags/RELEASE_391/rc2)
 Clang 4.0.1 | Ubuntu 14.04.5 LTS | clang version 3.9.1-4ubuntu3~14.04.3 (tags/RELEASE_401/rc2)
-
-<!-- | Clang 3.5.0 | Ubuntu 14.04.5 LTS | clang version 3.5.0 (tags/RELEASE_350/final) | | Clang 3.6.2 | Ubuntu 14.04.5 LTS | clang version 3.6.2 (tags/RELEASE_362/final) | | Clang 3.7.1 | Ubuntu 14.04.5 LTS | clang version 3.7.1 (tags/RELEASE_371/final) | | Clang 5.0.0 | Ubuntu 14.04.5 LTS | clang version 5.0.0 (tags/RELEASE_500/final) | -->
 
  ## Execute unit tests
 

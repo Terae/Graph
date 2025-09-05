@@ -45,7 +45,13 @@
 #endif
 
 // C++ language standard detection
-#if (defined(__cplusplus) && __cplusplus >= 202002L) || \
+#if (defined(__cplusplus) && __cplusplus >= 202302L) || \
+    (defined(_MSVC_LANG) && _MSVC_LANG >= 202302L)
+    #define GRAPH_HAS_CPP_23
+    #define GRAPH_HAS_CPP_20
+    #define GRAPH_HAS_CPP_17
+    #define GRAPH_HAS_CPP_14
+#elif (defined(__cplusplus) && __cplusplus >= 202002L) || \
     (defined(_MSVC_LANG) && _MSVC_LANG >= 202002L)
     #define GRAPH_HAS_CPP_20
     #define GRAPH_HAS_CPP_17
@@ -98,6 +104,10 @@ concept GraphCost = std::copyable<T> && std::equality_comparable<T> && std::tota
 #include <memory>
 #include <tuple>
 #include <utility>
+
+#include <memory>
+#include <string>
+#include <istream>
 
 /// allow to disable exceptions
 #if (defined(__cpp_exceptions) || defined(__EXCEPTIONS) || defined(_CPPUNWIND)) && not defined(GRAPH_NOEXCEPTION)
@@ -350,7 +360,7 @@ namespace detail {
                    decltype((*std::declval<T&>()).second)> >
             : std::true_type { };
 
-    template <class V, class = std::enable_if_t<is_map_iterator<V>::value >>
+    template <class V, class = typename std::enable_if<is_map_iterator<V>::value>::type>
     typename std::iterator_traits<V>::value_type::second_type get_value(const V &v, const V &end) {
         if (v == end) {
             return static_cast<typename std::iterator_traits<V>::value_type::second_type>(nullptr);
@@ -401,7 +411,7 @@ namespace detail {
         return is;
     }
     template<> inline
-    std::istream & read_T<std::string>(std::istream &is, std::string &str) {
+    std::istream &read_T<std::string>(std::istream &is, std::string &str) {
         is.ignore(std::numeric_limits<std::streamsize>::max(), '"');
         std::getline(is, str, '"');
         return is;
@@ -409,9 +419,9 @@ namespace detail {
 
     template <class C>
     std::istream &read_cost(std::istream &is, C &c) {
-        const auto str = std::string(std::istreambuf_iterator(is),
+        const auto str = std::string(std::istreambuf_iterator<char>(is),
                                      std::istreambuf_iterator<char>());
-        if (str.find_first_of('\"') == std::string::npos &&
+        if (str.find_first_of('"') == std::string::npos &&
                 str.find_first_of("infinity") != std::string::npos)
             c = std::numeric_limits<C>::has_infinity ? std::numeric_limits<C>::infinity() :
                 std::numeric_limits<C>::max();
@@ -423,6 +433,16 @@ namespace detail {
         return is;
     }
 }
+
+// C++11 compatibility for make_unique
+#if !defined(GRAPH_HAS_CPP_14)
+namespace std {
+    template<typename T, typename... Args>
+    std::unique_ptr<T> make_unique(Args&&... args) {
+        return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
+    }
+}
+#endif
 
 /**
  * @brief Base class for nodes in a graph
@@ -757,6 +777,13 @@ class graph {
     using unexpected_nullptr = detail::unexpected_nullptr;
 
     /// @section container types
+
+    // Concept validation for better error messages in C++20+
+#if defined(GRAPH_HAS_CPP_20)
+    static_assert(GraphKey<Key>, "Key type must satisfy GraphKey concept (copyable, equality_comparable, and totally_ordered)");
+    static_assert(GraphData<T>, "T type must satisfy GraphData concept (copyable)");
+    static_assert(GraphCost<Cost>, "Cost type must satisfy GraphCost concept (copyable, equality_comparable, totally_ordered, and supports arithmetic operations)");
+#endif
 
     using value_type   = std::pair<const Key, PtrNode>;
 
@@ -2998,9 +3025,9 @@ std::unique_ptr<std::string> graph<Key, T, Cost, Nat>::generate_dot(const std::s
     }
 
     if (get_nature() == DIRECTED) {
-        for_each(cbegin(), cend(), [ =, &dot](const value_type & element) {
+        for_each(cbegin(), cend(), [this, &dot, tab](const value_type & element) {
             std::list<typename node::edge> child{element.second->get_edges()};
-            for_each(child.cbegin(), child.cend(), [ =, &dot](const typename node::edge & i) {
+            for_each(child.cbegin(), child.cend(), [this, &dot, tab, &element](const typename node::edge & i) {
                 if (i.cost() != infinity) {
                     std::stringstream ss;
                     ss << tab << element.first << " -> " << i.target()->first << '\n';
@@ -3010,16 +3037,16 @@ std::unique_ptr<std::string> graph<Key, T, Cost, Nat>::generate_dot(const std::s
         });
     } else {
         std::set<std::pair<Key, Key >> list_edges;
-        for_each(cbegin(), cend(), [ =, &dot, &list_edges](const value_type & element) {
+        for_each(cbegin(), cend(), [this, &dot, &list_edges](const value_type & element) {
             std::list<typename node::edge> child{element.second->get_edges()};
-            for_each(child.cbegin(), child.cend(), [ =, &dot, &list_edges](const typename node::edge & i) {
+            for_each(child.cbegin(), child.cend(), [&dot, &list_edges, &element](const typename node::edge & i) {
                 const Key min{std::min(element.first, i.target()->first)};
                 const Key max{std::max(element.first, i.target()->first)};
                 list_edges.emplace(std::make_pair(min, max));
             });
         });
 
-        for_each(list_edges.cbegin(), list_edges.cend(), [ =, &dot](const std::pair<Key, Key> &p) {
+        for_each(list_edges.cbegin(), list_edges.cend(), [&dot, tab](const std::pair<Key, Key> &p) {
             std::stringstream ss;
             ss << tab << p.first << " -- " << p.second << '\n';
             dot += ss.str();
@@ -3194,9 +3221,9 @@ std::unique_ptr<std::string> graph<Key, T, Cost, Nat>::generate_grp() const {
         });
 
         size_type p{0};
-        for_each(cbegin(), cend(), [ =, &data, &p](const value_type & element) {
+        for_each(cbegin(), cend(), [this, &data, &p, tab, max_size_1, max_size_2](const value_type & element) {
             std::list<typename node::edge> child{element.second->get_edges()};
-            for_each(child.cbegin(), child.cend(), [ =, &data, &p](const typename node::edge & i) {
+            for_each(child.cbegin(), child.cend(), [this, &data, &p, tab, &element, max_size_1, max_size_2](const typename node::edge & i) {
                 ostringstream out_1, out_2;
                 out_1 << '"' << element.first     << "\",";
                 out_2 << '"' << i.target()->first << "\",";
