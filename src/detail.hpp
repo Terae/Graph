@@ -27,9 +27,15 @@
 
 /// #define COUNT_ARGS(...) std::tuple_size<decltype(std::make_tuple(__VA_ARGS__))>::value
 
+/**
+ * @brief Enumeration representing the nature of a graph
+ *
+ * Defines whether a graph is directed or undirected, which affects
+ * how edges are handled and how certain algorithms behave.
+ */
 enum Nature {
-    DIRECTED   = 'd',
-    UNDIRECTED = 'u'
+    DIRECTED   = 'd',   ///< Directed graph (edges have direction)
+    UNDIRECTED = 'u'    ///< Undirected graph (edges have no direction)
 };
 
 ///
@@ -41,11 +47,11 @@ enum Nature {
 ///
 namespace detail {
     ///
-    //! SECTION exceptions
-    ///
+    /// @name Exception Classes
+    /// @{
 
     ///
-    /// @brief general exception to the @ref graph class
+    /// @brief General exception for the graph class
     ///
     /// This class is an extension of `std::exception` objects.
     /// It is used as the base class for all exceptions thrown
@@ -82,7 +88,7 @@ namespace detail {
     };
 
     ///
-    /// @brief exception indicating an invalid argument
+    /// @brief Exception indicating an invalid argument
     ///
     /// This exception is thrown by the library when an invalid argument occurs.
     /// Invalid argument can occur when calling a function with a bad [template] argument.
@@ -100,7 +106,7 @@ namespace detail {
     ///
     struct invalid_argument final : exception {
         ///
-        /// @brief create an invalid argument exception
+        /// @brief Create an invalid argument exception
         /// @param[in] function_name the function from which the exceptions occur (returned by the __FUNCTION__ macro)
         /// @param[in] what_arg the explanatory string
         /// @return invalid_argument object
@@ -116,7 +122,7 @@ namespace detail {
     };
 
     ///
-    /// @brief exception indicating an unexpected nullptr
+    /// @brief Exception indicating an unexpected nullptr
     ///
     /// This exception is thrown by the library when an unexpected nullptr is used.
     /// Unexpected nullptr can appear in entry of a @ref basic_node function,
@@ -135,7 +141,7 @@ namespace detail {
     ///
     struct unexpected_nullptr final : exception {
         ///
-        /// @brief create an unexpected nullptr exception
+        /// @brief Create an unexpected nullptr exception
         /// @param[in] function_name the function from which the exceptions occur (returned by the __FUNCTION__ macro)
         /// @param[in] what_arg the explanatory string
         /// @return unexpected_nullptr object
@@ -151,7 +157,7 @@ namespace detail {
     };
 
     ///
-    /// @brief exception indicating a parse error
+    /// @brief Exception indicating a parse error
     ///
     /// This exception is thrown by the library when a parse error occurs.
     /// Parse errors can occur during a call of `graph::operator>>` function.
@@ -175,7 +181,7 @@ namespace detail {
     ///
     struct parse_error final : exception {
         ///
-        /// @brief create a parse error exception
+        /// @brief Create a parse error exception
         /// @param[in] function_name the function from which the exceptions occurs (returned by the __FUNCTION__ macro)
         /// @param[in] byte the byte index where the error occured (or 0 if the position cannot be determined)
         /// @param[in] what_arg the explanatory string
@@ -191,7 +197,7 @@ namespace detail {
         }
 
         ///
-        /// @brief byte index of the parse error
+        /// @brief Byte index of the parse error
         ///
         /// The byte index of the last read character in the input file
         ///
@@ -205,7 +211,7 @@ namespace detail {
     };
 
     ///
-    /// @brief specialized logical exception to the @ref graph class
+    /// @brief Specialized logical exception for the graph class
     ///
     /// This class is an extension of @ref exception objects.
     /// It is used as the base class for all exceptions thrown by the
@@ -237,7 +243,7 @@ namespace detail {
     };
 
     ///
-    /// @brief exception indicating a negative edge error
+    /// @brief Exception indicating a negative edge error
     ///
     /// This exception is thrown by the library when a graph has at least a negative edge.
     /// Negative edges are a problem in some search algorithms.
@@ -255,7 +261,7 @@ namespace detail {
     ///
     struct negative_edge final : bad_graph {
         ///
-        /// @brief create a negative_edge exception
+        /// @brief Create a negative_edge exception
         /// @param[in] function_name the function from which the exceptions occur (returned by the __FUNCTION__ macro)
         /// @param[in] what_arg the explanatory string
         /// @return unexpected_nullptr object
@@ -271,10 +277,10 @@ namespace detail {
     };
 
     ///
-    /// @brief exception indicating a negative edge error
+    /// @brief Exception indicating a negative weight cycle error
     ///
-    /// This exception is thrown by the library when a graph has at least a negative edge.
-    /// Negative edges are a problem in some search algorithms.
+    /// This exception is thrown by the library when a graph has at least a negative weight cycle.
+    /// Negative weight cycles are a problem in some search algorithms.
     ///
     /// @sa @ref exception for the base class of the library exceptions
     /// @sa @ref invalid_argument for exceptions indicating invalid arguments given to some function
@@ -289,7 +295,7 @@ namespace detail {
     ///
     struct negative_weight_cycle final : bad_graph {
         ///
-        /// @brief create a negative_weight_cycle exception
+        /// @brief Create a negative_weight_cycle exception
         /// @param[in] function_name the function from which the exceptions occur (returned by the __FUNCTION__ macro)
         /// @param[in] what_arg the explanatory string
         /// @return unexpected_nullptr object
@@ -305,7 +311,7 @@ namespace detail {
     };
 
     ///
-    /// @brief exception indicating a not-complete graph error
+    /// @brief Exception indicating a not-complete graph error
     ///
     /// This exception is thrown by the library when a graph is not complete.
     /// A non-complete graph is a problem in some search algorithms.
@@ -323,7 +329,7 @@ namespace detail {
     ///
     struct not_complete final : bad_graph {
         ///
-        /// @brief create a not_complete exception
+        /// @brief Create a not_complete exception
         /// @param[in] function_name the function from which the exceptions occur (returned by the __FUNCTION__ macro)
         /// @param[in] what_arg the explanatory string
         /// @return unexpected_nullptr object
@@ -339,10 +345,10 @@ namespace detail {
     };
 
     ///
-    /// @brief exception indicating a not-complete graph error
+    /// @brief Exception indicating a cycle error
     ///
-    /// This exception is thrown by the library when a graph is not complete.
-    /// A non-complete graph is a problem in some search algorithms.
+    /// This exception is thrown by the library when a graph has a cycle.
+    /// Cycles are a problem in some search algorithms.
     ///
     /// @sa @ref exception for the base class of the library exceptions
     /// @sa @ref invalid_argument for exceptions indicating invalid arguments given to some function
@@ -357,7 +363,7 @@ namespace detail {
     ///
     struct has_cycle final : bad_graph {
         ///
-        /// @brief create a not_complete exception
+        /// @brief Create a cycle exception
         /// @param[in] function_name the function from which the exceptions occur (returned by the __FUNCTION__ macro)
         /// @param[in] what_arg the explanatory string
         /// @return unexpected_nullptr object
@@ -371,6 +377,8 @@ namespace detail {
       private:
         explicit has_cycle(const char* what_arg) : bad_graph(what_arg) {}
     };
+
+    /// @}
 
     ///
     //! SECTION degree

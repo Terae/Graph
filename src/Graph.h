@@ -17,16 +17,49 @@
     #include <nlohmann/json.hpp>
 #endif
 
-/// C++ language standard detection
-#if   (defined(__cplusplus) && __cplusplus >= 201703L) || (defined(_MSC_VER)   && _MSC_VER > 1900 && defined(_HAS_CXX17) && _HAS_CXX17 == 1)
+// C++ language standard detection
+#if (defined(__cplusplus) && __cplusplus >= 202002L) || \
+    (defined(_MSVC_LANG) && _MSVC_LANG >= 202002L)
+    #define GRAPH_HAS_CPP_20
     #define GRAPH_HAS_CPP_17
     #define GRAPH_HAS_CPP_14
-#elif (defined(__cplusplus) && __cplusplus >= 201402L) || (defined(_HAS_CXX14) && _HAS_CXX14 == 1)
+#elif (defined(__cplusplus) && __cplusplus >= 201703L) || \
+    (defined(_MSC_VER) && _MSC_VER > 1900 && defined(_HAS_CXX17) && _HAS_CXX17 == 1)
+    #define GRAPH_HAS_CPP_17
+    #define GRAPH_HAS_CPP_14
+#elif (defined(__cplusplus) && __cplusplus >= 201402L) || \
+    (defined(_HAS_CXX14) && _HAS_CXX14 == 1)
     #define GRAPH_HAS_CPP_14
 #endif
 
+// Include optional for C++17 and later
 #if defined(GRAPH_HAS_CPP_17)
     #include <optional>
+#endif
+
+// Include concepts for C++20 and later
+#if defined(GRAPH_HAS_CPP_20)
+#include <concepts>
+
+/// @brief Concept for types that can be used as graph keys
+/// Requires that the type is comparable and copyable
+template<typename T>
+concept GraphKey = std::copyable<T> && std::equality_comparable<T> && std::totally_ordered<T>;
+
+/// @brief Concept for types that can be used as graph data
+/// Requires that the type is copyable
+template<typename T>
+concept GraphData = std::copyable<T>;
+
+/// @brief Concept for types that can be used as graph costs
+/// Requires that the type is numeric and comparable
+template<typename T>
+concept GraphCost = std::copyable<T> && std::equality_comparable<T> && std::totally_ordered<T> && requires(T t) {
+    t + t;
+    t - t;
+    t * t;
+    t / t;
+};
 #endif
 
 /// exclude unsupported compilers
@@ -46,14 +79,25 @@
 ///// ADJACENCY GRAPH /////
 ///////////////////////////
 
-///
-/// @brief a generalized class of Graph
-///
-/// @tparam Key type of the keys. Each element in a Graph is uniquely identified by its key value. Aliased as member type Graph::key_type
-/// @tparam T type of graphed value stored into a node. Aliased as member type Graph::graphed_type
-/// @tparam Cost type of the cost between nodes.
-/// @since version 1.0.0
-///
+/**
+ * @brief A generalized class of Graph
+ *
+ * This class implements a graph data structure that can be either directed
+ * or undirected. It supports various operations including node and edge
+ * manipulation, graph traversal algorithms, and serialization.
+ *
+ * The graph is implemented as an adjacency list where each node contains
+ * a list of its adjacent nodes and the cost of the connecting edges.
+ *
+ * @tparam Key Type of the keys. Each element in a Graph is uniquely identified
+ *             by its key value. Aliased as member type Graph::key_type
+ * @tparam T Type of graphed value stored into a node.
+ *           Aliased as member type Graph::graphed_type
+ * @tparam Cost Type of the cost between nodes. Default is std::size_t
+ * @tparam Nat Nature of the graph (DIRECTED or UNDIRECTED). Default is UNDIRECTED
+ *
+ * @since version 1.0.0
+ */
 template <class Key, class T, class Cost = std::size_t, Nature Nat = UNDIRECTED>
 class graph {
   public:
@@ -92,217 +136,840 @@ class graph {
     //! @section container types
     ///
 
-    /// @name container types
-    /// The canonic container types to use @ref Graph like any other STL container
+    /// @name Container types
+    /// The canonical container types to use @ref Graph like any other STL container
     /// @{
 
-    /// the type of elements in a graph container
+    /// The type of elements in a graph container
     using value_type   = std::pair<const Key, PtrNode>;
-    /// the type of element reference
+    /// The type of element reference
     using reference    = value_type &;
-    /// the type of the unique and identifying key
+    /// The type of the unique and identifying key
     using key_type     = Key;
-    /// the type of stored values on a graph
+    /// The type of stored values on a graph
     using graphed_type = T;
-    /// the type of edge cost value
+    /// The type of edge cost value
     using cost_type    = Cost;
-    /// a type to represent container sizes
+    /// A type to represent container sizes
     using size_type    = std::size_t;
 
-    /// an iterator for a graph container
+    /// An iterator for a graph container
     using iterator               = typename MapNodes::iterator;
-    /// a const iterator for a graph container
+    /// A const iterator for a graph container
     using const_iterator         = typename MapNodes::const_iterator;
-    /// a reverse iterator for a graph container
+    /// A reverse iterator for a graph container
     using reverse_iterator       = typename MapNodes::reverse_iterator;
-    /// a const reverse iterator for a graph container
+    /// A const reverse iterator for a graph container
     using const_reverse_iterator = typename MapNodes::const_reverse_iterator;
 
     /// @}
 
     ///
-    //! @section Iterators
-    ///
+    /// @name Iterators
+    /// Methods to access iterators for traversing the graph
+    /// @{
 
+    /**
+     * @brief Returns an iterator to the first element of the graph
+     * @return Iterator to the first element
+     */
     iterator begin() noexcept;
-    iterator end()   noexcept;
 
-    const_iterator begin()  const noexcept;
+    /**
+     * @brief Returns an iterator to the element following the last element of the graph
+     * @return Iterator to the element following the last element
+     */
+    iterator end() noexcept;
+
+    /**
+     * @brief Returns a const iterator to the first element of the graph
+     * @return Const iterator to the first element
+     */
+    const_iterator begin() const noexcept;
+
+    /**
+     * @brief Returns a const iterator to the first element of the graph
+     * @return Const iterator to the first element
+     */
     const_iterator cbegin() const noexcept;
 
-    const_iterator end()  const noexcept;
+    /**
+     * @brief Returns a const iterator to the element following the last element of the graph
+     * @return Const iterator to the element following the last element
+     */
+    const_iterator end() const noexcept;
+
+    /**
+     * @brief Returns a const iterator to the element following the last element of the graph
+     * @return Const iterator to the element following the last element
+     */
     const_iterator cend() const noexcept;
 
+    /**
+     * @brief Returns a reverse iterator to the first element of the reversed graph
+     * @return Reverse iterator to the first element
+     */
     reverse_iterator rbegin() noexcept;
-    reverse_iterator rend()   noexcept;
 
-    const_reverse_iterator rbegin()  const noexcept;
+    /**
+     * @brief Returns a reverse iterator to the element following the last element of the reversed graph
+     * @return Reverse iterator to the element following the last element
+     */
+    reverse_iterator rend() noexcept;
+
+    /**
+     * @brief Returns a const reverse iterator to the first element of the reversed graph
+     * @return Const reverse iterator to the first element
+     */
+    const_reverse_iterator rbegin() const noexcept;
+
+    /**
+     * @brief Returns a const reverse iterator to the first element of the reversed graph
+     * @return Const reverse iterator to the first element
+     */
     const_reverse_iterator crbegin() const noexcept;
 
-    const_reverse_iterator rend()  const noexcept;
+    /**
+     * @brief Returns a const reverse iterator to the element following the last element of the reversed graph
+     * @return Const reverse iterator to the element following the last element
+     */
+    const_reverse_iterator rend() const noexcept;
+
+    /**
+     * @brief Returns a const reverse iterator to the element following the last element of the reversed graph
+     * @return Const reverse iterator to the element following the last element
+     */
     const_reverse_iterator crend() const noexcept;
 
-    ///
-    //! @section Constructors
-    ///
+    /// @}
 
-    /// default constructor
+    ///
+    /// @name Constructors and Destructor
+    /// Methods for creating and destroying graph objects
+    /// @{
+
+    /**
+     * @brief Default constructor
+     *
+     * Creates an empty graph with no nodes or edges.
+     */
     explicit graph();
 
-    /// istream constructor
-    explicit graph(std::istream &);
+    /**
+     * @brief Construct a graph from an input stream
+     *
+     * Creates a graph by parsing data from the provided input stream.
+     *
+     * @param is Input stream containing graph data
+     */
+    explicit graph(std::istream& is);
 
-    /// copy constructor
-    graph(const graph &);
+    /**
+     * @brief Copy constructor
+     *
+     * Creates a new graph as a copy of an existing graph.
+     *
+     * @param other Graph to copy
+     */
+    graph(const graph& other);
 
-    /// move constructor
-    graph(graph &&) noexcept;
+    /**
+     * @brief Move constructor
+     *
+     * Creates a new graph by moving the contents of an existing graph.
+     * The moved-from graph is left in a valid but unspecified state.
+     *
+     * @param other Graph to move from
+     */
+    graph(graph&& other) noexcept;
 
-    /// copy assignment operator
-    graph &operator=(const graph &);
+    /**
+     * @brief Copy assignment operator
+     *
+     * Assigns the contents of one graph to another by copying.
+     *
+     * @param other Graph to copy from
+     * @return Reference to this graph
+     */
+    graph &operator=(const graph& other);
 
-    /// move assignment operator
-    graph &operator=(graph &&) noexcept ;
+    /**
+     * @brief Move assignment operator
+     *
+     * Assigns the contents of one graph to another by moving.
+     * The moved-from graph is left in a valid but unspecified state.
+     *
+     * @param other Graph to move from
+     * @return Reference to this graph
+     */
+    graph &operator=(graph&& other) noexcept;
 
+    /**
+     * @brief Virtual destructor
+     *
+     * Destroys the graph and frees all associated resources.
+     */
     virtual ~graph();
 
-    ///
-    //! @section Capacity
-    ///
+    /// @}
 
+    ///
+    /// @name Capacity
+    /// Methods for querying the size of the graph
+    /// @{
+
+    /**
+     * @brief Checks whether the graph is empty
+     *
+     * @return true if the graph contains no nodes, false otherwise
+     */
     [[nodiscard]] bool empty() const noexcept;
 
+    /**
+     * @brief Returns the number of nodes in the graph
+     *
+     * @return The number of nodes in the graph
+     */
     [[nodiscard]] size_type size() const noexcept;
 
+    /**
+     * @brief Returns the maximum possible number of nodes in the graph
+     *
+     * @return Maximum possible number of nodes
+     */
     [[nodiscard]] size_type max_size() const noexcept;
 
-    ///
-    //! @section Element access
-    ///
+    /// @}
 
-    graphed_type &operator[](const key_type &);
-    graphed_type &operator[](key_type &&);
+    ///
+    /// @name Element Access
+    /// Methods for accessing elements in the graph
+    /// @{
+
+    /**
+     * @brief Access or insert a node with the specified key
+     *
+     * If a node with the given key exists, returns a reference to its data.
+     * Otherwise, creates a new node with default-constructed data.
+     *
+     * @param key Key of the node to access
+     * @return Reference to the node's data
+     */
+    graphed_type &operator[](const key_type& key);
+
+    /**
+     * @brief Access or insert a node with the specified key (move version)
+     *
+     * If a node with the given key exists, returns a reference to its data.
+     * Otherwise, creates a new node with default-constructed data.
+     *
+     * @param key Key of the node to access (may be moved from)
+     * @return Reference to the node's data
+     */
+    graphed_type &operator[](key_type&& key);
 
 #if defined(GRAPH_HAS_CPP_17)
-    std::optional<graphed_type> operator[](key_type &&) const;
+    /**
+     * @brief Access a node with the specified key (const version)
+     *
+     * If a node with the given key exists, returns an optional containing its data.
+     * Otherwise, returns an empty optional.
+     *
+     * @param key Key of the node to access
+     * @return Optional containing the node's data or empty if not found
+     */
+    std::optional<graphed_type> operator[](key_type&& key) const;
 #else
-    graphed_type operator[](key_type &&) const;
+    /**
+     * @brief Access a node with the specified key (const version)
+     *
+     * If a node with the given key exists, returns its data.
+     * Otherwise, throws an invalid_argument exception.
+     *
+     * @param key Key of the node to access
+     * @return Copy of the node's data
+     * @throws invalid_argument if node with key does not exist
+     */
+    graphed_type operator[](key_type&& key) const;
 #endif
 
-    cost_type &operator()(iterator,         iterator);
-    cost_type &operator()(const key_type &, const key_type &);
+    /**
+     * @brief Access the cost of an edge between two nodes (iterator version)
+     *
+     * If an edge between the nodes exists, returns a reference to its cost.
+     * Otherwise, creates a new edge with infinite cost.
+     *
+     * @param from Iterator to the source node
+     * @param to Iterator to the target node
+     * @return Reference to the edge cost
+     */
+    cost_type &operator()(iterator from, iterator to);
+
+    /**
+     * @brief Access the cost of an edge between two nodes (key version)
+     *
+     * If an edge between the nodes exists, returns a reference to its cost.
+     * Otherwise, creates a new edge with infinite cost.
+     *
+     * @param from_key Key of the source node
+     * @param to_key Key of the target node
+     * @return Reference to the edge cost
+     */
+    cost_type &operator()(const key_type& from_key, const key_type& to_key);
 
 #if defined(GRAPH_HAS_CPP_17)
-    std::optional<cost_type> operator()(const_iterator,   const_iterator)   const;
-    std::optional<cost_type> operator()(const key_type &, const key_type &) const;
-#else
-    cost_type operator()(const_iterator,   const_iterator)   const;
-    cost_type operator()(const key_type &, const key_type &) const;
-#endif
-    ///
-    //! @section Modifiers
-    ///
+    /**
+     * @brief Access the cost of an edge between two nodes (const iterator version)
+     *
+     * If an edge between the nodes exists, returns an optional containing its cost.
+     * Otherwise, returns an empty optional.
+     *
+     * @param from Iterator to the source node
+     * @param to Iterator to the target node
+     * @return Optional containing the edge cost or empty if edge doesn't exist
+     */
+    std::optional<cost_type> operator()(const_iterator from, const_iterator to) const;
 
-    //! Adders
-    /// @return pair<position, new node> insertion
+    /**
+     * @brief Access the cost of an edge between two nodes (const key version)
+     *
+     * If an edge between the nodes exists, returns an optional containing its cost.
+     * Otherwise, returns an empty optional.
+     *
+     * @param from_key Key of the source node
+     * @param to_key Key of the target node
+     * @return Optional containing the edge cost or empty if edge doesn't exist
+     */
+    std::optional<cost_type> operator()(const key_type& from_key, const key_type& to_key) const;
+#else
+    /**
+     * @brief Access the cost of an edge between two nodes (const iterator version)
+     *
+     * If an edge between the nodes exists, returns its cost.
+     * Otherwise, throws an invalid_argument exception.
+     *
+     * @param from Iterator to the source node
+     * @param to Iterator to the target node
+     * @return Copy of the edge cost
+     * @throws invalid_argument if edge doesn't exist
+     */
+    cost_type operator()(const_iterator from, const_iterator to) const;
+
+    /**
+     * @brief Access the cost of an edge between two nodes (const key version)
+     *
+     * If an edge between the nodes exists, returns its cost.
+     * Otherwise, throws an invalid_argument exception.
+     *
+     * @param from_key Key of the source node
+     * @param to_key Key of the target node
+     * @return Copy of the edge cost
+     * @throws invalid_argument if edge doesn't exist
+     */
+    cost_type operator()(const key_type& from_key, const key_type& to_key) const;
+#endif
+
+    /// @}
+    ///
+    /// @name Modifiers
+    /// Methods for modifying the graph
+    /// @{
+
+    /// @name Adders
+    /// Methods for adding nodes and edges to the graph
+    /// @{
+
+    /**
+     * @brief Insert a node (deprecated)
+     * @deprecated Use add_node instead
+     */
     [[deprecated]] std::pair<iterator, bool> insert(const value_type &);
 
+    /**
+     * @brief Insert a node at a specific position
+     *
+     * @param position Hint for where to insert the node
+     * @param value Node to insert
+     * @return Iterator to the inserted node
+     */
     iterator insert(const_iterator position, const value_type &);
+
+    /**
+     * @brief Insert a node with specified key and data
+     *
+     * @param position Hint for where to insert the node
+     * @param key Key for the new node
+     * @param data Data for the new node
+     * @return Iterator to the inserted node
+     */
     iterator insert(const_iterator position, const key_type &, graphed_type &);
+
+    /**
+     * @brief Insert a node with specified key and node
+     *
+     * @param position Hint for where to insert the node
+     * @param key Key for the new node
+     * @param node Node to insert
+     * @return Iterator to the inserted node
+     */
     iterator insert(const_iterator position, const key_type &, const node &);
 
-    /// @return pair<position, new node> emplacement
+    /**
+     * @brief Emplace a node with the specified key
+     *
+     * Constructs a new node in-place with the given key.
+     *
+     * @param key Key for the new node
+     * @return Pair containing iterator to the node and boolean indicating if insertion occurred
+     */
     std::pair<iterator, bool> emplace(const key_type &);
+
+    /**
+     * @brief Emplace a node with the specified key and data
+     *
+     * Constructs a new node in-place with the given key and data.
+     *
+     * @param key Key for the new node
+     * @param data Data for the new node
+     * @return Pair containing iterator to the node and boolean indicating if insertion occurred
+     */
     std::pair<iterator, bool> emplace(const key_type &, const graphed_type &);
+
+    /**
+     * @brief Emplace a node with the specified key and node
+     *
+     * Constructs a new node in-place with the given key and node.
+     *
+     * @param key Key for the new node
+     * @param node Node to emplace
+     * @return Pair containing iterator to the node and boolean indicating if insertion occurred
+     */
     std::pair<iterator, bool> emplace(const key_type &, const node &);
 
+    /**
+     * @brief Add a node with the specified key
+     *
+     * If a node with the given key doesn't exist, creates a new node with default data.
+     *
+     * @param key Key for the node
+     * @return Pair containing iterator to the node and boolean indicating if insertion occurred
+     */
     std::pair<iterator, bool> add_node(const key_type &);
+
+    /**
+     * @brief Add a node with the specified key and data
+     *
+     * If a node with the given key doesn't exist, creates a new node with the given data.
+     *
+     * @param key Key for the node
+     * @param data Data for the node
+     * @return Pair containing iterator to the node and boolean indicating if insertion occurred
+     */
     std::pair<iterator, bool> add_node(const key_type &, const graphed_type &);
+
+    /**
+     * @brief Add a node with the specified key and node
+     *
+     * If a node with the given key doesn't exist, creates a new node with the given node's data.
+     *
+     * @param key Key for the node
+     * @param node Node to copy data from
+     * @return Pair containing iterator to the node and boolean indicating if insertion occurred
+     */
     std::pair<iterator, bool> add_node(const key_type &, const node &);
 
-    bool add_edge(const_iterator,   const_iterator,   cost_type = std::numeric_limits<cost_type>::epsilon());
-    bool add_edge(const key_type &, const key_type &, cost_type = std::numeric_limits<cost_type>::epsilon());
+    /**
+     * @brief Add an edge between two nodes (iterator version)
+     *
+     * Creates an edge between the nodes pointed to by the iterators.
+     *
+     * @param from Iterator to the source node
+     * @param to Iterator to the target node
+     * @param cost Cost of the edge (default: epsilon)
+     * @return true if edge was added, false if it already existed
+     */
+    bool add_edge(const_iterator from, const_iterator to, cost_type cost = std::numeric_limits<cost_type>::epsilon());
 
-    void make_complete(cost_type);
+    /**
+     * @brief Add an edge between two nodes (key version)
+     *
+     * Creates an edge between the nodes with the given keys.
+     *
+     * @param from_key Key of the source node
+     * @param to_key Key of the target node
+     * @param cost Cost of the edge (default: epsilon)
+     * @return true if edge was added, false if it already existed
+     */
+    bool add_edge(const key_type& from_key, const key_type& to_key, cost_type cost = std::numeric_limits<cost_type>::epsilon());
 
-    //! Deleters
+    /**
+     * @brief Make the graph complete with specified edge cost
+     *
+     * Adds edges between all pairs of nodes with the given cost.
+     *
+     * @param cost Cost for all edges
+     */
+    void make_complete(cost_type cost);
 
-    iterator  erase(const_iterator);
-    iterator  erase(const_iterator first, const_iterator last);
-    size_type erase(const key_type &);
+    /// @}
 
-    iterator  del_node (const_iterator);
-    iterator  del_nodes(const_iterator first, const_iterator last);
-    size_type del_node (const key_type &);
+    /// @name Deleters
+    /// Methods for removing nodes and edges from the graph
+    /// @{
 
+    /**
+     * @brief Erase a node
+     *
+     * Removes the node pointed to by the iterator.
+     *
+     * @param position Iterator to the node to erase
+     * @return Iterator following the erased node
+     */
+    iterator erase(const_iterator position);
+
+    /**
+     * @brief Erase a range of nodes
+     *
+     * Removes the nodes in the range [first, last).
+     *
+     * @param first Iterator to the first node to erase
+     * @param last Iterator to one past the last node to erase
+     * @return Iterator following the last erased node
+     */
+    iterator erase(const_iterator first, const_iterator last);
+
+    /**
+     * @brief Erase a node by key
+     *
+     * Removes the node with the given key.
+     *
+     * @param key Key of the node to erase
+     * @return Number of nodes removed (0 or 1)
+     */
+    size_type erase(const key_type& key);
+
+    /**
+     * @brief Delete a node
+     *
+     * Removes the node pointed to by the iterator.
+     *
+     * @param position Iterator to the node to delete
+     * @return Iterator following the deleted node
+     */
+    iterator del_node(const_iterator position);
+
+    /**
+     * @brief Delete a range of nodes
+     *
+     * Removes the nodes in the range [first, last).
+     *
+     * @param first Iterator to the first node to delete
+     * @param last Iterator to one past the last node to delete
+     * @return Iterator following the last deleted node
+     */
+    iterator del_nodes(const_iterator first, const_iterator last);
+
+    /**
+     * @brief Delete a node by key
+     *
+     * Removes the node with the given key.
+     *
+     * @param key Key of the node to delete
+     * @return Number of nodes removed (0 or 1)
+     */
+    size_type del_node(const key_type& key);
+
+    /**
+     * @brief Clear all nodes and edges from the graph
+     */
     void clear() noexcept;
 
-    size_type del_edge(const_iterator,   const_iterator);
-    size_type del_edge(const key_type &, const key_type &);
+    /**
+     * @brief Delete an edge between two nodes (iterator version)
+     *
+     * Removes the edge between the nodes pointed to by the iterators.
+     *
+     * @param from Iterator to the source node
+     * @param to Iterator to the target node
+     * @return Number of edges removed (0 or 1)
+     */
+    size_type del_edge(const_iterator from, const_iterator to);
 
+    /**
+     * @brief Delete an edge between two nodes (key version)
+     *
+     * Removes the edge between the nodes with the given keys.
+     *
+     * @param from_key Key of the source node
+     * @param to_key Key of the target node
+     * @return Number of edges removed (0 or 1)
+     */
+    size_type del_edge(const key_type& from_key, const key_type& to_key);
+
+    /**
+     * @brief Clear all edges from the graph
+     */
     void clear_edges();
 
-    size_type clear_edges(const_iterator);
-    size_type clear_edges(const key_type &);
+    /**
+     * @brief Clear edges from a specific node (iterator version)
+     *
+     * Removes all edges from the node pointed to by the iterator.
+     *
+     * @param position Iterator to the node
+     * @return Number of edges removed
+     */
+    size_type clear_edges(const_iterator position);
 
-    //! Others
-    void swap(graph &) noexcept;
+    /**
+     * @brief Clear edges from a specific node (key version)
+     *
+     * Removes all edges from the node with the given key.
+     *
+     * @param key Key of the node
+     * @return Number of edges removed
+     */
+    size_type clear_edges(const key_type& key);
+
+    /// @}
+
+    /// @name Other modifiers
+    /// Additional modification methods
+    /// @{
+
+    /**
+     * @brief Swap the contents of two graphs
+     *
+     * Exchanges the contents of this graph with another graph.
+     *
+     * @param other Graph to swap with
+     */
+    void swap(graph& other) noexcept;
+
+    /// @}
+
+    /// @}
 
     ///
-    //! @section Functions
-    ///
+    /// @name Functions
+    /// Non-modifying operations on the graph
+    /// @{
 
-    /// Non-modifying sequence operations
+    /**
+     * @brief Count the number of nodes with a specific key
+     *
+     * @param key Key to count
+     * @return Number of nodes with the given key (0 or 1)
+     */
     size_type count(const key_type &) const;
 
-    iterator       find(const key_type &);
+    /**
+     * @brief Find a node with a specific key
+     *
+     * @param key Key to search for
+     * @return Iterator to the node if found, end() otherwise
+     */
+    iterator find(const key_type &);
+
+    /**
+     * @brief Find a node with a specific key (const version)
+     *
+     * @param key Key to search for
+     * @return Const iterator to the node if found, cend() otherwise
+     */
     const_iterator find(const key_type &) const;
 
+    /// @}
+
     ///
-    //! @section Operations
-    ///
+    /// @name Operations
+    /// Query operations on the graph
+    /// @{
 
-    bool existing_node(const_iterator)   const;
-    bool existing_node(const key_type &) const;
+    /**
+     * @brief Check if a node exists (iterator version)
+     *
+     * @param position Iterator to the node to check
+     * @return true if the node exists, false otherwise
+     */
+    bool existing_node(const_iterator position) const;
 
-    bool existing_edge(const_iterator,   const_iterator)   const;
-    bool existing_edge(const key_type &, const key_type &) const;
+    /**
+     * @brief Check if a node exists (key version)
+     *
+     * @param key Key of the node to check
+     * @return true if the node exists, false otherwise
+     */
+    bool existing_node(const key_type& key) const;
 
-    /// Check if there exists a path starting at `from` and reaching `to`
-    /// If `from` and `to` are equal, this function returns true.
-    bool has_path_connecting(const_iterator,   const_iterator)   const;
-    bool has_path_connecting(const key_type &, const key_type &) const;
+    /**
+     * @brief Check if an edge exists between two nodes (iterator version)
+     *
+     * @param from Iterator to the source node
+     * @param to Iterator to the target node
+     * @return true if the edge exists, false otherwise
+     */
+    bool existing_edge(const_iterator from, const_iterator to) const;
 
+    /**
+     * @brief Check if an edge exists between two nodes (key version)
+     *
+     * @param from_key Key of the source node
+     * @param to_key Key of the target node
+     * @return true if the edge exists, false otherwise
+     */
+    bool existing_edge(const key_type& from_key, const key_type& to_key) const;
+
+    /**
+     * @brief Check if there exists a path connecting two nodes (iterator version)
+     *
+     * If from and to are equal, this function returns true.
+     *
+     * @param from Iterator to the source node
+     * @param to Iterator to the target node
+     * @return true if a path exists, false otherwise
+     */
+    bool has_path_connecting(const_iterator from, const_iterator to) const;
+
+    /**
+     * @brief Check if there exists a path connecting two nodes (key version)
+     *
+     * If from_key and to_key are equal, this function returns true.
+     *
+     * @param from_key Key of the source node
+     * @param to_key Key of the target node
+     * @return true if a path exists, false otherwise
+     */
+    bool has_path_connecting(const key_type& from_key, const key_type& to_key) const;
+
+    /**
+     * @brief Get the number of nodes in the graph
+     *
+     * @return Number of nodes
+     */
     [[nodiscard]] size_type get_nbr_nodes() const noexcept;
+
+    /**
+     * @brief Get the number of edges in the graph
+     *
+     * @return Number of edges
+     */
     [[nodiscard]] size_type get_nbr_edges() const noexcept;
 
+    /**
+     * @brief Get the nature of the graph
+     *
+     * @return Nature of the graph (DIRECTED or UNDIRECTED)
+     */
     [[nodiscard]] Nature get_nature() const;
 
-    Degree degree(const_iterator)   const;
-    Degree degree(const key_type &) const;
+    /**
+     * @brief Get the degree of a node (iterator version)
+     *
+     * @param position Iterator to the node
+     * @return Degree of the node
+     */
+    Degree degree(const_iterator position) const;
 
+    /**
+     * @brief Get the degree of a node (key version)
+     *
+     * @param key Key of the node
+     * @return Degree of the node
+     */
+    Degree degree(const key_type& key) const;
+
+    /**
+     * @brief Get the node with maximum degree
+     *
+     * @return Pair containing iterator to the node and its degree
+     */
     std::pair<const_iterator, Degree> degree_max() const;
+
+    /**
+     * @brief Get the node with minimum degree
+     *
+     * @return Pair containing iterator to the node and its degree
+     */
     std::pair<const_iterator, Degree> degree_min() const;
 
+    /**
+     * @brief Get degrees of all nodes
+     *
+     * @return Map of node keys to their degrees
+     */
     std::map<key_type, Degree> degrees() const;
 
+    /**
+     * @brief Get incoming edges of a node (directed graphs only)
+     *
+     * @tparam enable_if<detail::is_directed<Nat>::value> SFINAE constraint for directed graphs
+     * @param position Iterator to the node
+     * @return Vector of incoming edges
+     */
     template <class = std::enable_if<detail::is_directed<Nat>::value >>
-    std::vector<typename node::edge> get_in_edges (const_iterator)   const;
-    template <class = std::enable_if<detail::is_directed<Nat>::value >>
-    std::vector<typename node::edge> get_in_edges (const key_type &) const;
+    std::vector<typename node::edge> get_in_edges(const_iterator position) const;
 
+    /**
+     * @brief Get incoming edges of a node (directed graphs only, key version)
+     *
+     * @tparam enable_if<detail::is_directed<Nat>::value> SFINAE constraint for directed graphs
+     * @param key Key of the node
+     * @return Vector of incoming edges
+     */
     template <class = std::enable_if<detail::is_directed<Nat>::value >>
-    std::vector<typename node::edge> get_out_edges(const_iterator)   const;
-    template <class = std::enable_if<detail::is_directed  <Nat>::value >>
-    std::vector<typename node::edge> get_out_edges(const key_type &) const;
+    std::vector<typename node::edge> get_in_edges(const key_type& key) const;
 
+    /**
+     * @brief Get outgoing edges of a node (directed graphs only)
+     *
+     * @tparam enable_if<detail::is_directed<Nat>::value> SFINAE constraint for directed graphs
+     * @param position Iterator to the node
+     * @return Vector of outgoing edges
+     */
+    template <class = std::enable_if<detail::is_directed<Nat>::value >>
+    std::vector<typename node::edge> get_out_edges(const_iterator position) const;
+
+    /**
+     * @brief Get outgoing edges of a node (directed graphs only, key version)
+     *
+     * @tparam enable_if<detail::is_directed<Nat>::value> SFINAE constraint for directed graphs
+     * @param key Key of the node
+     * @return Vector of outgoing edges
+     */
+    template <class = std::enable_if<detail::is_directed<Nat>::value >>
+    std::vector<typename node::edge> get_out_edges(const key_type& key) const;
+
+    /**
+     * @brief Get edges of a node (undirected graphs only)
+     *
+     * @tparam enable_if<detail::is_undirected<Nat>::value> SFINAE constraint for undirected graphs
+     * @param position Iterator to the node
+     * @return Vector of edges
+     */
     template <class = std::enable_if<detail::is_undirected<Nat>::value >>
-    std::vector<typename node::edge> get_edges    (const_iterator)   const;
-    template <class = std::enable_if<detail::is_undirected<Nat>::value >>
-    std::vector<typename node::edge> get_edges    (const key_type &) const;
+    std::vector<typename node::edge> get_edges(const_iterator position) const;
 
+    /**
+     * @brief Get edges of a node (undirected graphs only, key version)
+     *
+     * @tparam enable_if<detail::is_undirected<Nat>::value> SFINAE constraint for undirected graphs
+     * @param key Key of the node
+     * @return Vector of edges
+     */
+    template <class = std::enable_if<detail::is_undirected<Nat>::value >>
+    std::vector<typename node::edge> get_edges(const key_type& key) const;
+
+    /**
+     * @brief Check if the graph contains cycles (directed graphs only)
+     *
+     * @tparam enable_if<detail::is_directed<Nat>::value> SFINAE constraint for directed graphs
+     * @return true if the graph contains cycles, false otherwise
+     */
     template <class = std::enable_if<detail::is_directed<Nat>::value >>
     [[nodiscard]] bool is_cyclic() const;
+
+    /// @}
 
     /*
     // TODO
@@ -344,39 +1011,152 @@ class graph {
     */
 
     ///
-    //! @section Text functions
-    ///
+    /// @name Text Functions
+    /// Methods for text representation and serialization
+    /// @{
 
-    /// Display a JSON representation
-    template<class K, class D, class C, Nature N> friend std::ostream & operator<<(std::ostream &, const graph<K, D, C, N> &);
-    /// Try to load from JSON and then from FILE
-    template<class K, class D, class C, Nature N> friend std::istream & operator>>(std::istream &,       graph<K, D, C, N> &);
+    /**
+     * @brief Output stream operator
+     *
+     * Displays a JSON representation of the graph.
+     *
+     * @tparam K Key type
+     * @tparam D Data type
+     * @tparam C Cost type
+     * @tparam N Nature type
+     * @param os Output stream
+     * @param g Graph to output
+     * @return Reference to the output stream
+     */
+    template<class K, class D, class C, Nature N>
+    friend std::ostream & operator<<(std::ostream& os, const graph<K, D, C, N> &g);
 
-    /// Load a graph from a file; .DOT not supported
+    /**
+     * @brief Input stream operator
+     *
+     * Tries to load from JSON and then from FILE.
+     *
+     * @tparam K Key type
+     * @tparam D Data type
+     * @tparam C Cost type
+     * @tparam N Nature type
+     * @param is Input stream
+     * @param g Graph to load into
+     * @return Reference to the input stream
+     */
+    template<class K, class D, class C, Nature N>
+    friend std::istream & operator>>(std::istream& is, graph<K, D, C, N> &g);
+
+    /**
+     * @brief Load a graph from a file
+     *
+     * @param filename Path to the file to load
+     * @note .DOT format is not supported
+     */
     void load(const char* filename);
 
-    /// .DOT format manipulation
-    /// @param graph_name Optional; accepted characters: [a-zA-Z0-9_-]
-    [[nodiscard]] std::unique_ptr<std::string> generate_dot(const std::string &graph_name = "") const;
-    void save_to_dot (const char* filename,   const std::string &graph_name = "") const;
+    /**
+     * @brief Generate a DOT representation of the graph
+     *
+     * @param graph_name Optional name for the graph (accepted characters: [a-zA-Z0-9_-])
+     * @return Unique pointer to the DOT string representation
+     */
+    [[nodiscard]] std::unique_ptr<std::string> generate_dot(const std::string& graph_name = "") const;
 
-    /// .JSON format manipulation
+    /**
+     * @brief Save the graph to a DOT file
+     *
+     * @param filename Path to the file to save to
+     * @param graph_name Optional name for the graph (accepted characters: [a-zA-Z0-9_-])
+     */
+    void save_to_dot(const char* filename, const std::string& graph_name = "") const;
+
+    /**
+     * @brief Generate a JSON representation of the graph
+     *
+     * @return Unique pointer to the JSON representation
+     */
     [[nodiscard]] std::unique_ptr<nlohmann::json> generate_json() const;
-    void save_to_json   (const char* filename) const;
-    void parse_from_json(std::istream &);
+
+    /**
+     * @brief Save the graph to a JSON file
+     *
+     * @param filename Path to the file to save to
+     */
+    void save_to_json(const char* filename) const;
+
+    /**
+     * @brief Parse a graph from a JSON input stream
+     *
+     * @param is Input stream containing JSON data
+     */
+    void parse_from_json(std::istream& is);
+
+    /**
+     * @brief Debug function to load from JSON Rust format (deprecated)
+     * @deprecated Use parse_from_json instead
+     */
     [[deprecated]] void DEBUG_load_from_json_rust(const char*);
 
-    /// graph format manipulation
+    /**
+     * @brief Generate a GRP representation of the graph
+     *
+     * @return Unique pointer to the GRP string representation
+     */
     [[nodiscard]] std::unique_ptr<std::string> generate_grp() const;
-    void save_to_grp   (const char* filename) const;
-    void parse_from_grp(std::istream &);
+
+    /**
+     * @brief Save the graph to a GRP file
+     *
+     * @param filename Path to the file to save to
+     */
+    void save_to_grp(const char* filename) const;
+
+    /**
+     * @brief Parse a graph from a GRP input stream
+     *
+     * @param is Input stream containing GRP data
+     */
+    void parse_from_grp(std::istream& is);
+
+    /// @}
 
     ///
-    //! @section Bool operators
-    ///
+    /// @name Boolean Operators
+    /// Comparison operators for graphs
+    /// @{
 
-    template<class K, class D, class C, Nature N> bool operator==(const graph<K, D, C, N> &) const noexcept;
-    template<class K, class D, class C, Nature N> bool operator!=(const graph<K, D, C, N> &) const noexcept;
+    /**
+     * @brief Equality operator
+     *
+     * Compares two graphs for equality.
+     *
+     * @tparam K Key type of other graph
+     * @tparam D Data type of other graph
+     * @tparam C Cost type of other graph
+     * @tparam N Nature type of other graph
+     * @param other Graph to compare with
+     * @return true if graphs are equal, false otherwise
+     */
+    template<class K, class D, class C, Nature N>
+    bool operator==(const graph<K, D, C, N> &other) const noexcept;
+
+    /**
+     * @brief Inequality operator
+     *
+     * Compares two graphs for inequality.
+     *
+     * @tparam K Key type of other graph
+     * @tparam D Data type of other graph
+     * @tparam C Cost type of other graph
+     * @tparam N Nature type of other graph
+     * @param other Graph to compare with
+     * @return true if graphs are not equal, false otherwise
+     */
+    template<class K, class D, class C, Nature N>
+    bool operator!=(const graph<K, D, C, N> &other) const noexcept;
+
+    /// @}
 
     /// CRTP: https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern
     class node : public basic_node<graphed_type, cost_type, iterator, const_iterator> {

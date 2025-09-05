@@ -81,24 +81,26 @@ graph<Key, T, Cost, Nat>::graph(std::istream &is) {
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-graph<Key, T, Cost, Nat>::graph(const graph &g) {
-    *this = g;
+graph<Key, T, Cost, Nat>::graph(const graph &other) {
+    *this = other;
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-graph<Key, T, Cost, Nat>::graph(graph &&g) noexcept {
-    swap(g);
+graph<Key, T, Cost, Nat>::graph(graph &&other) noexcept
+    : _nodes(std::move(other._nodes))
+    , _num_edges(other._num_edges) {
+    other._num_edges = 0;
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-graph<Key, T, Cost, Nat> &graph<Key, T, Cost, Nat>::operator=(const graph &g) {
+graph<Key, T, Cost, Nat> &graph<Key, T, Cost, Nat>::operator=(const graph &other) {
     clear();
 
-    for (const_iterator it{g.cbegin()}; it != g.cend(); ++it) {
+    for (const_iterator it{other.cbegin()}; it != other.cend(); ++it) {
         add_node(it->first, it->second->get());
     }
 
-    for (const_iterator it{g.cbegin()}; it != g.cend(); ++it) {
+    for (const_iterator it{other.cbegin()}; it != other.cend(); ++it) {
         std::list<typename node::edge> list = it->second->get_edges();
         for (typename node::edge e : list) {
             graph::const_iterator i{e.target()};
@@ -110,10 +112,16 @@ graph<Key, T, Cost, Nat> &graph<Key, T, Cost, Nat>::operator=(const graph &g) {
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-graph<Key, T, Cost, Nat> &graph<Key, T, Cost, Nat>::operator=(graph &&g) noexcept {
-    //! If there is a self-reference, it's a valid operation that don't require anything
-    if (this != &g) {
-        swap(g);
+graph<Key, T, Cost, Nat> &graph<Key, T, Cost, Nat>::operator=(graph&& other) noexcept {
+    // Handle self-assignment
+    if (this != &other) {
+        //swap(other);
+        // Move the resources directly for better performance
+        _nodes = std::move(other._nodes);
+        _num_edges = other._num_edges;
+
+        // Reset the moved-from object to a valid state
+        other._num_edges = 0;
     }
     return *this;
 }
@@ -346,7 +354,8 @@ std::size_t graph<Key, T, Cost, Nat>::del_node(const key_type &k) {
 }
 template <class Key, class T, class Cost, Nature Nat>
 void graph<Key, T, Cost, Nat>::clear() noexcept {
-    *this = std::move(graph());
+    _nodes.clear();
+    _num_edges = 0;
 }
 
 template <class Key, class T, class Cost, Nature Nat>

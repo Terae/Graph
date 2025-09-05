@@ -386,9 +386,9 @@ TEST_CASE("constructors") {
             final["node 0"] = 5;
             final = move(initial);
             CHECK(initial != final);
-            CHECK(initial.size() == 1);
+            CHECK(initial.empty());
             CHECK(final.size() == 100);
-            CHECK(initial["node 0"] == 5);
+            CHECK(initial["node 0"] == 0);
         }
     }
 }

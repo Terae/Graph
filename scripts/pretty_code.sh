@@ -3,17 +3,17 @@
 HOME=$(git rev-parse --show-toplevel)
 
 echo -n "Formating the code with Artistic Style ... "
-astyle --style=google --indent=spaces=4 --indent-modifiers --indent-switches --indent-preproc-block --indent-preproc-define --indent-namespaces --indent-col1-comments --pad-oper --pad-comma --pad-header --align-pointer=type --align-reference=name --convert-tabs --close-templates --lineend=linux --preserve-date --suffix=none --formatted ${HOME}/src/* ${HOME}/test/src/unit-*.cpp ${HOME}/doc/examples/*.cpp ${HOME}/benchmarks/*/*.cpp > /tmp/out.log 2>&1 || exit 1
+astyle --style=google --indent=spaces=4 --indent-modifiers --indent-switches --indent-preproc-block --indent-preproc-define --indent-namespaces --indent-col1-comments --pad-oper --pad-comma --pad-header --align-pointer=type --align-reference=name --convert-tabs --close-templates --lineend=linux --preserve-date --suffix=none --formatted main.cpp ${HOME}/src/* ${HOME}/test/src/unit-*.cpp ${HOME}/doc/examples/*.cpp ${HOME}/benchmarks/*/*.cpp >/tmp/out.log 2>&1 || exit 1
 echo "Done."
 
 [ -s /tmp/out.log ]
 if [ $? -eq 0 ]; then
-	echo -e "\033[0;34m"
-	cat /tmp/out.log
-	echo ""
-	echo -e "\033[0;41mPlease commit (or not) these changes and run the script again to generate header-only file.\033[0;0m"
-	echo ""
-	exit 1
+  echo -e "\033[0;34m"
+  cat /tmp/out.log
+  echo ""
+  echo -e "\033[0;41mPlease commit (or not) these changes and run the script again to generate header-only file.\033[0;0m"
+  echo ""
+  exit 1
 fi
 
 echo -n "Generating the header-only file        ... "
@@ -22,7 +22,7 @@ LOCATION=${HOME}/single_include
 mkdir -p "$LOCATION"
 FILE="$LOCATION/graph.hpp"
 
-cat > "$FILE" << EOF
+cat >"$FILE" <<EOF
 /*
  *    ╔═╗╦═╗╔═╗╔═╗╦ ╦  C++ Graph library
  *    ║ ╦╠╦╝╠═╣╠═╝╠═╣  Version 1.2.0
@@ -57,7 +57,7 @@ cat > "$FILE" << EOF
 EOF
 
 # Copying Graph.h, GraphSearch.h, Graph.cpp, Node.cpp and GraphSearch.cpp into graph.hpp
-sed -e '/#include "Graph.cpp"/ {' -e "r ${HOME}/src/Node.cpp" -e "r ${HOME}/src/Graph.cpp" -e 'd' -e '}' ${HOME}/src/Graph.h >> "$FILE" || exit 2
+sed -e '/#include "Graph.cpp"/ {' -e "r ${HOME}/src/Node.cpp" -e "r ${HOME}/src/Graph.cpp" -e 'd' -e '}' ${HOME}/src/Graph.h >>"$FILE" || exit 2
 # Copying Node.h into graph.hpp
 sed -i -e '/#include "Node.h"/ {' -e "r ${HOME}/src/Node.h" -e 'd' -e '}' "$FILE" || exit 2
 sed -i '/#include "Node.cpp"/,+2d' "$FILE" || exit 2
