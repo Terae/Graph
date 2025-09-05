@@ -25,13 +25,13 @@ TEST_CASE("bool operators") {
         }
 
         for (size_t i{0}; i < 98; i += 3) {
-            g1("node " + to_string(i), "node " + to_string(i + 1)) = 20 * i;
+            g1("node " + to_string(i),         "node " + to_string(i + 1)) = 20 * i;
             g1("node " + to_string(i + 2), "node " + to_string(i + 1)) = 40 * i;
 
-            g2("node " + to_string(i), "node " + to_string(i + 1)) = 20 * i;
+            g2("node " + to_string(i),         "node " + to_string(i + 1)) = 20 * i;
             g2("node " + to_string(i + 2), "node " + to_string(i + 1)) = 40 * i;
 
-            g3("node " + to_string(i), "node " + to_string(i + 1)) = 20 * i;
+            g3("node " + to_string(i),         "node " + to_string(i + 1)) = 20 * i;
             g3("node " + to_string(i + 2), "node " + to_string(i + 1)) = 40 * i;
         }
 
@@ -65,13 +65,13 @@ TEST_CASE("bool operators") {
         CHECK(g1 != g4); // One more node
 
         for (size_t i{0}; i < 98; i += 3) {
-            g1("node " + to_string(i), "node " + to_string(i + 1)) = 20 * i;
+            g1("node " + to_string(i),         "node " + to_string(i + 1)) = 20 * i;
             g1("node " + to_string(i + 2), "node " + to_string(i + 1)) = 40 * i;
 
-            g5("node " + to_string(i), "node " + to_string(i + 1)) = 20 * i;
+            g5("node " + to_string(i),         "node " + to_string(i + 1)) = 20 * i;
             g5("node " + to_string(i + 2), "node " + to_string(i + 1)) = 40 * i;
 
-            g6("node " + to_string(i), "node " + to_string(i + 1)) = 20 * i;
+            g6("node " + to_string(i),         "node " + to_string(i + 1)) = 20 * i;
             g6("node " + to_string(i + 2), "node " + to_string(i + 1)) = 40 * i;
         }
         g5("node 52", "node 12") = 42;

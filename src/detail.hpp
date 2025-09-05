@@ -45,7 +45,7 @@ namespace detail {
     ///
 
     ///
-    /// @brief general exception of the @ref graph class
+    /// @brief general exception to the @ref graph class
     ///
     /// This class is an extension of `std::exception` objects.
     /// It is used as the base class for all exceptions thrown
@@ -64,7 +64,7 @@ namespace detail {
     ///
     /// @since version 1.0.0
     ///
-    struct exception : public std::exception {
+    struct exception : std::exception {
         //! returns the explanatory string
         [[nodiscard]] const char* what() const noexcept override {
             return m.what();
@@ -98,16 +98,16 @@ namespace detail {
     ///
     /// @since version 1.0.0
     ///
-    struct invalid_argument final : public exception {
+    struct invalid_argument final : exception {
         ///
         /// @brief create an invalid argument exception
-        /// @param[in] function_name the function from which the exceptions occurs (returned by the __FUNCTION__ macro)
+        /// @param[in] function_name the function from which the exceptions occur (returned by the __FUNCTION__ macro)
         /// @param[in] what_arg the explanatory string
         /// @return invalid_argument object
         ///
         static invalid_argument create(const std::string &function_name,
                                        const std::string &what_arg = "Invalid argument") {
-            std::string w{exception::name("invalid_argument") + what_arg + " when calling '" + function_name + "'."};
+            const std::string w{exception::name("invalid_argument") + what_arg + " when calling '" + function_name + "'."};
             return invalid_argument(w.c_str());
         }
 
@@ -133,16 +133,16 @@ namespace detail {
     ///
     /// @since version 1.0.0
     ///
-    struct unexpected_nullptr final : public exception {
+    struct unexpected_nullptr final : exception {
         ///
         /// @brief create an unexpected nullptr exception
-        /// @param[in] function_name the function from which the exceptions occurs (returned by the __FUNCTION__ macro)
+        /// @param[in] function_name the function from which the exceptions occur (returned by the __FUNCTION__ macro)
         /// @param[in] what_arg the explanatory string
         /// @return unexpected_nullptr object
         ///
         static unexpected_nullptr create(const std::string &function_name,
                                          const std::string &what_arg = "Unexpected nullptr") {
-            std::string w{exception::name("unexpected_nullptr") + what_arg + " when calling '" + function_name + "'."};
+            const std::string w{exception::name("unexpected_nullptr") + what_arg + " when calling '" + function_name + "'."};
             return unexpected_nullptr(w.c_str());
         }
 
@@ -173,7 +173,7 @@ namespace detail {
     ///
     /// @since version 1.0.0
     ///
-    struct parse_error final : public exception {
+    struct parse_error final : exception {
         ///
         /// @brief create a parse error exception
         /// @param[in] function_name the function from which the exceptions occurs (returned by the __FUNCTION__ macro)
@@ -182,11 +182,11 @@ namespace detail {
         /// @return unexpected_nullptr object
         ///
         static parse_error create(const std::string &function_name,
-                                  std::size_t byte,
+                                  const std::size_t byte,
                                   const std::string &what_arg = "Bad format") {
-            std::string w{exception::name("parse_error") + "parse error"
-                          + (byte != 0 ? " at " + std::to_string(byte) : "")
-                          + ": " + what_arg + " when calling '" + function_name + "'."};
+            const std::string w{exception::name("parse_error") + "parse error"
+                                + (byte != 0 ? " at " + std::to_string(byte) : "")
+                                + ": " + what_arg + " when calling '" + function_name + "'."};
             return parse_error(w.c_str(), byte);
         }
 
@@ -205,7 +205,7 @@ namespace detail {
     };
 
     ///
-    /// @brief specialized logical exception of the @ref graph class
+    /// @brief specialized logical exception to the @ref graph class
     ///
     /// This class is an extension of @ref exception objects.
     /// It is used as the base class for all exceptions thrown by the
@@ -227,7 +227,7 @@ namespace detail {
     ///
     /// @since version 1.0.0
     ///
-    struct bad_graph : public exception {
+    struct bad_graph : exception {
       protected:
         explicit bad_graph(const char* what_arg) : exception(what_arg) {}
 
@@ -253,16 +253,16 @@ namespace detail {
     ///
     /// @since version 1.0.0
     ///
-    struct negative_edge final : public bad_graph {
+    struct negative_edge final : bad_graph {
         ///
         /// @brief create a negative_edge exception
-        /// @param[in] function_name the function from which the exceptions occurs (returned by the __FUNCTION__ macro)
+        /// @param[in] function_name the function from which the exceptions occur (returned by the __FUNCTION__ macro)
         /// @param[in] what_arg the explanatory string
         /// @return unexpected_nullptr object
         ///
         static negative_edge create(const std::string &function_name,
                                     const std::string &what_arg = "Edge with negative weight") {
-            std::string w{bad_graph::name("negative_edge") + what_arg + " when calling '" + function_name + "'."};
+            const std::string w{bad_graph::name("negative_edge") + what_arg + " when calling '" + function_name + "'."};
             return negative_edge(w.c_str());
         }
 
@@ -287,16 +287,16 @@ namespace detail {
     ///
     /// @since version 1.0.0
     ///
-    struct negative_weight_cycle final : public bad_graph {
+    struct negative_weight_cycle final : bad_graph {
         ///
         /// @brief create a negative_weight_cycle exception
-        /// @param[in] function_name the function from which the exceptions occurs (returned by the __FUNCTION__ macro)
+        /// @param[in] function_name the function from which the exceptions occur (returned by the __FUNCTION__ macro)
         /// @param[in] what_arg the explanatory string
         /// @return unexpected_nullptr object
         ///
         static negative_weight_cycle create(const std::string &function_name,
                                             const std::string &what_arg = "Negative-weight cycle") {
-            std::string w{bad_graph::name("negative_weight_cycle") + what_arg + " when calling '" + function_name + "'."};
+            const std::string w{bad_graph::name("negative_weight_cycle") + what_arg + " when calling '" + function_name + "'."};
             return negative_weight_cycle(w.c_str());
         }
 
@@ -321,16 +321,16 @@ namespace detail {
     ///
     /// @since version 1.0.0
     ///
-    struct not_complete final : public bad_graph {
+    struct not_complete final : bad_graph {
         ///
         /// @brief create a not_complete exception
-        /// @param[in] function_name the function from which the exceptions occurs (returned by the __FUNCTION__ macro)
+        /// @param[in] function_name the function from which the exceptions occur (returned by the __FUNCTION__ macro)
         /// @param[in] what_arg the explanatory string
         /// @return unexpected_nullptr object
         ///
         static not_complete create(const std::string &function_name,
                                    const std::string &what_arg = "Not complete graph") {
-            std::string w{bad_graph::name("not_complete") + what_arg + " when calling '" + function_name + "'."};
+            const std::string w{bad_graph::name("not_complete") + what_arg + " when calling '" + function_name + "'."};
             return not_complete(w.c_str());
         }
 
@@ -355,16 +355,16 @@ namespace detail {
     ///
     /// @since version 1.0.0
     ///
-    struct has_cycle final : public bad_graph {
+    struct has_cycle final : bad_graph {
         ///
         /// @brief create a not_complete exception
-        /// @param[in] function_name the function from which the exceptions occurs (returned by the __FUNCTION__ macro)
+        /// @param[in] function_name the function from which the exceptions occur (returned by the __FUNCTION__ macro)
         /// @param[in] what_arg the explanatory string
         /// @return unexpected_nullptr object
         ///
         static has_cycle create(const std::string &function_name,
                                 const std::string &what_arg = "Graph with a cycle") {
-            std::string w{bad_graph::name("has_cycle") + what_arg + " when calling '" + function_name + "'."};
+            const std::string w{bad_graph::name("has_cycle") + what_arg + " when calling '" + function_name + "'."};
             return has_cycle(w.c_str());
         }
 
@@ -399,7 +399,7 @@ namespace detail {
         explicit basic_degree(value_type degree) : _deg(std::move(degree)) {};
         basic_degree(std::size_t in, std::size_t out) : basic_degree(std::make_pair(in, out)) {};
 
-        [[nodiscard]] inline value_type get_degree() const {
+        [[nodiscard]] value_type get_degree() const {
             return _deg;
         }
 
@@ -434,9 +434,9 @@ namespace detail {
         using type = basic_degree<UNDIRECTED>;
 
         explicit basic_degree(const value_type &d) : _deg(d) {}
-        basic_degree(std::size_t in, std::size_t out) : basic_degree(std::max(in, out)) {}
+        basic_degree(const std::size_t in, const std::size_t out) : basic_degree(std::max(in, out)) {}
 
-        [[nodiscard]] inline value_type get_degree() const {
+        [[nodiscard]] value_type get_degree() const {
             return _deg;
         }
 
@@ -469,13 +469,12 @@ namespace detail {
     //! SECTION helpers
     ///
 
-    template <Nature> struct is_directed           : public std::false_type { };
-    template <>       struct is_directed<DIRECTED> : public std::true_type  { };
+    template <Nature> struct is_directed           : std::false_type { };
+    template <>       struct is_directed<DIRECTED> : std::true_type  { };
 
-    template <Nature> struct is_undirected             : public std::false_type { };
-    template <>       struct is_undirected<UNDIRECTED> : public std::true_type  { };
+    template <Nature> struct is_undirected             : std::false_type { };
+    template <>       struct is_undirected<UNDIRECTED> : std::true_type  { };
 
-#include <memory>
 #include <utility>
 
     //! distinguish value type between map::iterator and shared_ptr: @see https://stackoverflow.com/a/31409532
@@ -489,7 +488,7 @@ namespace detail {
     template <typename T>
     struct is_map_iterator<T,
             void_t<decltype(++std::declval<T&>()),                     /// incrementable,
-                   decltype(*std::declval<T&>()),                      /// dereferencable,
+                   decltype(*std::declval<T&>()),                      /// de-referencable,
                    decltype(std::declval<T&>() == std::declval<T&>()), /// comparable
                    decltype((*std::declval<T&>()).second)> >           /// pair
             : std::true_type { };
@@ -499,8 +498,8 @@ namespace detail {
     ///template <class V, class = typename std::enable_if<!is_map_iterator<V>::value>::type>
     ///inline V get_value(const V& v, const V&) { return v; }
     /// map iterator
-    template <class V, class = typename std::enable_if<is_map_iterator<V>::value>::type>
-    inline typename std::iterator_traits<V>::value_type::second_type get_value(const V &v, const V &end) {
+    template <class V, class = std::enable_if_t<is_map_iterator<V>::value >>
+    typename std::iterator_traits<V>::value_type::second_type get_value(const V &v, const V &end) {
         if (v == end) {
             return static_cast<typename std::iterator_traits<V>::value_type::second_type>(nullptr);
         }
@@ -516,22 +515,22 @@ namespace detail {
     ///
     /// @example type_name(4.2f) == "float"
     ///
-    //! @return the human readable name of @tparam T
+    //! @return the human-readable name of @tparam T
     ///
     template <class T>
     std::string type_name() {
         int status;
-        std::string tname{typeid(T).name()};
-        char* demangled_name{abi::__cxa_demangle(tname.c_str(), nullptr, nullptr, &status)};
+        std::string type_name{typeid(T).name()};
+        char* demangled_name{abi::__cxa_demangle(type_name.c_str(), nullptr, nullptr, &status)};
 
         if (status == 0) {
-            tname = demangled_name;
+            type_name = demangled_name;
         }
         std::free(demangled_name);
 
         /// Replace all occurences of 'to_replace' by 'replacement' in 'base'
         /// Usefull to get an human readable 'std::string'
-        std::function<void(std::string &, std::string, std::string)> replace_all =
+        const std::function<void(std::string &, std::string, std::string)> replace_all =
         [](std::string & base, const std::string & to_replace, const std::string & replacement) {
             for (std::string::size_type i{0}; (i = base.find(to_replace, i)) != std::string::npos; ) {
                 base.replace(i, to_replace.length(), replacement);
@@ -539,9 +538,9 @@ namespace detail {
             }
         };
 
-        replace_all(tname, "std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >", "std::string>");
-        replace_all(tname, "std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >",   "std::string");
-        return tname;
+        replace_all(type_name, "std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >", "std::string>");
+        replace_all(type_name, "std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >",   "std::string");
+        return type_name;
     }
 
     /// Used into the graph::operator>> function
@@ -560,7 +559,7 @@ namespace detail {
         return is;
     }
     template<> inline
-    std::istream &read_T<std::string>(std::istream &is, std::string &str) {
+    std::istream & read_T<std::string>(std::istream &is, std::string &str) {
         is.ignore(std::numeric_limits<std::streamsize>::max(), '"');
         std::getline(is, str, '"');
         return is;
@@ -568,8 +567,8 @@ namespace detail {
 
     template <class C>
     std::istream &read_cost(std::istream &is, C &c) {
-        std::string str = std::string(std::istreambuf_iterator<char>(is),
-                                      std::istreambuf_iterator<char>());
+        const auto str = std::string(std::istreambuf_iterator(is),
+                                     std::istreambuf_iterator<char>());
         if (str.find_first_of('\"') == std::string::npos &&
                 str.find_first_of("infinity") != std::string::npos)
             c = std::numeric_limits<C>::has_infinity ? std::numeric_limits<C>::infinity() :

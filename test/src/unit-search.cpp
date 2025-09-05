@@ -29,14 +29,14 @@ TEST_CASE("search") {
 
         Graph::search_path path{g.dfs("node 1", "node 4")};
         CHECK_FALSE(path.empty());
-        CHECK(path.size() == 4);
-        CHECK(path.total_cost() == 12 + 13 + 32);
-        CHECK(path.contain(g.find("node 2")));
+        CHECK      (path.size() == 4);
+        CHECK      (path.total_cost() == 12 + 13 + 32);
+        CHECK      (path.contain(g.find("node 2")));
         CHECK_FALSE(path.contain(g.find("node 6")));
-        CHECK(path.contain(g.begin()));
-        CHECK(path.front() == make_pair<Graph::const_iterator, double>(g.find("node 1"), 0));
+        CHECK      (path.contain(g.begin()));
+        CHECK      (path.front() == make_pair<Graph::const_iterator, double>(g.find("node 1"), 0));
         path.pop_front();
-        for (Graph::search_path::const_reverse_iterator it{path.crbegin()}; it != path.crend(); ++it) {
+        for (auto it{path.crbegin()}; it != path.crend(); ++it) {
             CHECK(it->first != g.cend());
         }
     }

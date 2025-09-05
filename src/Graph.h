@@ -5,12 +5,10 @@
 #ifndef ROOT_GRAPH_H
 #define ROOT_GRAPH_H
 
-#include <algorithm> /// find
 #include <fstream>   /// setw, operator<<
 #include <iomanip>   /// setw
 #include <map>       /// map
 #include <queue>     /// queue
-#include <set>       /// set
 #include <vector>    /// vector
 
 #ifdef INCLUDE_JSON_FILE
@@ -100,14 +98,14 @@ class graph {
 
     /// the type of elements in a graph container
     using value_type   = std::pair<const Key, PtrNode>;
-    /// the type of an element reference
+    /// the type of element reference
     using reference    = value_type &;
     /// the type of the unique and identifying key
     using key_type     = Key;
     /// the type of stored values on a graph
     using graphed_type = T;
-    /// the type of a edge cost value
-    using cost_type = Cost;
+    /// the type of edge cost value
+    using cost_type    = Cost;
     /// a type to represent container sizes
     using size_type    = std::size_t;
 
@@ -248,7 +246,7 @@ class graph {
     size_type clear_edges(const key_type &);
 
     //! Others
-    void swap(graph &);
+    void swap(graph &) noexcept;
 
     ///
     //! @section Functions
@@ -275,10 +273,10 @@ class graph {
     bool has_path_connecting(const_iterator,   const_iterator)   const;
     bool has_path_connecting(const key_type &, const key_type &) const;
 
-    inline size_type get_nbr_nodes() const noexcept;
-    inline size_type get_nbr_edges() const noexcept;
+    [[nodiscard]] size_type get_nbr_nodes() const noexcept;
+    [[nodiscard]] size_type get_nbr_edges() const noexcept;
 
-    inline Nature get_nature() const;
+    [[nodiscard]] Nature get_nature() const;
 
     Degree degree(const_iterator)   const;
     Degree degree(const key_type &) const;
@@ -288,23 +286,23 @@ class graph {
 
     std::map<key_type, Degree> degrees() const;
 
-    template <class = typename std::enable_if<detail::is_directed<Nat>::value>>
+    template <class = std::enable_if<detail::is_directed<Nat>::value >>
     std::vector<typename node::edge> get_in_edges (const_iterator)   const;
-    template <class = typename std::enable_if<detail::is_directed<Nat>::value>>
-    inline std::vector<typename node::edge> get_in_edges (const key_type &) const;
+    template <class = std::enable_if<detail::is_directed<Nat>::value >>
+    std::vector<typename node::edge> get_in_edges (const key_type &) const;
 
-    template <class = typename std::enable_if<detail::is_directed<Nat>::value>>
-    inline std::vector<typename node::edge> get_out_edges(const_iterator)   const;
-    template <class = typename std::enable_if<detail::is_directed  <Nat>::value>>
-    inline std::vector<typename node::edge> get_out_edges(const key_type &) const;
+    template <class = std::enable_if<detail::is_directed<Nat>::value >>
+    std::vector<typename node::edge> get_out_edges(const_iterator)   const;
+    template <class = std::enable_if<detail::is_directed  <Nat>::value >>
+    std::vector<typename node::edge> get_out_edges(const key_type &) const;
 
-    template <class = typename std::enable_if<detail::is_undirected<Nat>::value>>
-    inline std::vector<typename node::edge> get_edges    (const_iterator)   const;
-    template <class = typename std::enable_if<detail::is_undirected<Nat>::value>>
-    inline std::vector<typename node::edge> get_edges    (const key_type &) const;
+    template <class = std::enable_if<detail::is_undirected<Nat>::value >>
+    std::vector<typename node::edge> get_edges    (const_iterator)   const;
+    template <class = std::enable_if<detail::is_undirected<Nat>::value >>
+    std::vector<typename node::edge> get_edges    (const key_type &) const;
 
-    template <class = typename std::enable_if<detail::is_directed<Nat>::value>>
-    bool is_cyclic() const;
+    template <class = std::enable_if<detail::is_directed<Nat>::value >>
+    [[nodiscard]] bool is_cyclic() const;
 
     /*
     // TODO
@@ -350,27 +348,27 @@ class graph {
     ///
 
     /// Display a JSON representation
-    template<class K, class D, class C, Nature N> friend std::ostream &operator<<(std::ostream &, const graph<K, D, C, N> &);
+    template<class K, class D, class C, Nature N> friend std::ostream & operator<<(std::ostream &, const graph<K, D, C, N> &);
     /// Try to load from JSON and then from FILE
-    template<class K, class D, class C, Nature N> friend std::istream &operator>>(std::istream &,       graph<K, D, C, N> &);
+    template<class K, class D, class C, Nature N> friend std::istream & operator>>(std::istream &,       graph<K, D, C, N> &);
 
     /// Load a graph from a file; .DOT not supported
     void load(const char* filename);
 
     /// .DOT format manipulation
     /// @param graph_name Optional; accepted characters: [a-zA-Z0-9_-]
-    std::unique_ptr<std::string> generate_dot(const std::string &graph_name = "") const;
+    [[nodiscard]] std::unique_ptr<std::string> generate_dot(const std::string &graph_name = "") const;
     void save_to_dot (const char* filename,   const std::string &graph_name = "") const;
 
     /// .JSON format manipulation
-    std::unique_ptr<nlohmann::json> generate_json() const;
-    void save_to_json  (const char* filename) const;
+    [[nodiscard]] std::unique_ptr<nlohmann::json> generate_json() const;
+    void save_to_json   (const char* filename) const;
     void parse_from_json(std::istream &);
     [[deprecated]] void DEBUG_load_from_json_rust(const char*);
 
     /// graph format manipulation
-    std::unique_ptr<std::string> generate_grp() const;
-    void save_to_grp  (const char* filename) const;
+    [[nodiscard]] std::unique_ptr<std::string> generate_grp() const;
+    void save_to_grp   (const char* filename) const;
     void parse_from_grp(std::istream &);
 
     ///
@@ -428,6 +426,8 @@ class graph {
     ///
     /// @brief Depth-Limited Search class
     /// @see https://en.wikipedia.org/wiki/Iterative_Deepening_Depth-First_Search
+    /// @param start
+    /// @param target
     /// @param depth Predetermined depth limit to create a Depth-Limited Search (fix DFS's loop problem). Have to be well choose, in function of the problem.
     /// @since version 1.1
     ///
@@ -516,7 +516,7 @@ class graph {
     shortest_paths bellman_ford(key_type       start) const;
     shortest_paths bellman_ford(const_iterator start) const;
 
-    class search_path final : private std::deque<std::pair<graph::const_iterator, cost_type>> {
+    class search_path final : std::deque<std::pair<graph::const_iterator, cost_type >> {
         template <bool> friend search_path graph::abstract_first_search(graph::const_iterator, std::function<bool(const_iterator)>) const;
 
         friend search_path graph::dls   (graph::const_iterator, std::function<bool(const_iterator)>, size_type)                                const;
@@ -528,7 +528,7 @@ class graph {
 
         friend bool path_comparator::operator()(const search_path &, const search_path &) const;
 
-        using Container = std::deque<std::pair<graph::const_iterator, cost_type>>;
+        using Container = std::deque<std::pair<graph::const_iterator, cost_type >>;
 
       public:
         using value_type             = typename Container::value_type;
@@ -550,7 +550,7 @@ class graph {
 
         search_path() = default;
         search_path(const search_path &);
-        virtual ~search_path() = default;
+        ~search_path() = default;
 
         using Container::empty;
         using Container::size;
@@ -566,9 +566,9 @@ class graph {
 
         bool contain(const graph::const_iterator &) const;
 
-        friend std::ostream &operator<<(std::ostream &os, const typename graph::search_path &sp) {
+        friend std::ostream &operator << (std::ostream &os, const graph::search_path &sp) {
             cost_type count{};
-            for (const std::pair<typename graph<Key, T, cost_type, Nat>::const_iterator, cost_type> &p : sp) {
+            for (const std::pair<graph::const_iterator, cost_type> &p : sp) {
                 os << "-> " << p.first->first << " (" << (count += p.second) << ") ";
             }
             return os;
@@ -583,7 +583,7 @@ class graph {
     ///
     /// @since version 1.1
     ///
-    class shortest_paths final : private std::map<graph::const_iterator, std::pair<graph::const_iterator, cost_type>, iterator_comparator> {
+    class shortest_paths final : std::map<graph::const_iterator, std::pair<graph::const_iterator, cost_type>, iterator_comparator> {
         graph::const_iterator _start;
 
         friend shortest_paths graph::dijkstra    (graph::const_iterator, std::function<bool(const_iterator)>) const;
@@ -613,19 +613,19 @@ class graph {
         using Container::crend;
 
         shortest_paths(const shortest_paths &);
-        virtual ~shortest_paths() = default;
+        ~shortest_paths() = default;
 
         using Container::empty;
         using Container::size;
 
         //! @return the father of current in the optimal path from _start to current
-        inline graph::const_iterator get_previous(graph::const_iterator current) const;
+        graph::const_iterator get_previous(graph::const_iterator current) const;
 
         //! @return the re-build path from the start node to the target
         search_path get_path(graph::key_type target) const;
         search_path get_path(graph::const_iterator target) const;
 
-        friend std::ostream &operator<<(std::ostream &os, const shortest_paths &sp) {
+        friend std::ostream & operator<<(std::ostream & os, const shortest_paths & sp) {
             for (auto p : sp) {
                 os << sp.get_path(p.first) << std::endl;
             }
@@ -635,8 +635,7 @@ class graph {
 
   private:
     //! Helper functions and classes
-    class path_comparator : public std::binary_function<search_path, search_path, bool> {
-      private:
+    class path_comparator : public std::function<bool(search_path, search_path)> {
         std::function<cost_type(const_iterator)> _heuristic;
 
       public:
@@ -645,14 +644,14 @@ class graph {
         bool operator() (const search_path &, const search_path &) const;
     };
 
-    struct iterator_comparator : public std::binary_function<const_iterator, const_iterator, bool> {
+    struct iterator_comparator : std::function<bool(const_iterator, const_iterator)> {
         bool operator()(const const_iterator &, const const_iterator &) const;
     };
 
     bool is_cyclic_rec(const_iterator current, std::list<const_iterator> path) const;
 
     /// @tparam insertFront Specialization parameter between dfs (`true`) and bfs (`false`) using respectively a `std::stack` and a `std::queue`
-    template <bool insertFront> search_path abstract_first_search(const_iterator start, std::function<bool(const_iterator)> is_goal)     const;
+    template <bool insertFront> search_path abstract_first_search(const_iterator start, std::function<bool(const_iterator)> is_goal) const;
 };
 
 template <class Key, class T, class Cost = std::size_t>

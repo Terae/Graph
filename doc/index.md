@@ -8,4 +8,4 @@ These pages contain the API documentation of the **STL-like graph library**, a C
 
 @see https://github.com/terae/graph to download the source code
 
-@version 1.1.2
+@version 1.2.0

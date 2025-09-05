@@ -31,7 +31,7 @@ TEST_CASE("algorithms") {
             Graph::iterator it{g.emplace("target", 10).first};
 
             int i{0};
-            for_each(g.begin(), g.end(), [it, &i](decltype(g)::value_type /*pair<const string, shared_ptr<node<int, double>>> */&p) {
+            for_each(g.begin(), g.end(), [it, &i](const decltype(g)::value_type /*pair<const string, shared_ptr<node<int, double>>> */&p) {
                 p.second->add_edge(it, i * 10);
                 ++i;
             });

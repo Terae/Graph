@@ -25,21 +25,19 @@ struct cost {
         return number < other.number;
     }
 };
-namespace std {
-    template<>
-    struct numeric_limits<cost> {
-        static constexpr bool is_specialized = true;
-        static bool has_infinity() {
-            return true;
-        }
-        static cost infinity() {
-            return cost(std::numeric_limits<double>::infinity());
-        }
-        static cost max() {
-            return cost(std::numeric_limits<double>::max());
-        }
-    };
-}
+template<>
+struct std::numeric_limits<cost> {
+    static constexpr bool is_specialized = true;
+    static bool has_infinity() {
+        return true;
+    }
+    static cost infinity() {
+        return cost(std::numeric_limits<double>::infinity());
+    }
+    static cost max() {
+        return cost(std::numeric_limits<double>::max());
+    }
+};
 
 TEST_CASE("constructors") {
     using namespace std;
@@ -67,7 +65,7 @@ TEST_CASE("constructors") {
         }
     }
 
-    SECTION("inialize an empty graph") {
+    SECTION("initialize an empty graph") {
         SECTION("default graph") {
             graph<string, int, size_t> g;
             g["node 1"] = 1;
@@ -79,7 +77,7 @@ TEST_CASE("constructors") {
 
         SECTION("graph<bool, bool, bool>") {
             graph_directed<bool, bool, bool> g;
-            g[true] = true;
+            g[true]  = true;
             g[false] = false;
             g(true, false) = true;
             CHECK(g.existing_edge(true, false));
@@ -138,8 +136,8 @@ TEST_CASE("constructors") {
         }
 
         SECTION("graph of enum types") {
-            enum key {node_1, node_2};
-            enum t {data_1, data_2};
+            enum key  {node_1, node_2};
+            enum t    {data_1, data_2};
             enum cost {cost_1};
 
             graph<key, t, cost> g;
@@ -275,8 +273,8 @@ TEST_CASE("constructors") {
                 CHECK(initial.get_nbr_edges() + 1 == final.get_nbr_edges());
 
                 CHECK_FALSE(initial.existing_edge("node 1", "node 3"));
-                CHECK(final.existing_edge("node 1", "node 3"));
-                CHECK_FALSE(final.existing_edge("node 3", "node 1"));
+                CHECK      (final.existing_edge  ("node 1", "node 3"));
+                CHECK_FALSE(final.existing_edge  ("node 3", "node 1"));
             }
 
             SECTION("undirected") {
@@ -299,8 +297,8 @@ TEST_CASE("constructors") {
                 CHECK(initial.get_nbr_edges() + 1 == final.get_nbr_edges());
 
                 CHECK_FALSE(initial.existing_edge("node 1", "node 3"));
-                CHECK(final.existing_edge("node 1", "node 3"));
-                CHECK(final.existing_edge("node 3", "node 1"));
+                CHECK      (final.existing_edge  ("node 1", "node 3"));
+                CHECK      (final.existing_edge  ("node 3", "node 1"));
             }
         }
 
@@ -319,8 +317,7 @@ TEST_CASE("constructors") {
             CHECK(initial.empty());
             CHECK(final.size() == 100);
 
-            CHECK_THROWS_WITH(final = move(final),
-                              "[graph.exception.invalid_argument] Self-reference in the client part when calling 'operator='.");
+            CHECK_NOTHROW(final = move(final));
         }
 
         SECTION("assignment operator") {
@@ -345,8 +342,8 @@ TEST_CASE("constructors") {
                 CHECK(initial.get_nbr_edges() + 1 == final.get_nbr_edges());
 
                 CHECK_FALSE(initial.existing_edge("node 1", "node 3"));
-                CHECK(final.existing_edge("node 1", "node 3"));
-                CHECK_FALSE(final.existing_edge("node 3", "node 1"));
+                CHECK      (final.existing_edge  ("node 1", "node 3"));
+                CHECK_FALSE(final.existing_edge  ("node 3", "node 1"));
             }
 
             SECTION("undirected") {
@@ -370,8 +367,8 @@ TEST_CASE("constructors") {
                 CHECK(initial.get_nbr_edges() + 1 == final.get_nbr_edges());
 
                 CHECK_FALSE(initial.existing_edge("node 1", "node 3"));
-                CHECK(final.existing_edge("node 1", "node 3"));
-                CHECK(final.existing_edge("node 3", "node 1"));
+                CHECK      (final.existing_edge  ("node 1", "node 3"));
+                CHECK      (final.existing_edge  ("node 3", "node 1"));
             }
         }
 

@@ -111,11 +111,10 @@ graph<Key, T, Cost, Nat> &graph<Key, T, Cost, Nat>::operator=(const graph &g) {
 
 template <class Key, class T, class Cost, Nature Nat>
 graph<Key, T, Cost, Nat> &graph<Key, T, Cost, Nat>::operator=(graph &&g) noexcept {
-    //! If there is a self-reference: bug in the client part that should be fixed
-    if (this == &g) {
-        GRAPH_THROW_WITH(invalid_argument, "Self-reference in the client part")
+    //! If there is a self-reference, it's a valid operation that don't require anything
+    if (this != &g) {
+        swap(g);
     }
-    swap(g);
     return *this;
 }
 
@@ -401,7 +400,7 @@ std::size_t graph<Key, T, Cost, Nat>::clear_edges(const key_type &k) {
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-void graph<Key, T, Cost, Nat>::swap(graph &other) {
+void graph<Key, T, Cost, Nat>::swap(graph &other) noexcept {
     std::swap(_nodes,     other._nodes);
     std::swap(_num_edges, other._num_edges);
 }
@@ -409,7 +408,7 @@ void graph<Key, T, Cost, Nat>::swap(graph &other) {
 /// specialisation of std::swap
 namespace std {
     template <class Key, class T, class Cost, Nature Nat>
-    inline void swap(graph<Key, T, Cost, Nat> &g1, graph<Key, T, Cost, Nat> &g2) noexcept {
+    void swap(graph<Key, T, Cost, Nat> &g1, graph<Key, T, Cost, Nat> &g2) noexcept {
         g1.swap(g2);
     }
 }
@@ -446,9 +445,8 @@ bool graph<Key, T, Cost, Nat>::existing_edge(const_iterator it1, const_iterator 
     if (it1 != cend() && it2 != cend()) {
         if (get_nature() == DIRECTED) {
             return it1->second->existing_adjacent_node(it2);
-        } else {
-            return it1->second->existing_adjacent_node(it2) && it2->second->existing_adjacent_node(it1);
         }
+        return it1->second->existing_adjacent_node(it2) && it2->second->existing_adjacent_node(it1);
     }
 
     return false;
@@ -485,7 +483,7 @@ std::size_t graph<Key, T, Cost, Nat>::get_nbr_edges() const noexcept {
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-inline Nature graph<Key, T, Cost, Nat>::get_nature() const {
+Nature graph<Key, T, Cost, Nat>::get_nature() const {
     return Nat;
 }
 
@@ -706,116 +704,116 @@ graph<Key, T, Cost, Nat> &graph<Key, T, Cost, Nat>::condensate(bool make_acyclic
 
 //template <class Key, class T, class Cost, Nature Nat>
 //std::vector<typename graph<Key, T, Cost, Nat>::const_iterator> graph<Key, T, Cost, Nat>::maximum_clique() const {
-    // TODO: fix the bug
-    /// queue of all unvisited nodes which can be part of a bigger clique
-    /*
-    std::function<size_type(const_iterator)> heuristic = [](const_iterator it) -> size_type { return it->second->degree().first; };
-    std::function<size_type(const_iterator, const_iterator)> comparator = [&heuristic](const_iterator it1, const_iterator it2) -> size_type { return heuristic(it1) > heuristic(it2); };
-    std::list<const_iterator> Q;
-    for (const_iterator it{cbegin()}; it != cend(); ++it) {
-        Q.emplace_back(it);
-    }
-    //std::copy(cbegin(), cend(), std::back_inserter(Q));
-    Q.sort(comparator);
+// TODO: fix the bug
+/// queue of all unvisited nodes which can be part of a bigger clique
+/*
+std::function<size_type(const_iterator)> heuristic = [](const_iterator it) -> size_type { return it->second->degree().first; };
+std::function<size_type(const_iterator, const_iterator)> comparator = [&heuristic](const_iterator it1, const_iterator it2) -> size_type { return heuristic(it1) > heuristic(it2); };
+std::list<const_iterator> Q;
+for (const_iterator it{cbegin()}; it != cend(); ++it) {
+    Q.emplace_back(it);
+}
+//std::copy(cbegin(), cend(), std::back_inserter(Q));
+Q.sort(comparator);
 
-    std::vector<const_iterator> result;
-    std::function<size_type()> calculate_max_size = [&Q, &heuristic]() -> size_type {
-        for (size_type degree{heuristic(*Q.cbegin())}; degree > 0; --degree) {
-            if (std::count_if(Q.cbegin(), Q.cend(), [degree, &heuristic](const_iterator it) -> bool {
-            return heuristic(it) >= degree;
-            }) >= degree) {
-                return degree + 1;
-            }
+std::vector<const_iterator> result;
+std::function<size_type()> calculate_max_size = [&Q, &heuristic]() -> size_type {
+    for (size_type degree{heuristic(*Q.cbegin())}; degree > 0; --degree) {
+        if (std::count_if(Q.cbegin(), Q.cend(), [degree, &heuristic](const_iterator it) -> bool {
+        return heuristic(it) >= degree;
+        }) >= degree) {
+            return degree + 1;
         }
-        return 0;
-    };
-    size_type max_size{calculate_max_size()};
+    }
+    return 0;
+};
+size_type max_size{calculate_max_size()};
 
-    while (!Q.empty() && result.size() <= max_size) {
+while (!Q.empty() && result.size() <= max_size) {
+    // DEBUG
+    std::cout << "Values inside Q: ";
+    for (const_iterator I : Q) {
+        std::cout << I->first << " ";
+    }
+    std::cout << std::endl;
+
+    const_iterator N{*Q.cbegin()};
+    // DEBUG
+    std::cout << "N: " << N->first << std::endl;
+    std::vector<const_iterator> current_clique({N});
+
+    // TODO: loop until neighbors of N { for each neighbor of N inside of Q { . . . }; };
+    std::vector<typename node::edge> adj{get_out_edges(N)};
+    for (typename std::vector<typename node::edge>::const_iterator edge{adj.cbegin()}; edge != adj.cend(); ++edge) {
         // DEBUG
-        std::cout << "Values inside Q: ";
-        for (const_iterator I : Q) {
+        std::cout << "Values inside current_clique: ";
+        for (const_iterator I : current_clique) {
             std::cout << I->first << " ";
         }
         std::cout << std::endl;
 
-        const_iterator N{*Q.cbegin()};
-        // DEBUG
-        std::cout << "N: " << N->first << std::endl;
-        std::vector<const_iterator> current_clique({N});
+        const_iterator X{edge->target()};
+        if (std::find(Q.cbegin(), Q.cend(), X) == Q.cend()) {
+            continue;
+        }
 
-        // TODO: loop until neighbors of N { for each neighbor of N inside of Q { . . . }; };
-        std::vector<typename node::edge> adj{get_out_edges(N)};
-        for (typename std::vector<typename node::edge>::const_iterator edge{adj.cbegin()}; edge != adj.cend(); ++edge) {
-            // DEBUG
-            std::cout << "Values inside current_clique: ";
-            for (const_iterator I : current_clique) {
-                std::cout << I->first << " ";
-            }
-            std::cout << std::endl;
-
-            const_iterator X{edge->target()};
-            if (std::find(Q.cbegin(), Q.cend(), X) == Q.cend()) {
-                continue;
-            }
-
-            bool part_of_clique{true};
-            for (const_iterator it : current_clique) {
-                if (!existing_edge(it, X)) {
-                    part_of_clique = false;
-                    break;
-                }
-            }
-            if (part_of_clique) {
-                current_clique.push_back(X);
-            } else {
-                if (result.size() < current_clique.size()) {
-                    result = current_clique;
-                    // DEBUG
-                    std::cout << "new clique discovered: size of " << result.size() << std::endl;
-                }
-                Q.remove(N);
-
-                std::function<bool(const_iterator)> PAF = [&result, &heuristic](const_iterator it) -> bool {
-                    return heuristic(it) < result.size();
-                };
-                Q.erase(std::remove_if(Q.begin(), Q.end(), PAF), Q.cend());
-                max_size = calculate_max_size();
+        bool part_of_clique{true};
+        for (const_iterator it : current_clique) {
+            if (!existing_edge(it, X)) {
+                part_of_clique = false;
+                break;
             }
         }
-        // DEBUG
-        std::cout << std::endl;
+        if (part_of_clique) {
+            current_clique.push_back(X);
+        } else {
+            if (result.size() < current_clique.size()) {
+                result = current_clique;
+                // DEBUG
+                std::cout << "new clique discovered: size of " << result.size() << std::endl;
+            }
+            Q.remove(N);
+
+            std::function<bool(const_iterator)> PAF = [&result, &heuristic](const_iterator it) -> bool {
+                return heuristic(it) < result.size();
+            };
+            Q.erase(std::remove_if(Q.begin(), Q.end(), PAF), Q.cend());
+            max_size = calculate_max_size();
+        }
     }
-    return result;
+    // DEBUG
+    std::cout << std::endl;
+}
+return result;
 
 
-    // candidates <- sort each node in function of its degree
-    // max clique size <= degree_max() + 1
-    /// size of 6 : need 5 nodes with degree 5 (etc.)
-    // current_clique_size = 0
-    // result = null
-    // for each node N in candidates
-    //      current_clique = {N}
-    //      for each neighbor X of N ordered by its degree
-    //              if (X linked with all nodes of current_clique) then
-    //                      current_clique += {X}
-    //              else
-    //                      if (result.size < current_clique.size)
-    //                              result = current_clique
-    //                      candidates -= {N}
-    //                      for each node M in candidates
-    //                              if (M.degree <= result.size)
-    //                                      candidates -= {M}
-    ///                     same algorithm to search a possible solution as line 346 (enough nodes with enough degree to find a better clique)
+// candidates <- sort each node in function of its degree
+// max clique size <= degree_max() + 1
+/// size of 6 : need 5 nodes with degree 5 (etc.)
+// current_clique_size = 0
+// result = null
+// for each node N in candidates
+//      current_clique = {N}
+//      for each neighbor X of N ordered by its degree
+//              if (X linked with all nodes of current_clique) then
+//                      current_clique += {X}
+//              else
+//                      if (result.size < current_clique.size)
+//                              result = current_clique
+//                      candidates -= {N}
+//                      for each node M in candidates
+//                              if (M.degree <= result.size)
+//                                      candidates -= {M}
+///                     same algorithm to search a possible solution as line 346 (enough nodes with enough degree to find a better clique)
 
 
 
-    // clique = NULL
-    // candidate = X (nodes of graph / candidate != NULL do
-    //                                      choose xi wih degree max
-    //                                      clique <- clique U {xi}
-    //                                      candidate <- candidats ∧ { xj / (xj, xi) € A} (intersection of candidate and neighbors of xi)
-    */
+// clique = NULL
+// candidate = X (nodes of graph / candidate != NULL do
+//                                      choose xi wih degree max
+//                                      clique <- clique U {xi}
+//                                      candidate <- candidats ∧ { xj / (xj, xi) € A} (intersection of candidate and neighbors of xi)
+*/
 //}
 
 template <class Key, class T, class Cost, Nature Nat>
@@ -854,12 +852,12 @@ void graph<Key, T, Cost, Nat>::load(const char* filename) {
     }
 
     if (extension == "json") {
-        parse_from_json(static_cast<std::istream &>(in));
+        parse_from_json(in);
     } else if (extension == "dot") {
         GRAPH_THROW_WITH(invalid_argument, "Load from DOT file non supported yet")
     } else {
         GRAPH_TRY {
-            parse_from_grp(static_cast<std::istream &>(in));
+            parse_from_grp(in);
         } GRAPH_CATCH (exception & e) {
             std::cerr << "Fail to load the file '" << filename << "'; wrong extension or corrupted file." << std::endl;
         }
@@ -906,7 +904,7 @@ std::unique_ptr<std::string> graph<Key, T, Cost, Nat>::generate_dot(const std::s
             });
         });
     } else { /// get_nature() == UNDIRECTED
-        std::set<std::pair<Key, Key>> list_edges;
+        std::set<std::pair<Key, Key >> list_edges;
         for_each(cbegin(), cend(), [ =, &dot, &list_edges](const value_type & element) {
             std::list<typename node::edge> child{element.second->get_edges()};
             for_each(child.cbegin(), child.cend(), [ =, &dot, &list_edges](const typename node::edge & i) {
@@ -1005,7 +1003,7 @@ void graph<Key, T, Cost, Nat>::DEBUG_load_from_json_rust(const char* path) {
     nlohmann::json json;
     std::ifstream is(path);
     if (!is) {
-        std::cerr << "Unexistant file '" << path << "'!" << std::endl;
+        std::cerr << "Unexistent file '" << path << "'!" << std::endl;
         exit(1);
     }
     is >> json;
@@ -1030,7 +1028,7 @@ std::unique_ptr<std::string> graph<Key, T, Cost, Nat>::generate_grp() const {
     using std::string;
     using std::stringstream;
 
-    const string tab{string(4, ' ')};
+    const auto tab{string(4, ' ')};
 
     string data;
 
@@ -1049,7 +1047,7 @@ std::unique_ptr<std::string> graph<Key, T, Cost, Nat>::generate_grp() const {
     for_each(cbegin(), cend(), [&max_size](const value_type & element) {
         ostringstream out;
         out << element.first;
-        size_type size{static_cast<size_type>(out.tellp())};
+        const size_type size{static_cast<size_type>(out.tellp())};
 
         max_size = max(max_size, size);
     });
@@ -1085,8 +1083,8 @@ std::unique_ptr<std::string> graph<Key, T, Cost, Nat>::generate_grp() const {
                 out_1 << element.first;
                 out_2 << i.target()->first;
 
-                size_type size_1{static_cast<size_type>(out_1.tellp())},
-                          size_2{static_cast<size_type>(out_2.tellp())};
+                const size_type size_1{static_cast<size_type>(out_1.tellp())};
+                const size_type size_2{static_cast<size_type>(out_2.tellp())};
 
                 max_size_1 = max(max_size_1, size_1);
                 max_size_2 = max(max_size_2, size_2);
@@ -1147,13 +1145,13 @@ void graph<Key, T, Cost, Nat>::parse_from_grp(std::istream &is) {
             GRAPH_THROW_WITH(invalid_argument, "Bad graph nature (expected 'digraph')")
         }
     } else {
-        GRAPH_THROW_WITH(parse_error, static_cast<std::size_t>(is.tellg()), "Bad graph nature (expected '[di]graph')")
+        GRAPH_THROW_WITH(parse_error, is.tellg(), "Bad graph nature (expected '[di]graph')")
     }
 
     //! Nodes
     getline(is, line);
     if (line != "    nodes: {") {
-        GRAPH_THROW_WITH(parse_error, static_cast<std::size_t>(is.tellg()), "Bad format for nodes")
+        GRAPH_THROW_WITH(parse_error, is.tellg(), "Bad format for nodes")
     }
 
     clear();
@@ -1171,7 +1169,7 @@ void graph<Key, T, Cost, Nat>::parse_from_grp(std::istream &is) {
     getline(is, line);
     if (line == "}") {}
     else if (line != "    edges: {") {
-        GRAPH_THROW_WITH(parse_error, static_cast<std::size_t>(is.tellg()), "Bad format for edges")
+        GRAPH_THROW_WITH(parse_error, is.tellg(), "Bad format for edges")
     } else {
         while (getline(is, line) && line.find('}') == std::string::npos) {
             std::istringstream iss{line};
@@ -1187,19 +1185,19 @@ void graph<Key, T, Cost, Nat>::parse_from_grp(std::istream &is) {
 
         getline(is, line);
         if (line != "}") {
-            GRAPH_THROW_WITH(parse_error, static_cast<std::size_t>(is.tellg()), "Bad format at the end of the graph")
+            GRAPH_THROW_WITH(parse_error, is.tellg(), "Bad format at the end of the graph")
         }
     }
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-template <class K,   class D, class C,    Nature N>
+template <class K, class D, class C, Nature N>
 bool graph<Key, T, Cost, Nat>::operator==(const graph<K, D, C, N> &other) const noexcept {
     typedef typename graph<Key, T, Cost, Nat>::const_iterator Iterator1;
-    typedef typename graph<K,   D,    C,   N>::const_iterator Iterator2;
+    typedef typename graph<K, D, C, N>::const_iterator Iterator2;
 
     typedef typename graph<Key, T, Cost, Nat>::node::edge Edge1;
-    typedef typename graph<K,   D, C,    N>  ::node::edge Edge2;
+    typedef typename graph<K, D, C, N>  ::node::edge Edge2;
 
     if (get_nature()        != other.get_nature()    ||
             get_nbr_nodes() != other.get_nbr_nodes() ||
@@ -1250,7 +1248,7 @@ bool graph<Key, T, Cost, Nat>::operator==(const graph<K, D, C, N> &other) const 
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-template <class K,   class D, class C,    Nature N>
+template <class K, class D, class C, Nature N>
 bool graph<Key, T, Cost, Nat>::operator!=(const graph<K, D, C, N> &other) const noexcept {
     return !(*this == other);
 }
@@ -1331,7 +1329,7 @@ typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::abstrac
     }
 
     /// Could not find a solution
-    search_path empty;
+    search_path empty = {};
     return empty;
 }
 
@@ -1495,7 +1493,7 @@ typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::dls(con
     }
 
     /// Could not find a solution
-    search_path empty;
+    search_path empty = {};
     return empty;
 }
 
@@ -1545,12 +1543,12 @@ typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::iddfs(c
     }
 
     for (size_type i{0}; i < std::numeric_limits<size_type>::max(); ++i) {
-        search_path found{dls(start, is_goal, i)};
+        const search_path found{dls(start, is_goal, i)};
         if (!found.empty()) {
             return found;
         }
     }
-    search_path empty;
+    search_path empty = {};
     return empty;
 }
 
@@ -1634,7 +1632,7 @@ typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::ucs(con
     }
 
     /// Could not find a solution
-    search_path empty;
+    search_path empty = {};
     return empty;
 }
 
@@ -1720,7 +1718,7 @@ typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::astar(c
     }
 
     /// Could not find a solution
-    search_path empty;
+    search_path empty = {};
     return empty;
 }
 
@@ -1786,7 +1784,7 @@ typename graph<Key, T, Cost, Nat>::shortest_paths graph<Key, T, Cost, Nat>::dijk
     //! Initialization
 
     const cost_type nul_cost{cost_type()};
-    std::priority_queue<std::pair<const_iterator, cost_type>, std::vector<std::pair<const_iterator, cost_type>>, pair_iterator_comparator> Q;
+    std::priority_queue<std::pair<const_iterator, cost_type>, std::vector<std::pair<const_iterator, cost_type >>, pair_iterator_comparator> Q;
 
     shortest_paths result(start);
     for (const_iterator it{cbegin()}; it != cend(); ++it) {

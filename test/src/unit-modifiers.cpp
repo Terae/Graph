@@ -13,17 +13,17 @@
 TEST_CASE("modifiers") {
     using namespace std;
 
-    using Graph      = graph<string, int, size_t>;
-    using iterator   = graph<string, int, size_t>::iterator;
-    using citerator  = graph<string, int, size_t>::const_iterator;
+    using Graph     = graph<string, int, size_t>;
+    using iterator  = graph<string, int, size_t>::iterator;
+    using citerator = graph<string, int, size_t>::const_iterator;
 
-    using Graph_directed      = graph_directed<string, int, size_t>;
-    using iterator_directed   = graph_directed<string, int, size_t>::iterator;
-    using citerator_directed  = graph_directed<string, int, size_t>::const_iterator;
+    using Graph_directed     = graph_directed<string, int, size_t>;
+    using iterator_directed  = graph_directed<string, int, size_t>::iterator;
+    using citerator_directed = graph_directed<string, int, size_t>::const_iterator;
 
-    using Graph_undirected      = graph_undirected<string, int, size_t>;
-    using iterator_undirected   = graph_undirected<string, int, size_t>::iterator;
-    using citerator_undirected  = graph_undirected<string, int, size_t>::const_iterator;
+    using Graph_undirected     = graph_undirected<string, int, size_t>;
+    using iterator_undirected  = graph_undirected<string, int, size_t>::iterator;
+    using citerator_undirected = graph_undirected<string, int, size_t>::const_iterator;
 
     SECTION("adders") {
         SECTION("insert") {
@@ -54,7 +54,7 @@ TEST_CASE("modifiers") {
 
                 citerator cit{next(begin(g), 3)};
                 shared_ptr<Graph::node> ptr{make_shared<Graph::node>(42)};
-                iterator it{g.insert(cit, make_pair("node 42", ptr))};
+                iterator                it {g.insert(cit, make_pair("node 42", ptr))};
                 CHECK(it == next(begin(g), 5));
             }
 
@@ -73,7 +73,7 @@ TEST_CASE("modifiers") {
                     g["node " + to_string(i)] = i;
                 }
                 Graph::node n(12);
-                iterator it{g.insert(g.begin(), "node 12", n)};
+                iterator    it{g.insert(g.begin(), "node 12", n)};
             }
         }
 
@@ -84,14 +84,14 @@ TEST_CASE("modifiers") {
                 g["node 3"] = 3;
                 g["node 5"] = 5;
 
-                pair<iterator, bool> result_1{g.emplace("new node")};
-                CHECK(result_1.first == g.begin());
-                CHECK(result_1.second);
+                auto [it1, result1] {g.emplace("new node")};
+                CHECK(it1 == g.begin());
+                CHECK(result1);
 
-                pair<iterator, bool> result_2{g.emplace("node 3")};
-                CHECK(result_2.first == next(g.begin(), 2));
-                CHECK(result_2.first->second->get() == 3);
-                CHECK_FALSE(result_2.second);
+                auto [it2, result2] {g.emplace("node 3")};
+                CHECK      (it2 == next(g.begin(), 2));
+                CHECK      (it2->second->get() == 3);
+                CHECK_FALSE(result2);
             }
 
             SECTION("emplace(const key_type& k, graphed_type& x)") {
@@ -100,15 +100,15 @@ TEST_CASE("modifiers") {
                 g["node 3"] = 3;
                 g["node 5"] = 5;
 
-                pair<iterator, bool> result_1{g.emplace("new node", 18)};
-                CHECK(result_1.first == g.begin());
-                CHECK(result_1.first->second->get() == 18);
-                CHECK(result_1.second);
+                auto [it1, result1] {g.emplace("new node", 18)};
+                CHECK(it1 == g.begin());
+                CHECK(it1->second->get() == 18);
+                CHECK(result1);
 
-                pair<iterator, bool> result_2{g.emplace("node 3", 42)};
-                CHECK(result_2.first == next(g.begin(), 2));
-                CHECK(result_2.first->second->get() == 3);
-                CHECK_FALSE(result_2.second);
+                auto [it2, result2] {g.emplace("node 3", 42)};
+                CHECK      (it2 == next(g.begin(), 2));
+                CHECK      (it2->second->get() == 3);
+                CHECK_FALSE(result2);
             }
 
             SECTION("emplace(const key_type& k, const Node& n)") {
@@ -118,10 +118,10 @@ TEST_CASE("modifiers") {
                 g["node 5"] = 5;
 
                 Graph::node n(12);
-                pair<iterator, bool> result{g.emplace("new node", n)};
-                CHECK(result.first == g.begin());
-                CHECK(result.first->second->get() == 12);
-                CHECK(result.second);
+                auto [it, result] {g.emplace("new node", n)};
+                CHECK(it == g.begin());
+                CHECK(it->second->get() == 12);
+                CHECK(result);
             }
         }
 
@@ -132,14 +132,14 @@ TEST_CASE("modifiers") {
                 g["node 3"] = 3;
                 g["node 5"] = 5;
 
-                pair<iterator, bool> result_1{g.add_node("new node")};
-                CHECK(result_1.first == g.begin());
-                CHECK(result_1.second);
+                auto [it1, result1] {g.add_node("new node")};
+                CHECK(it1 == g.begin());
+                CHECK(result1);
 
-                pair<iterator, bool> result_2{g.add_node("node 3")};
-                CHECK(result_2.first == next(g.begin(), 2));
-                CHECK(result_2.first->second->get() == 3);
-                CHECK_FALSE(result_2.second);
+                auto [it2, result2] {g.add_node("node 3")};
+                CHECK      (it2 == next(g.begin(), 2));
+                CHECK      (it2->second->get() == 3);
+                CHECK_FALSE(result2);
             }
 
             SECTION("add_node(const key_type& k, const graphed_type& x)") {
@@ -148,15 +148,15 @@ TEST_CASE("modifiers") {
                 g["node 3"] = 3;
                 g["node 5"] = 5;
 
-                pair<iterator, bool> result_1{g.add_node("new node", 18)};
-                CHECK(result_1.first == g.begin());
-                CHECK(result_1.first->second->get() == 18);
-                CHECK(result_1.second);
+                auto [it1, result1] {g.add_node("new node", 18)};
+                CHECK(it1 == g.begin());
+                CHECK(it1->second->get() == 18);
+                CHECK(result1);
 
-                pair<iterator, bool> result_2{g.add_node("node 3", 42)};
-                CHECK(result_2.first == next(g.begin(), 2));
-                CHECK(result_2.first->second->get() == 3);
-                CHECK_FALSE(result_2.second);
+                auto [it2, result2] {g.add_node("node 3", 42)};
+                CHECK      (it2 == next(g.begin(), 2));
+                CHECK      (it2->second->get() == 3);
+                CHECK_FALSE(result2);
             }
 
             SECTION("add_node(const key_type& k, const Node& n)") {
@@ -166,10 +166,10 @@ TEST_CASE("modifiers") {
                 g["node 5"] = 5;
 
                 Graph::node n(12);
-                pair<iterator, bool> result{g.add_node("new node", n)};
-                CHECK(result.first == g.begin());
-                CHECK(result.first->second->get() == 12);
-                CHECK(result.second);
+                auto [it, result] {g.add_node("new node", n)};
+                CHECK(it == g.begin());
+                CHECK(it->second->get() == 12);
+                CHECK(result);
             }
         }
 
@@ -184,9 +184,9 @@ TEST_CASE("modifiers") {
                 g.add_edge(it[1], it[2], 12);
                 g.add_edge(it[1], it[5], 15);
 
-                CHECK(g.get_nbr_nodes() == 10);
-                CHECK(g.get_nbr_edges() == 2);
-                CHECK(g.existing_edge(it[1], it[5]));
+                CHECK      (g.get_nbr_nodes() == 10);
+                CHECK      (g.get_nbr_edges() == 2);
+                CHECK      (g.existing_edge(it[1], it[5]));
                 CHECK_FALSE(g.existing_edge(it[5], it[1]));
                 CHECK_FALSE(g.existing_edge(it[2], it[5]));
             }
@@ -201,11 +201,11 @@ TEST_CASE("modifiers") {
                 g.add_edge(it[1], it[2], 12);
                 g.add_edge(it[1], it[5], 15);
 
-                CHECK(g.get_nbr_nodes() == 10);
-                CHECK(g.get_nbr_edges() == 2);
-                CHECK(g.existing_edge(it[1], it[5]));
-                CHECK(g.existing_edge(it[5], it[1]));
-                CHECK(g(it[5], it[1]) == 15);
+                CHECK      (g.get_nbr_nodes() == 10);
+                CHECK      (g.get_nbr_edges() == 2);
+                CHECK      (g.existing_edge(it[1], it[5]));
+                CHECK      (g.existing_edge(it[5], it[1]));
+                CHECK      (g(it[5], it[1]) == 15);
                 CHECK_FALSE(g.existing_edge(it[2], it[5]));
 
                 g(it[1], it[2]) = 42;
@@ -220,17 +220,17 @@ TEST_CASE("modifiers") {
                     g["node " + to_string(i)] = i;
                 }
 
-                g.add_edge("node 1", "node 2", 12);
-                g.add_edge("node 1", "node 5", 15);
-                g.add_edge("node 1", "new node", 123);
-                g.add_edge("new node", "node 5", 321);
+                g.add_edge("node 1",   "node 2",   12);
+                g.add_edge("node 1",   "node 5",   15);
+                g.add_edge("node 1",   "new node", 123);
+                g.add_edge("new node", "node 5",   321);
 
-                CHECK(g.get_nbr_nodes() == 11);
-                CHECK(g.get_nbr_edges() == 4);
-                CHECK(g.existing_edge("node 1", "node 5"));
+                CHECK      (g.get_nbr_nodes() == 11);
+                CHECK      (g.get_nbr_edges() == 4);
+                CHECK      (g.existing_edge("node 1", "node 5"));
                 CHECK_FALSE(g.existing_edge("node 5", "node 1"));
                 CHECK_FALSE(g.existing_edge("node 2", "node 5"));
-                CHECK(g.existing_edge("node 1", "new node"));
+                CHECK      (g.existing_edge("node 1", "new node"));
             }
 
             SECTION("undirected") {
@@ -239,17 +239,17 @@ TEST_CASE("modifiers") {
                     g["node " + to_string(i)] = i;
                 }
 
-                g.add_edge("node 1", "node 2", 12);
-                g.add_edge("node 1", "node 5", 15);
-                g.add_edge("node 1", "new node", 123);
-                g.add_edge("new node", "node 5", 321);
+                g.add_edge("node 1",   "node 2",   12);
+                g.add_edge("node 1",   "node 5",   15);
+                g.add_edge("node 1",   "new node", 123);
+                g.add_edge("new node", "node 5",   321);
 
-                CHECK(g.get_nbr_nodes() == 11);
-                CHECK(g.get_nbr_edges() == 4);
-                CHECK(g.existing_edge("node 1", "node 5"));
-                CHECK(g.existing_edge("node 5", "node 1"));
+                CHECK      (g.get_nbr_nodes() == 11);
+                CHECK      (g.get_nbr_edges() == 4);
+                CHECK      (g.existing_edge("node 1", "node 5"));
+                CHECK      (g.existing_edge("node 5", "node 1"));
                 CHECK_FALSE(g.existing_edge("node 2", "node 5"));
-                CHECK(g.existing_edge("node 1", "new node"));
+                CHECK      (g.existing_edge("node 1", "new node"));
             }
         }
 
@@ -321,7 +321,7 @@ TEST_CASE("modifiers") {
                 CHECK(g.get_nbr_edges() == 2);
                 g.erase(it2);
                 CHECK_FALSE(g.existing_edge(it1, g.find("node 2"))); // it2 does not point to anything
-                CHECK(g.existing_edge(it1, it3));
+                CHECK      (g.existing_edge(it1, it3));
 
                 CHECK(g.get_nbr_edges() == 1);
             }
@@ -344,7 +344,7 @@ TEST_CASE("modifiers") {
                 g.erase(it2);
                 CHECK_FALSE(g.existing_edge(it1, g.find("node 2")));
                 CHECK_FALSE(g.existing_edge(it2, it1));
-                CHECK(g.get_nbr_edges() == 1);
+                CHECK      (g.get_nbr_edges() == 1);
             }
         }
 
@@ -353,8 +353,8 @@ TEST_CASE("modifiers") {
             for (int i{0}; i < 10; ++i) {
                 g["node " + to_string(i)] = i;
             }
-            citerator first{g.find("node 5")};
-            citerator last{g.find("node 8")};
+            citerator first {g.find("node 5")};
+            citerator last  {g.find("node 8")};
             citerator result{g.erase(first, last)};
             CHECK(result == last);
             CHECK(g.size() == 7);
@@ -373,8 +373,8 @@ TEST_CASE("modifiers") {
                 citerator_directed it4{g.find("node 4")};
                 g.erase(it2, it4);
                 CHECK_FALSE(g.existing_edge("node 1", "node 3"));
-                CHECK(g.get_nbr_edges() == 1);
-                CHECK(g.size() == 8);
+                CHECK      (g.get_nbr_edges() == 1);
+                CHECK      (g.size() == 8);
             }
 
             SECTION("undirected") {
@@ -389,7 +389,7 @@ TEST_CASE("modifiers") {
                 iterator_undirected it4{g.find("node 4")};
                 g.erase(it2, it4);
                 CHECK_FALSE(g.existing_edge("node 1", "node 3"));
-                CHECK(g.get_nbr_edges() == 1);
+                CHECK      (g.get_nbr_edges() == 1);
             }
         }
 
@@ -432,7 +432,7 @@ TEST_CASE("modifiers") {
                 CHECK(g.get_nbr_edges() == 2);
                 g.erase("node 2");
                 CHECK_FALSE(g.existing_edge("node 1", "node 2"));
-                CHECK(g.existing_edge("node 1", "node 3"));
+                CHECK      (g.existing_edge("node 1", "node 3"));
 
                 CHECK(g.get_nbr_edges() == 1);
             }
@@ -452,7 +452,7 @@ TEST_CASE("modifiers") {
                 g.erase("node 2");
                 CHECK_FALSE(g.existing_edge("node 1", "node 2"));
                 CHECK_FALSE(g.existing_edge("node 2", "node 1"));
-                CHECK(g.get_nbr_edges() == 1);
+                CHECK      (g.get_nbr_edges() == 1);
             }
         }
 
@@ -475,7 +475,7 @@ TEST_CASE("modifiers") {
                 CHECK(g.get_nbr_edges() == 2);
                 g.del_node(it2);
                 CHECK_FALSE(g.existing_edge(it1, g.find("node 2")));
-                CHECK(g.existing_edge(it1, it3));
+                CHECK      (g.existing_edge(it1, it3));
 
                 CHECK(g.get_nbr_edges() == 1);
             }
@@ -498,7 +498,7 @@ TEST_CASE("modifiers") {
                 g.del_node(it2);
                 CHECK_FALSE(g.existing_edge(it1, g.find("node 2")));
                 CHECK_FALSE(g.existing_edge(g.find("node 2"), it1));
-                CHECK(g.get_nbr_edges() == 1);
+                CHECK      (g.get_nbr_edges() == 1);
             }
         }
 
@@ -507,8 +507,8 @@ TEST_CASE("modifiers") {
             for (int i{0}; i < 10; ++i) {
                 g["node " + to_string(i)] = i;
             }
-            iterator first{g.find("node 5")};
-            iterator last{g.find("node 8")};
+            iterator first {g.find("node 5")};
+            iterator last  {g.find("node 8")};
             iterator result{g.del_nodes(first, last)};
             CHECK(result == last);
             CHECK(g.size() == 7);
@@ -527,8 +527,8 @@ TEST_CASE("modifiers") {
                 iterator_directed it4{g.find("node 4")};
                 g.del_nodes(it2, it4);
                 CHECK_FALSE(g.existing_edge("node 1", "node 3"));
-                CHECK(g.get_nbr_edges() == 1);
-                CHECK(g.size() == 8);
+                CHECK      (g.get_nbr_edges() == 1);
+                CHECK      (g.size() == 8);
             }
 
             SECTION("undirected") {
@@ -543,7 +543,7 @@ TEST_CASE("modifiers") {
                 iterator_undirected it4{g.find("node 4")};
                 g.del_nodes(it2, it4);
                 CHECK_FALSE(g.existing_edge("node 1", "node 3"));
-                CHECK(g.get_nbr_edges() == 1);
+                CHECK      (g.get_nbr_edges() == 1);
             }
         }
 
@@ -586,7 +586,7 @@ TEST_CASE("modifiers") {
                 CHECK(g.get_nbr_edges() == 2);
                 g.del_node("node 2");
                 CHECK_FALSE(g.existing_edge("node 1", "node 2"));
-                CHECK(g.existing_edge("node 1", "node 3"));
+                CHECK      (g.existing_edge("node 1", "node 3"));
 
                 CHECK(g.get_nbr_edges() == 1);
             }
@@ -606,7 +606,7 @@ TEST_CASE("modifiers") {
                 g.del_node("node 2");
                 CHECK_FALSE(g.existing_edge("node 1", "node 2"));
                 CHECK_FALSE(g.existing_edge("node 2", "node 1"));
-                CHECK(g.get_nbr_edges() == 1);
+                CHECK      (g.get_nbr_edges() == 1);
             }
         }
 
@@ -638,9 +638,9 @@ TEST_CASE("modifiers") {
 
                 CHECK_FALSE(g.del_edge(it[8], it[9]));
                 CHECK_FALSE(g.del_edge(it[2], it[1]));
-                CHECK(g.get_nbr_edges() == 2);
-                CHECK(g.del_edge(it[1], it[2]));
-                CHECK(g.get_nbr_edges() == 1);
+                CHECK      (g.get_nbr_edges() == 2);
+                CHECK      (g.del_edge(it[1], it[2]));
+                CHECK      (g.get_nbr_edges() == 1);
                 CHECK_FALSE(g.existing_edge(it[1], it[2]));
             }
 
@@ -655,15 +655,15 @@ TEST_CASE("modifiers") {
                 g.add_edge(it[1], it[5], 15);
 
                 CHECK_FALSE(g.del_edge(it[8], it[9]));
-                CHECK(g.get_nbr_edges() == 2);
+                CHECK      (g.get_nbr_edges() == 2);
 
-                CHECK(g.del_edge(it[2], it[1]));
-                CHECK(g.get_nbr_edges() == 1);
+                CHECK      (g.del_edge(it[2], it[1]));
+                CHECK      (g.get_nbr_edges() == 1);
                 CHECK_FALSE(g.existing_edge(it[1], it[2]));
                 CHECK_FALSE(g.existing_edge(it[2], it[1]));
 
-                CHECK(g.del_edge(it[1], it[5]));
-                CHECK(g.get_nbr_edges() == 0);
+                CHECK      (g.del_edge(it[1], it[5]));
+                CHECK      (g.get_nbr_edges() == 0);
                 CHECK_FALSE(g.existing_edge(it[1], it[5]));
                 CHECK_FALSE(g.existing_edge(it[5], it[1]));
             }
@@ -682,11 +682,11 @@ TEST_CASE("modifiers") {
 
                 CHECK_FALSE(g.del_edge("node 8", "node 9"));
                 CHECK_FALSE(g.del_edge("node 2", "unknown node"));
-                CHECK(g.get_nbr_nodes() == 10);
+                CHECK      (g.get_nbr_nodes() == 10);
                 CHECK_FALSE(g.del_edge("node 2", "node 1"));
-                CHECK(g.get_nbr_edges() == 2);
-                CHECK(g.del_edge("node 1", "node 2"));
-                CHECK(g.get_nbr_edges() == 1);
+                CHECK      (g.get_nbr_edges() == 2);
+                CHECK      (g.del_edge("node 1", "node 2"));
+                CHECK      (g.get_nbr_edges() == 1);
                 CHECK_FALSE(g.existing_edge("node 1", "node 2"));
             }
 
@@ -702,15 +702,15 @@ TEST_CASE("modifiers") {
 
                 CHECK_FALSE(g.del_edge("node 8", "node 9"));
                 CHECK_FALSE(g.del_edge("node 2", "unknown node"));
-                CHECK(g.get_nbr_edges() == 2);
+                CHECK      (g.get_nbr_edges() == 2);
 
-                CHECK(g.del_edge("node 2", "node 1"));
-                CHECK(g.get_nbr_edges() == 1);
+                CHECK      (g.del_edge("node 2", "node 1"));
+                CHECK      (g.get_nbr_edges() == 1);
                 CHECK_FALSE(g.existing_edge("node 1", "node 2"));
                 CHECK_FALSE(g.existing_edge("node 2", "node 1"));
 
-                CHECK(g.del_edge("node 1", "node 5"));
-                CHECK(g.get_nbr_edges() == 0);
+                CHECK      (g.del_edge("node 1", "node 5"));
+                CHECK      (g.get_nbr_edges() == 0);
                 CHECK_FALSE(g.existing_edge("node 1", "node 5"));
                 CHECK_FALSE(g.existing_edge("node 5", "node 1"));
             }
@@ -773,14 +773,14 @@ TEST_CASE("modifiers") {
 
                 CHECK(g.get_nbr_edges() == 4);
                 g.clear_edges(it[4]);
-                CHECK(g.get_nbr_edges() == 3);
+                CHECK      (g.get_nbr_edges() == 3);
                 CHECK_FALSE(g.existing_edge(it[4], it[2]));
 
                 g.clear_edges(it[1]);
-                CHECK(g.get_nbr_edges() == 1);
+                CHECK      (g.get_nbr_edges() == 1);
                 CHECK_FALSE(g.existing_edge(it[1], it[5]));
                 CHECK_FALSE(g.existing_edge(it[8], it[1]));
-                CHECK(g.existing_edge(it[5], it[6]));
+                CHECK      (g.existing_edge(it[5], it[6]));
             }
 
             SECTION("undirected") {
@@ -797,16 +797,16 @@ TEST_CASE("modifiers") {
 
                 CHECK(g.get_nbr_edges() == 4);
                 g.clear_edges(it[4]);
-                CHECK(g.get_nbr_edges() == 3);
+                CHECK      (g.get_nbr_edges() == 3);
                 CHECK_FALSE(g.existing_edge(it[4], it[2]));
 
                 CHECK(g.existing_edge(it[8], it[1]));
                 g.clear_edges(it[1]);
-                CHECK(g.get_nbr_edges() == 1);
+                CHECK      (g.get_nbr_edges() == 1);
                 CHECK_FALSE(g.existing_edge(it[1], it[5]));
                 CHECK_FALSE(g.existing_edge(it[8], it[1]));
-                CHECK(g.existing_edge(it[5], it[6]));
-                CHECK(g.existing_edge(it[6], it[5]));
+                CHECK      (g.existing_edge(it[5], it[6]));
+                CHECK      (g.existing_edge(it[6], it[5]));
             }
         }
 
@@ -828,14 +828,14 @@ TEST_CASE("modifiers") {
                 CHECK(g.get_nbr_edges() == 4);
 
                 g.clear_edges("node 4");
-                CHECK(g.get_nbr_edges() == 3);
+                CHECK      (g.get_nbr_edges() == 3);
                 CHECK_FALSE(g.existing_edge("node 4", "node 2"));
 
                 g.clear_edges("node 1");
-                CHECK(g.get_nbr_edges() == 1);
+                CHECK      (g.get_nbr_edges() == 1);
                 CHECK_FALSE(g.existing_edge("node 1", "node 5"));
                 CHECK_FALSE(g.existing_edge("node 8", "node 1"));
-                CHECK(g.existing_edge("node 5", "node 6"));
+                CHECK      (g.existing_edge("node 5", "node 6"));
             }
 
             SECTION("undirected") {
@@ -855,15 +855,15 @@ TEST_CASE("modifiers") {
                 CHECK(g.get_nbr_edges() == 4);
 
                 g.clear_edges("node 4");
-                CHECK(g.get_nbr_edges() == 3);
+                CHECK      (g.get_nbr_edges() == 3);
                 CHECK_FALSE(g.existing_edge("node 4", "node 2"));
 
                 g.clear_edges("node 1");
-                CHECK(g.get_nbr_edges() == 1);
+                CHECK      (g.get_nbr_edges() == 1);
                 CHECK_FALSE(g.existing_edge("node 1", "node 5"));
                 CHECK_FALSE(g.existing_edge("node 8", "node 1"));
-                CHECK(g.existing_edge("node 5", "node 6"));
-                CHECK(g.existing_edge("node 6", "node 5"));
+                CHECK      (g.existing_edge("node 5", "node 6"));
+                CHECK      (g.existing_edge("node 6", "node 5"));
             }
         }
     }

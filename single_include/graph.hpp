@@ -1,6 +1,6 @@
 /*
  *    ╔═╗╦═╗╔═╗╔═╗╦ ╦  C++ Graph library
- *    ║ ╦╠╦╝╠═╣╠═╝╠═╣  Version 1.1.2
+ *    ║ ╦╠╦╝╠═╣╠═╝╠═╣  Version 1.2.0
  *    ╚═╝╩╚═╩ ╩╩  ╩ ╩  https://github.com/Terae/Graph
  *
  *
@@ -792,12 +792,12 @@ class graph {
     void save_to_dot (const char* filename,   const std::string &graph_name = "") const;
 
     [[nodiscard]] std::unique_ptr<nlohmann::json> generate_json() const;
-    void save_to_json  (const char* filename) const;
+    void save_to_json   (const char* filename) const;
     void parse_from_json(std::istream &);
     [[deprecated]] void DEBUG_load_from_json_rust(const char*);
 
     [[nodiscard]] std::unique_ptr<std::string> generate_grp() const;
-    void save_to_grp  (const char* filename) const;
+    void save_to_grp   (const char* filename) const;
     void parse_from_grp(std::istream &);
 
     /// @section Bool operators
@@ -1008,7 +1008,7 @@ class graph {
 
     bool is_cyclic_rec(const_iterator current, std::list<const_iterator> path) const;
 
-    template <bool insertFront> search_path abstract_first_search(const_iterator start, std::function<bool(const_iterator)> is_goal)     const;
+    template <bool insertFront> search_path abstract_first_search(const_iterator start, std::function<bool(const_iterator)> is_goal) const;
 };
 
 template <class Key, class T, class Cost = std::size_t>
@@ -1707,9 +1707,8 @@ bool graph<Key, T, Cost, Nat>::existing_edge(const_iterator it1, const_iterator 
     if (it1 != cend() && it2 != cend()) {
         if (get_nature() == DIRECTED) {
             return it1->second->existing_adjacent_node(it2);
-        } else {
-            return it1->second->existing_adjacent_node(it2) && it2->second->existing_adjacent_node(it1);
         }
+        return it1->second->existing_adjacent_node(it2) && it2->second->existing_adjacent_node(it1);
     }
 
     return false;
@@ -1746,7 +1745,7 @@ std::size_t graph<Key, T, Cost, Nat>::get_nbr_edges() const noexcept {
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-inline Nature graph<Key, T, Cost, Nat>::get_nature() const {
+Nature graph<Key, T, Cost, Nat>::get_nature() const {
     return Nat;
 }
 
@@ -2251,7 +2250,7 @@ std::unique_ptr<std::string> graph<Key, T, Cost, Nat>::generate_grp() const {
     using std::string;
     using std::stringstream;
 
-    const string tab{string(4, ' ')};
+    const auto tab{string(4, ' ')};
 
     string data;
 
@@ -2270,7 +2269,7 @@ std::unique_ptr<std::string> graph<Key, T, Cost, Nat>::generate_grp() const {
     for_each(cbegin(), cend(), [&max_size](const value_type & element) {
         ostringstream out;
         out << element.first;
-        size_type size{static_cast<size_type>(out.tellp())};
+        const size_type size{static_cast<size_type>(out.tellp())};
 
         max_size = max(max_size, size);
     });
@@ -2306,8 +2305,8 @@ std::unique_ptr<std::string> graph<Key, T, Cost, Nat>::generate_grp() const {
                 out_1 << element.first;
                 out_2 << i.target()->first;
 
-                size_type size_1{static_cast<size_type>(out_1.tellp())},
-                          size_2{static_cast<size_type>(out_2.tellp())};
+                const size_type size_1{static_cast<size_type>(out_1.tellp())};
+                const size_type size_2{static_cast<size_type>(out_2.tellp())};
 
                 max_size_1 = max(max_size_1, size_1);
                 max_size_2 = max(max_size_2, size_2);
@@ -2538,7 +2537,7 @@ typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::abstrac
         }
     }
 
-    search_path empty;
+    search_path empty = {};
     return empty;
 }
 
@@ -2696,7 +2695,7 @@ typename graph<Key, T, Cost, Nat>::search_path graph<Key, T, Cost, Nat>::dls(con
         ++l;
     }
 
-    search_path empty;
+    search_path empty = {};
     return empty;
 }
 

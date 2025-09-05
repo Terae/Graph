@@ -32,25 +32,25 @@ TEST_CASE("iterators") {
             Graph g_const(g);
 
             SECTION("graph + begin/end") {
-                iterator it = g.begin();
+                auto it = g.begin();
                 CHECK(it == g.end());
             }
 
             SECTION("const graph + begin/end") {
                 citerator cit_begin = g_const.begin();
-                citerator cit_end = g_const.end();
+                citerator cit_end   = g_const.end();
                 CHECK(cit_begin == cit_end);
             }
 
             SECTION("graph + cbegin/cend") {
                 citerator cit_begin = g.cbegin();
-                citerator cit_end = g.cend();
+                citerator cit_end   = g.cend();
                 CHECK(cit_begin == cit_end);
             }
 
             SECTION("const graph + cbegin/cend") {
                 citerator cit_begin = g_const.cbegin();
-                citerator cit_end = g_const.cend();
+                citerator cit_end   = g_const.cend();
                 CHECK(cit_begin == cit_end);
             }
 
@@ -82,7 +82,7 @@ TEST_CASE("iterators") {
             Graph g_const(g);
 
             SECTION("graph + begin/end") {
-                iterator it = g.begin();
+                auto it = g.begin();
                 CHECK(it != g.end());
                 CHECK(it->first == "node 1");
 

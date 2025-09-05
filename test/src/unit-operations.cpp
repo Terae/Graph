@@ -38,11 +38,11 @@ TEST_CASE("operations") {
 
     SECTION("existing_node(const_iterator it) const") {
         Graph g;
-        Graph::iterator it = g.add_node("node 1", 11).first;
+        auto it = g.add_node("node 1", 11).first;
         g["node 5"] = 55;
         g["node 120"] = 1;
-        CHECK(g.existing_node(it));
-        CHECK(!g.existing_node(g.cend()));
+        CHECK      (g.existing_node(it));
+        CHECK_FALSE(g.existing_node(g.cend()));
     }
 
     SECTION("existing_node(const Key& k) const") {
@@ -50,36 +50,36 @@ TEST_CASE("operations") {
         for (int i{0}; i < 100; ++i) {
             g["node " + to_string(i)] = i;
         }
-        CHECK(g.existing_node("node 55"));
-        CHECK(!g.existing_node("unknown node"));
+        CHECK      (g.existing_node("node 55"));
+        CHECK_FALSE(g.existing_node("unknown node"));
     }
 
     SECTION("existing_edge(const_iterator it1, const_iterator it2) const") {
         SECTION("directed") {
             Graph_directed g;
-            Graph_directed::iterator it1 = g.add_node("node 1", 5).first;
-            Graph_directed::iterator it2 = g.add_node("node 2", 8).first;
-            Graph_directed::iterator it3 = g.add_node("node 3", 2).first;
+            auto it1 = g.add_node("node 1", 5).first;
+            auto it2 = g.add_node("node 2", 8).first;
+            auto it3 = g.add_node("node 3", 2).first;
 
             g.add_edge(it1, it2, 12);
             g.add_edge(it1, it3, 13);
 
-            CHECK(g.existing_edge(it1, it2));
+            CHECK      (g.existing_edge(it1, it2));
             CHECK_FALSE(g.existing_edge(it2, it1));
             CHECK_FALSE(g.existing_edge(it2, it3));
         }
 
         SECTION("undirected") {
             Graph_undirected g;
-            Graph_undirected::iterator it1{g.add_node("node 1", 5).first};
-            Graph_undirected::iterator it2{g.add_node("node 2", 8).first};
-            Graph_undirected::iterator it3{g.add_node("node 3", 2).first};
+            auto it1{g.add_node("node 1", 5).first};
+            auto it2{g.add_node("node 2", 8).first};
+            auto it3{g.add_node("node 3", 2).first};
 
             g.add_edge(it1, it2, 12);
             g.add_edge(it1, it3, 13);
 
-            CHECK(g.existing_edge(it1, it2));
-            CHECK(g.existing_edge(it2, it1));
+            CHECK      (g.existing_edge(it1, it2));
+            CHECK      (g.existing_edge(it2, it1));
             CHECK_FALSE(g.existing_edge(it2, it3));
         }
     }
@@ -94,7 +94,7 @@ TEST_CASE("operations") {
             g("node 1", "node 2") = 12;
             g("node 1", "node 3") = 13;
 
-            CHECK(g.existing_edge("node 1", "node 2"));
+            CHECK      (g.existing_edge("node 1", "node 2"));
             CHECK_FALSE(g.existing_edge("node 2", "node 1"));
             CHECK_FALSE(g.existing_edge("node 2", "node 3"));
         }
@@ -108,8 +108,8 @@ TEST_CASE("operations") {
             g("node 1", "node 2") = 12;
             g("node 1", "node 3") = 13;
 
-            CHECK(g.existing_edge("node 1", "node 2"));
-            CHECK(g.existing_edge("node 2", "node 1"));
+            CHECK      (g.existing_edge("node 1", "node 2"));
+            CHECK      (g.existing_edge("node 2", "node 1"));
             CHECK_FALSE(g.existing_edge("node 2", "node 3"));
         }
     }
@@ -126,7 +126,7 @@ TEST_CASE("operations") {
             CHECK_THROWS_WITH(g.has_path_connecting("node 1", "unexisting node"), "[graph.exception.unexpected_nullptr] Unexpected nullptr when calling 'has_path_connecting'.");
             CHECK_THROWS_WITH(g.has_path_connecting("unexisting node", "node 5"), "[graph.exception.unexpected_nullptr] Unexpected nullptr when calling 'has_path_connecting'.");
 
-            CHECK(g.has_path_connecting("node 1", "node 5"));
+            CHECK      (g.has_path_connecting("node 1", "node 5"));
             CHECK_FALSE(g.has_path_connecting("node 1", "node 6"));
             CHECK_FALSE(g.has_path_connecting("node 1", "unlinked node"));
         }
@@ -142,8 +142,8 @@ TEST_CASE("operations") {
             CHECK_THROWS_WITH(g.has_path_connecting("node 1", "unexisting node"), "[graph.exception.unexpected_nullptr] Unexpected nullptr when calling 'has_path_connecting'.");
             CHECK_THROWS_WITH(g.has_path_connecting("unexisting node", "node 5"), "[graph.exception.unexpected_nullptr] Unexpected nullptr when calling 'has_path_connecting'.");
 
-            CHECK(g.has_path_connecting("node 1", "node 5"));
-            CHECK(g.has_path_connecting("node 1", "node 6"));
+            CHECK      (g.has_path_connecting("node 1", "node 5"));
+            CHECK      (g.has_path_connecting("node 1", "node 6"));
             CHECK_FALSE(g.has_path_connecting("node 1", "unlinked node"));
         }
     }
@@ -152,7 +152,7 @@ TEST_CASE("operations") {
         Graph g;
         CHECK(g.get_nbr_nodes() == 0);
 
-        const int N = 489;
+        constexpr int N = 489;
         for (int i{0}; i < N; ++i) {
             g["node " + to_string(i)] = i;
         }
@@ -168,9 +168,9 @@ TEST_CASE("operations") {
 
             CHECK(g.get_nbr_edges() == 0);
 
-            g("node 2", "node 8") = 5;
-            g("node 8", "node 5") = 2;
-            g("node 5", "node 8") = 3;
+            g("node 2",  "node 8") = 5;
+            g("node 8",  "node 5") = 2;
+            g("node 5",  "node 8") = 3;
             g("node 45", "node 1") = 45;
             g("node 12", "node 5") = 2;
             g("node 12", "node 5") = 2;
@@ -185,9 +185,9 @@ TEST_CASE("operations") {
 
             CHECK(g.get_nbr_edges() == 0);
 
-            g("node 2", "node 8") = 5;
-            g("node 8", "node 5") = 2;
-            g("node 5", "node 8") = 3;
+            g("node 2",  "node 8") = 5;
+            g("node 8",  "node 5") = 2;
+            g("node 5",  "node 8") = 3;
             g("node 45", "node 1") = 45;
             g("node 12", "node 5") = 2;
             g("node 12", "node 5") = 2;
@@ -204,17 +204,17 @@ TEST_CASE("operations") {
     }
 
     SECTION("Degree") {
-        CHECK(std::is_same<Graph_directed  ::Degree::value_type, std::pair<std::size_t, std::size_t>>::value);
-        CHECK(std::is_same<Graph_undirected::Degree::value_type, std::size_t>                        ::value);
+        CHECK(std::is_same<Graph_directed  ::Degree::value_type, std::pair<std::size_t, std::size_t >>::value);
+        CHECK(std::is_same<Graph_undirected::Degree::value_type, std::size_t>                         ::value);
     }
 
     SECTION("degree(const_iterator position") {
         SECTION("directed") {
             graph_directed<string, int, double> g;
-            graph_directed<string, int, double>::iterator it_n1{g.add_node("node 1", 1).first};
-            graph_directed<string, int, double>::iterator it_n2{g.add_node("node 2", 2).first};
-            graph_directed<string, int, double>::iterator it_n3{g.add_node("node 3", 3).first};
-            graph_directed<string, int, double>::iterator it_n4{g.add_node("node 4", 4).first};
+            auto it_n1{g.add_node("node 1", 1).first};
+            auto it_n2{g.add_node("node 2", 2).first};
+            auto it_n3{g.add_node("node 3", 3).first};
+            auto it_n4{g.add_node("node 4", 4).first};
             g(it_n1, it_n2);
             g(it_n1, it_n3);
             g(it_n4, it_n1);
@@ -248,10 +248,10 @@ TEST_CASE("operations") {
 
         SECTION("undirected") {
             graph_undirected<string, int, double> g;
-            graph_undirected<string, int, double>::iterator it_n1{g.add_node("node 1", 1).first};
-            graph_undirected<string, int, double>::iterator it_n2{g.add_node("node 2", 2).first};
-            graph_undirected<string, int, double>::iterator it_n3{g.add_node("node 3", 3).first};
-            graph_undirected<string, int, double>::iterator it_n4{g.add_node("node 4", 4).first};
+            auto it_n1{g.add_node("node 1", 1).first};
+            auto it_n2{g.add_node("node 2", 2).first};
+            auto it_n3{g.add_node("node 3", 3).first};
+            auto it_n4{g.add_node("node 4", 4).first};
             g(it_n1, it_n2);
             g(it_n1, it_n3);
             g(it_n4, it_n1);
@@ -282,7 +282,7 @@ TEST_CASE("operations") {
             it[3]->second->clear_edges();
             CHECK_FALSE(g.existing_edge(it[3], it[0]));
             CHECK_FALSE(g.existing_edge(it[0], it[3]));
-            CHECK(g.degree(it[0]) == 4);
+            CHECK      (g.degree(it[0]) == 4);
 
             g.erase(it[4]);
             CHECK(g.degree(it[0]) == 3);
@@ -345,8 +345,8 @@ TEST_CASE("operations") {
             g.find("4")->second->clear_edges();
             CHECK_FALSE(g.existing_edge("4", "1"));
             CHECK_FALSE(g.existing_edge("1", "4"));
-            CHECK(g.degree("1") == 4);
 
+            CHECK(g.degree("1") == 4);
             g.erase("5");
             CHECK(g.degree("1") == 3);
         }
@@ -363,9 +363,9 @@ TEST_CASE("operations") {
             g(4, 5);
             g(4, 6);
             g(7, 4);
-            pair<typename graph_directed<int, int>::const_iterator, typename graph_directed<int, int>::Degree> deg_max{g.degree_max()};
-            CHECK(deg_max.first == g.find(4));
-            CHECK(deg_max.second == make_pair(1, 2));
+            auto [it, degree] {g.degree_max()};
+            CHECK(it     == g.find(4));
+            CHECK(degree == make_pair(1, 2));
         }
 
         SECTION("undirected") {
@@ -378,9 +378,9 @@ TEST_CASE("operations") {
             g(4, 5);
             g(4, 6);
             g(7, 4);
-            pair<typename graph_undirected<int, int>::const_iterator, typename graph_undirected<int, int>::Degree> deg_max{g.degree_max()};
-            CHECK(deg_max.first == g.find(4));
-            CHECK(deg_max.second == 3);
+            auto [it, degree] {g.degree_max()};
+            CHECK(it == g.find(4));
+            CHECK(degree == 3);
         }
     }
 
@@ -395,9 +395,9 @@ TEST_CASE("operations") {
             g(4, 5);
             g(4, 6);
             g(7, 4);
-            pair<typename graph_directed<int, int>::const_iterator, typename graph_directed<int, int>::Degree> deg_min{g.degree_min()};
-            CHECK(deg_min.first == g.find(7));
-            CHECK(deg_min.second == make_pair(0, 1));
+            auto [it, degree] {g.degree_min()};
+            CHECK(it == g.find(7));
+            CHECK(degree == make_pair(0, 1));
         }
 
         SECTION("undirected") {
@@ -410,9 +410,9 @@ TEST_CASE("operations") {
             g(4, 5);
             g(4, 6);
             g(7, 4);
-            pair<typename graph_undirected<int, int>::const_iterator, typename graph_undirected<int, int>::Degree> deg_min{g.degree_min()};
-            CHECK(deg_min.first == g.find(2));
-            CHECK(deg_min.second == 1);
+            auto [it, degree] {g.degree_min()};
+            CHECK(it == g.find(2));
+            CHECK(degree == 1);
         }
     }
 

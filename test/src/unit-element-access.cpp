@@ -73,13 +73,13 @@ TEST_CASE("element access") {
             g(it1, it2) = 12;
             g(it1, it5) = 15;
 
-            CHECK(g.get_nbr_nodes() == 10);
-            CHECK(g.get_nbr_edges() == 2);
-            CHECK(g.existing_edge(it1, it5));
+            CHECK      (g.get_nbr_nodes() == 10);
+            CHECK      (g.get_nbr_edges() == 2);
+            CHECK      (g.existing_edge(it1, it5));
             CHECK_FALSE(g.existing_edge(it5, it1));
-            CHECK(g(it1, it2) == 12);
-            CHECK(g(it2, it1) == numeric_limits<size_t>::max());
-            CHECK(g(it1, it3) == numeric_limits<size_t>::max());
+            CHECK      (g(it1, it2) == 12);
+            CHECK      (g(it2, it1) == numeric_limits<size_t>::max());
+            CHECK      (g(it1, it3) == numeric_limits<size_t>::max());
         }
 
         SECTION("undirected") {
@@ -113,20 +113,20 @@ TEST_CASE("element access") {
                 g["node " + to_string(i)] = i;
             }
 
-            g("node 1", "node 2") = 12;
-            g("node 1", "node 5") = 15;
-            g("node 1", "new node") = 123;
-            g("new node", "node 5") = 321;
+            g("node 1",   "node 2")   = 12;
+            g("node 1",   "node 5")   = 15;
+            g("node 1",   "new node") = 123;
+            g("new node", "node 5")   = 321;
 
-            CHECK(g.get_nbr_nodes() == 11);
-            CHECK(g.get_nbr_edges() == 4);
-            CHECK(g.existing_edge("node 1", "node 5"));
+            CHECK       (g.get_nbr_nodes() == 11);
+            CHECK       (g.get_nbr_edges() == 4);
+            CHECK       (g.existing_edge("node 1", "node 5"));
             CHECK_FALSE(g.existing_edge("node 5", "node 1"));
             CHECK_FALSE(g.existing_edge("node 2", "node 5"));
             CHECK(g.existing_edge("node 1", "new node"));
-            CHECK(g("node 1", "node 2") == 12);
-            CHECK(g("node 2", "node 1") == numeric_limits<size_t>::max());
-            CHECK(g("node 1", "node 3") == numeric_limits<size_t>::max());
+            CHECK      (g("node 1", "node 2") == 12);
+            CHECK      (g("node 2", "node 1") == numeric_limits<size_t>::max());
+            CHECK      (g("node 1", "node 3") == numeric_limits<size_t>::max());
         }
 
         SECTION("undirected") {
@@ -140,15 +140,15 @@ TEST_CASE("element access") {
             g("node 1", "new node") = 123;
             g("new node", "node 5") = 321;
 
-            CHECK(g.get_nbr_nodes() == 11);
-            CHECK(g.get_nbr_edges() == 4);
-            CHECK(g.existing_edge("node 1", "node 5"));
-            CHECK(g.existing_edge("node 5", "node 1"));
+            CHECK      (g.get_nbr_nodes() == 11);
+            CHECK      (g.get_nbr_edges() == 4);
+            CHECK      (g.existing_edge("node 1", "node 5"));
+            CHECK      (g.existing_edge("node 5", "node 1"));
             CHECK_FALSE(g.existing_edge("node 2", "node 5"));
-            CHECK(g.existing_edge("node 1", "new node"));
-            CHECK(g("node 1", "node 2") == 12);
-            CHECK(g("node 2", "node 1") == 12);
-            CHECK(g("node 1", "node 3") == numeric_limits<size_t>::max());
+            CHECK      (g.existing_edge("node 1", "new node"));
+            CHECK      (g("node 1", "node 2") == 12);
+            CHECK      (g("node 2", "node 1") == 12);
+            CHECK      (g("node 1", "node 3") == numeric_limits<size_t>::max());
         }
     }
 
@@ -196,18 +196,18 @@ TEST_CASE("element access") {
             g1("node 1", "node 5") = 15;
 
             const Graph_directed g2(g1);
-            Graph_directed::const_iterator it1{g2.find("node 1")};
-            Graph_directed::const_iterator it2{g2.find("node 2")};
-            Graph_directed::const_iterator it3{g2.find("node 3")};
-            Graph_directed::const_iterator it5{g2.find("node 5")};
+            auto it1{g2.find("node 1")};
+            auto it2{g2.find("node 2")};
+            auto it3{g2.find("node 3")};
+            auto it5{g2.find("node 5")};
 
-            CHECK(g2.get_nbr_nodes() == 10);
-            CHECK(g2.get_nbr_edges() == 2);
-            CHECK(g2.existing_edge(it1, it5));
+            CHECK      (g2.get_nbr_nodes() == 10);
+            CHECK      (g2.get_nbr_edges() == 2);
+            CHECK      (g2.existing_edge(it1, it5));
             CHECK_FALSE(g2.existing_edge(it5, it1));
-            CHECK(g2(it1, it2) == 12);
-            CHECK(g2(it2, it1) == nullopt);
-            CHECK(g2(it1, it3) == nullopt);
+            CHECK      (g2(it1, it2) == 12);
+            CHECK      (g2(it2, it1) == nullopt);
+            CHECK      (g2(it1, it3) == nullopt);
         }
 
         SECTION("undirected") {
@@ -220,10 +220,10 @@ TEST_CASE("element access") {
             g1("node 1", "node 5") = 15;
 
             const Graph_undirected g2(g1);
-            Graph_undirected::const_iterator it1{g2.find("node 1")};
-            Graph_undirected::const_iterator it2{g2.find("node 2")};
-            Graph_undirected::const_iterator it3{g2.find("node 3")};
-            Graph_undirected::const_iterator it5{g2.find("node 5")};
+            auto it1{g2.find("node 1")};
+            auto it2{g2.find("node 2")};
+            auto it3{g2.find("node 3")};
+            auto it5{g2.find("node 5")};
 
             CHECK(g2.get_nbr_nodes() == 10);
             CHECK(g2.get_nbr_edges() == 2);

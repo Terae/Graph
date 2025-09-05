@@ -33,7 +33,7 @@ TEST_CASE("detail") {
     SECTION("is_map_iterator<T>()") {
         CHECK_FALSE(is_map_iterator<int>::value);
         CHECK_FALSE(is_map_iterator<vector<int>::iterator>::value);
-        CHECK(is_map_iterator<map<string, int>::iterator>::value);
+        CHECK      (is_map_iterator<map<string, int>::iterator>::value);
     }
 
     SECTION("get_value(const V&, const V&)") {
@@ -41,19 +41,19 @@ TEST_CASE("detail") {
         int* ptr = new int(1);
         auto it = m.emplace("a", ptr).first;
         CHECK(is_same<decltype(get_value(it, m.end())), int*>::value);
-        CHECK(get_value(it, m.end()) == ptr);
+        CHECK(get_value(it, m.end())      == ptr);
         CHECK(get_value(m.end(), m.end()) == nullptr);
         delete ptr;
     }
 
     SECTION("type_name<T>()") {
-        CHECK(type_name<int>()              == "int");
-        CHECK(type_name<float>()            == "float");
-        CHECK(type_name<string>()           == "std::string");
-        CHECK(type_name<map<string, int>>() == "std::map<std::string, int, std::less<std::string>, std::allocator<std::pair<std::string const, int> > >");
-        CHECK(type_name<decltype(2.4f)>()   == "float");
-        CHECK(type_name<decltype(2.4)>()    == "double");
-        CHECK(type_name<std::size_t>()      == "unsigned long");
+        CHECK(type_name<int>()                == "int");
+        CHECK(type_name<float>()              == "float");
+        CHECK(type_name<string>()             == "std::string");
+        CHECK(type_name<map<string, int >> () == "std::map<std::string, int, std::less<std::string>, std::allocator<std::pair<std::string const, int> > >");
+        CHECK(type_name<decltype(2.4f)>()     == "float");
+        CHECK(type_name<decltype(2.4)>()      == "double");
+        CHECK(type_name<std::size_t>()        == "unsigned long");
     }
 
     SECTION("basic_degree") {

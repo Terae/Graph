@@ -17,25 +17,24 @@ template <class Data, class Cost, class Container, class constContainer>
 class basic_node {
   public:
     class edge {
-      private:
         template <class T, class C, class c1, class c2> friend class basic_node;
-        template <class K, class T, class C,  Nature N> friend class graph;
+        template <class K, class T, class C, Nature N> friend class graph;
 
-        std::weak_ptr<basic_node<Data, Cost, Container, constContainer>> _target;
+        std::weak_ptr<basic_node<Data, Cost, Container, constContainer >> _target;
         std::shared_ptr<Cost> _cost;
 
-        std::tuple<Cost, basic_node<Data, Cost, Container, constContainer>> tie() const;
+        std::tuple<Cost, basic_node<Data, Cost, Container, constContainer >> tie() const;
 
       public:
-        explicit edge(const std::weak_ptr<basic_node<Data, Cost, Container, constContainer>> &ptr, Cost C);
+        explicit edge(const std::weak_ptr<basic_node<Data, Cost, Container, constContainer >> &ptr, Cost C);
         edge(const edge &);
 
         bool operator< (const edge &other) const;
         bool operator==(const edge &other) const;
 
-        inline constContainer target() const;
+        constContainer target() const;
 
-        inline Cost &cost() const;
+        Cost &cost() const;
     };
 
     typedef std::list<edge> ListEdges;
@@ -51,15 +50,15 @@ class basic_node {
 
     std::size_t _in_degree{0};
 
-    inline void increment_in_degree(int n = 1);
-    inline void decrement_in_degree(int n = 1);
+    void increment_in_degree(int n = 1);
+    void decrement_in_degree(int n = 1);
 
     //! used for UNDIRECTED graphs: same Cost in memory for both directions
     bool set_edge(constContainer other, std::shared_ptr<Cost> cost);
 
     std::tuple<Data, std::size_t, ListEdges> tie() const;
 
-    inline ListEdges get_edges() const;
+    ListEdges get_edges() const;
 
     template <class T, class C, class X, class Y>
     friend constexpr bool operator==(const basic_node<T, C, X, Y> &n1, const basic_node<T, C, X, Y> &n2) noexcept;
@@ -113,9 +112,9 @@ class basic_node {
     //! @section Element access
     ///
 
-    inline Data &get();
+    Data &get();
 
-    inline Data get() const;
+    Data get() const;
 
     Cost &get_cost(Container other);
     Cost  get_cost(constContainer   other) const;
@@ -127,7 +126,7 @@ class basic_node {
     //! @section Modifiers
     ///
     template<class T_data>
-    inline void set(const T_data &d);
+    void set(const T_data &d);
 
     template<class T_cost>
     void set_cost(Container other, const T_cost &c);
@@ -135,7 +134,7 @@ class basic_node {
     //! Adders
     /// @return true if it's a new edge
     std::pair<EdgesIterator, bool> add_edge(constContainer other, Cost cost = Cost(1)) {
-        std::shared_ptr<basic_node<Data, Cost, Container, constContainer>> ptr{detail::get_value(other, cend_container)};
+        std::shared_ptr<basic_node<Data, Cost, Container, constContainer >> ptr{detail::get_value(other, cend_container)};
 
         if (ptr == nullptr) {
             GRAPH_THROW(unexpected_nullptr)
@@ -150,7 +149,7 @@ class basic_node {
 
         //! Link doesn't exist
         ptr->increment_in_degree();
-        _out_edges.emplace_back(std::weak_ptr<basic_node<Data, Cost, Container, constContainer>>(ptr), cost);
+        _out_edges.emplace_back(std::weak_ptr<basic_node<Data, Cost, Container, constContainer >> (ptr), cost);
         std::pair<EdgesIterator, bool> result{std::make_pair(--_out_edges.end(), true)};
         return result;
     }
@@ -166,7 +165,7 @@ class basic_node {
     ///
 
     /// @return pair<in degree, out degree>
-    [[nodiscard]] inline std::pair<std::size_t, std::size_t> degree() const;
+    [[nodiscard]] std::pair<std::size_t, std::size_t> degree() const;
 
     bool existing_adjacent_node(constContainer other) const;
 };

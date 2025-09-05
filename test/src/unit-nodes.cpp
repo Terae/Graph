@@ -53,10 +53,10 @@ TEST_CASE("nodes") {
 
         SECTION("edges") {
             Graph<int, int> g;
-            Graph<int, int>::iterator it1{g.emplace("node 1", node<int, int>(5)).first};
-            Graph<int, int>::iterator it2{g.emplace("node 2", node<int, int>(10)).first};
-            std::shared_ptr<node<int, int>> ptr1{it1->second};
-            std::shared_ptr<node<int, int>> ptr2{it2->second};
+            auto it1{g.emplace("node 1", node<int, int>(5)).first};
+            auto it2{g.emplace("node 2", node<int, int>(10)).first};
+            std::shared_ptr<node<int, int >> ptr1{it1->second};
+            std::shared_ptr<node<int, int >> ptr2{it2->second};
             ptr1->add_edge(it2, 15);
             CHECK(ptr1->get_edges().begin()->target()->second->get() == 10);
             ptr2->add_edge(it2, 1);
@@ -65,7 +65,7 @@ TEST_CASE("nodes") {
 
         SECTION("nodes") {
             Graph<int, int> g;
-            Graph<int, int>::iterator it{g.emplace("node", node<int, int>(12)).first};
+            auto it{g.emplace("node", node<int, int>(12)).first};
 
             node<int, int> n(5);
             n.add_edge(it, 444);
@@ -79,9 +79,9 @@ TEST_CASE("nodes") {
             CHECK(n1 == n2);
 
             Graph<int, int> g;
-            Graph<int, int>::iterator it1{g.emplace("node 1", node<int, int>(11)).first};
-            Graph<int, int>::iterator it2{g.emplace("node 2", node<int, int>(22)).first};
-            Graph<int, int>::iterator it3{g.emplace("node 3", node<int, int>(33)).first};
+            auto it1{g.emplace("node 1", node<int, int>(11)).first};
+            auto it2{g.emplace("node 2", node<int, int>(22)).first};
+            auto it3{g.emplace("node 3", node<int, int>(33)).first};
 
             node<int, int> n3(5);
 
@@ -103,9 +103,9 @@ TEST_CASE("nodes") {
             CHECK(n1 == n2);
 
             Graph<int, int> g;
-            Graph<int, int>::iterator it1{g.emplace("node 1", node<int, int>(11)).first};
-            Graph<int, int>::iterator it2{g.emplace("node 2", node<int, int>(22)).first};
-            Graph<int, int>::iterator it3{g.emplace("node 3", node<int, int>(33)).first};
+            auto it1{g.emplace("node 1", node<int, int>(11)).first};
+            auto it2{g.emplace("node 2", node<int, int>(22)).first};
+            auto it3{g.emplace("node 3", node<int, int>(33)).first};
 
             node<int, int> n3(5);
 
@@ -137,8 +137,8 @@ TEST_CASE("nodes") {
 
         SECTION("get_cost(Container other)") {
             Graph<int, int> g;
-            Graph<int, int>::iterator it1{g.emplace("node 1", node<int, int>(40)).first};
-            Graph<int, int>::iterator it2{g.emplace("node 2", node<int, int>(80)).first};
+            auto it1{g.emplace("node 1", node<int, int>(40)).first};
+            auto it2{g.emplace("node 2", node<int, int>(80)).first};
 
             node<int, int> n;
             CHECK_THROWS_WITH(it1->second->get_cost(g.end()),
@@ -155,8 +155,8 @@ TEST_CASE("nodes") {
 
         SECTION("get_cost(constContainer other) const") {
             Graph<int, int> g;
-            Graph<int, int>::iterator it1{g.emplace("node 1", node<int, int>(40)).first};
-            Graph<int, int>::iterator it2{g.emplace("node 2", node<int, int>(80)).first};
+            auto it1{g.emplace("node 1", node<int, int>(40)).first};
+            auto it2{g.emplace("node 2", node<int, int>(80)).first};
 
             node<int, int> n;
             n.add_edge(it1, 15);
@@ -170,8 +170,8 @@ TEST_CASE("nodes") {
 
         SECTION("operator[](Container other)") {
             Graph<int, int> g;
-            Graph<int, int>::iterator it1{g.emplace("node 1", node<int, int>(40)).first};
-            Graph<int, int>::iterator it2{g.emplace("node 2", node<int, int>(80)).first};
+            auto it1{g.emplace("node 1", node<int, int>(40)).first};
+            auto it2{g.emplace("node 2", node<int, int>(80)).first};
 
             node<int, int> n;
             CHECK_THROWS_WITH(it1->second->get_cost(g.end()),
@@ -188,8 +188,8 @@ TEST_CASE("nodes") {
 
         SECTION("operator[](constContainer other) const") {
             Graph<int, int> g;
-            Graph<int, int>::iterator it1{g.emplace("node 1", node<int, int>(40)).first};
-            Graph<int, int>::iterator it2{g.emplace("node 2", node<int, int>(80)).first};
+            auto it1{g.emplace("node 1", node<int, int>(40)).first};
+            auto it2{g.emplace("node 2", node<int, int>(80)).first};
 
             node<int, int> n;
             n[it1] = 15;
@@ -203,11 +203,11 @@ TEST_CASE("nodes") {
 
         SECTION("get_edges()") {
             Graph<int, int> g;
-            Graph<int, int>::iterator it1{g.emplace("node 1", node<int, int>(11)).first};
-            Graph<int, int>::iterator it2{g.emplace("node 2", node<int, int>(22)).first};
-            Graph<int, int>::iterator it3{g.emplace("node 3", node<int, int>(33)).first};
-            Graph<int, int>::iterator it4{g.emplace("node 4", node<int, int>(44)).first};
-            Graph<int, int>::iterator it5{g.emplace("node 5", node<int, int>(55)).first};
+            auto it1{g.emplace("node 1", node<int, int>(11)).first};
+            auto it2{g.emplace("node 2", node<int, int>(22)).first};
+            auto it3{g.emplace("node 3", node<int, int>(33)).first};
+            auto it4{g.emplace("node 4", node<int, int>(44)).first};
+            auto it5{g.emplace("node 5", node<int, int>(55)).first};
 
             CHECK(it1->second->degree().first  == 0);
             CHECK(it1->second->degree().second == 0);
@@ -234,7 +234,7 @@ TEST_CASE("nodes") {
                 list_it[i] = g.emplace("node " + std::to_string(i), node<int, int>(i)).first;
                 n[list_it[i]] = i * 10;
             }
-            tuple<int, size_t, list<node<int, int>::edge>> t = n.tie();
+            tuple<int, size_t, list<node<int, int>::edge >> t = n.tie();
             CHECK(get<0>(t) == 42);
             CHECK(get<1>(t) == 0);
             int i{0};
@@ -257,7 +257,7 @@ TEST_CASE("nodes") {
             CHECK(n2.get() == 6);
 
             node<string> n3("abc");
-            const char* s("abcd");
+            auto s("abcd");
             n3.set(s);
             CHECK(n3.get() == "abcd");
 
@@ -283,14 +283,14 @@ TEST_CASE("nodes") {
             CHECK(n2.get() == 6);
 
             node<string> n3("abc");
-            const char* s("abcd");
+            auto s("abcd");
             n3 = s;
             CHECK(n3.get() == "abcd");
         }
 
         SECTION("add_edge(shared_ptr<node> other, Cost)") {
             Graph<int, int> g;
-            Graph<int, int>::iterator it{g.emplace("node", node<int, int>(11)).first};
+            auto it{g.emplace("node", node<int, int>(11)).first};
 
             node<int, int> n(42);
             n.add_edge(it, 111);
@@ -303,8 +303,8 @@ TEST_CASE("nodes") {
 
         SECTION("set_cost(const shared_ptr<node<Data, Cost>> &other, const T_cost& c)") {
             Graph<int, int> g;
-            Graph<int, int>::iterator it1{g.emplace("node 1", node<int, int>(11)).first};
-            Graph<int, int>::iterator it2{g.emplace("node 2", node<int, int>(15)).first};
+            auto it1{g.emplace("node 1", node<int, int>(11)).first};
+            auto it2{g.emplace("node 2", node<int, int>(15)).first};
 
             node<int, int> n(42);
             n.add_edge(it1, 111);
@@ -322,7 +322,7 @@ TEST_CASE("nodes") {
 
         SECTION("set_edge(shared_ptr<node<Data, Cost>> other, shared_ptr<Cost> cost)") {
             Graph<int, string> g;
-            Graph<int, string>::iterator it{g.emplace("node", node<int, string>(11)).first};
+            auto it{g.emplace("node", node<int, string>(11)).first};
             shared_ptr<string> cost{make_shared<string>("edge")};
 
             node<int, string> n(42);
@@ -336,10 +336,10 @@ TEST_CASE("nodes") {
         SECTION("deleters") {
             SECTION("del_edge(const shared_ptr<node> other)") {
                 Graph<int, int> g;
-                Graph<int, int>::iterator it1{g.emplace("node 1", node<int, int>(11)).first};
-                Graph<int, int>::iterator it2{g.emplace("node 2", node<int, int>(22)).first};
-                Graph<int, int>::iterator it3{g.emplace("node 3", node<int, int>(33)).first};
-                Graph<int, int>::iterator it4{g.emplace("node 4", node<int, int>(44)).first};
+                auto it1{g.emplace("node 1", node<int, int>(11)).first};
+                auto it2{g.emplace("node 2", node<int, int>(22)).first};
+                auto it3{g.emplace("node 3", node<int, int>(33)).first};
+                auto it4{g.emplace("node 4", node<int, int>(44)).first};
 
                 node<int, int> n(42);
                 n.add_edge(it1, 111);
@@ -356,10 +356,10 @@ TEST_CASE("nodes") {
 
             SECTION("del_edge_if(const shared_ptr<node> other, function<bool(edge)>)") {
                 Graph<int, int> g;
-                Graph<int, int>::iterator it1{g.emplace("node 1", node<int, int>(11)).first};
-                Graph<int, int>::iterator it2{g.emplace("node 2", node<int, int>(22)).first};
-                Graph<int, int>::iterator it3{g.emplace("node 3", node<int, int>(33)).first};
-                Graph<int, int>::iterator it4{g.emplace("node 4", node<int, int>(44)).first};
+                auto it1{g.emplace("node 1", node<int, int>(11)).first};
+                auto it2{g.emplace("node 2", node<int, int>(22)).first};
+                auto it3{g.emplace("node 3", node<int, int>(33)).first};
+                auto it4{g.emplace("node 4", node<int, int>(44)).first};
 
                 node<int, int> n(42);
                 n.add_edge(it1, 111);
@@ -367,21 +367,21 @@ TEST_CASE("nodes") {
                 n.add_edge(it3, 333);
                 it2->second->add_edge(it4, 444);
 
-                function<bool(node<int, int>::edge)> predicate = [](node<int, int>::edge e) -> bool { return e.cost() % 2 == 1; };
+                function<bool(node<int, int>::edge)> predicate = [](const node<int, int>::edge & e) -> bool { return e.cost() % 2 == 1; };
                 n.del_edge_if(it2, predicate);
                 CHECK(n.existing_adjacent_node(it2));
 
-                predicate = [](node<int, int>::edge e) -> bool { return e.cost() % 2 == 0; };
+                predicate = [](const node<int, int>::edge & e) -> bool { return e.cost() % 2 == 0; };
                 n.del_edge_if(it2, predicate);
                 CHECK_FALSE(n.existing_adjacent_node(it2));
             }
 
             SECTION("clear_edges()") {
                 Graph<int, int> g;
-                Graph<int, int>::iterator it1{g.emplace("node 1", node<int, int>(11)).first};
-                Graph<int, int>::iterator it2{g.emplace("node 2", node<int, int>(22)).first};
-                Graph<int, int>::iterator it3{g.emplace("node 3", node<int, int>(33)).first};
-                Graph<int, int>::iterator it4{g.emplace("node 4", node<int, int>(44)).first};
+                auto it1{g.emplace("node 1", node<int, int>(11)).first};
+                auto it2{g.emplace("node 2", node<int, int>(22)).first};
+                auto it3{g.emplace("node 3", node<int, int>(33)).first};
+                auto it4{g.emplace("node 4", node<int, int>(44)).first};
 
                 node<int, int> n(42);
                 n.add_edge(it1, 111);
@@ -428,11 +428,11 @@ TEST_CASE("nodes") {
 
         SECTION("existing_adjacent_node(const shared_ptr<node> other)") {
             Graph<int, int> g;
-            Graph<int, int>::iterator it1{g.emplace("node 1", node<int, int>(11)).first};
-            Graph<int, int>::iterator it2{g.emplace("node 2", node<int, int>(22)).first};
-            Graph<int, int>::iterator it3{g.emplace("node 3", node<int, int>(33)).first};
-            Graph<int, int>::iterator it4{g.emplace("node 4", node<int, int>(44)).first};
-            Graph<int, int>::iterator it5{g.emplace("node 5", node<int, int>(55)).first};
+            auto it1{g.emplace("node 1", node<int, int>(11)).first};
+            auto it2{g.emplace("node 2", node<int, int>(22)).first};
+            auto it3{g.emplace("node 3", node<int, int>(33)).first};
+            auto it4{g.emplace("node 4", node<int, int>(44)).first};
+            auto it5{g.emplace("node 5", node<int, int>(55)).first};
 
             it1->second->add_edge(it2, 2);
             it1->second->add_edge(it3, 3);
@@ -473,9 +473,9 @@ TEST_CASE("nodes") {
     SECTION("bool operators") {
         SECTION("operator==") {
             Graph<int, int> g;
-            Graph<int, int>::iterator it1{g.emplace("node 1", node<int, int>(11)).first};
-            Graph<int, int>::iterator it2{g.emplace("node 2", node<int, int>(22)).first};
-            Graph<int, int>::iterator it3{g.emplace("node 3", node<int, int>(33)).first};
+            auto it1{g.emplace("node 1", node<int, int>(11)).first};
+            auto it2{g.emplace("node 2", node<int, int>(22)).first};
+            auto it3{g.emplace("node 3", node<int, int>(33)).first};
 
             node<int, int> n1(42);
             n1.add_edge(it1, 111);
@@ -497,10 +497,10 @@ TEST_CASE("nodes") {
 
         SECTION("operator!=") {
             Graph<int, int> g;
-            Graph<int, int>::iterator it1{g.emplace("node 1", node<int, int>(11)).first};
-            Graph<int, int>::iterator it2{g.emplace("node 2", node<int, int>(22)).first};
-            Graph<int, int>::iterator it3{g.emplace("node 3", node<int, int>(33)).first};
-            Graph<int, int>::iterator it4{g.emplace("node 4", node<int, int>(44)).first};
+            auto it1{g.emplace("node 1", node<int, int>(11)).first};
+            auto it2{g.emplace("node 2", node<int, int>(22)).first};
+            auto it3{g.emplace("node 3", node<int, int>(33)).first};
+            auto it4{g.emplace("node 4", node<int, int>(44)).first};
 
             node<int, int> n1(42);
             n1.add_edge(it1, 111);
@@ -530,11 +530,11 @@ TEST_CASE("nodes") {
             CHECK_FALSE(n1 < n2);
             n2 = "abcdefGhijkl";
 
-            Graph<string, int>::iterator it1{g.emplace("node 1", node<string, int>("it1")).first};
+            auto it1{g.emplace("node 1", node<string, int>("it1")).first};
             n2.add_edge(it1, 10);
             CHECK(n1 < n2);
 
-            Graph<string, int>::iterator it2{g.emplace("node 2", node<string, int>("it2")).first};
+            auto it2{g.emplace("node 2", node<string, int>("it2")).first};
             n1.add_edge(it2, 10);
             CHECK(n2 < n1);
 
@@ -545,7 +545,7 @@ TEST_CASE("nodes") {
             CHECK(n3 < n4);
 
             n4[it1] = 3;
-            Graph<string, int>::iterator it3{g.emplace("node 3", node<string, int>("it3")).first};
+            auto it3{g.emplace("node 3", node<string, int>("it3")).first};
             n4.add_edge(it3);
             CHECK(n3 < n4);
         }
@@ -561,11 +561,11 @@ TEST_CASE("nodes") {
 
             CHECK(n1 <= n2);
 
-            Graph<string, int>::iterator it1{g.emplace("node 1", node<string, int>("it1")).first};
+            auto it1{g.emplace("node 1", node<string, int>("it1")).first};
             n2.add_edge(it1, 10);
             CHECK(n1 <= n2);
 
-            Graph<string, int>::iterator it2{g.emplace("node 2", node<string, int>("it2")).first};
+            auto it2{g.emplace("node 2", node<string, int>("it2")).first};
             n1.add_edge(it2, 10);
             CHECK(n2 <= n1);
 
@@ -587,11 +587,11 @@ TEST_CASE("nodes") {
 
             CHECK_FALSE(n1 > n2);
 
-            Graph<string, int>::iterator it1{g.emplace("node 1", node<string, int>("it1")).first};
+            auto it1{g.emplace("node 1", node<string, int>("it1")).first};
             n1.add_edge(it1, 10);
             CHECK(n1 > n2);
 
-            Graph<string, int>::iterator it2{g.emplace("node 2", node<string, int>("it2")).first};
+            auto it2{g.emplace("node 2", node<string, int>("it2")).first};
             n2.add_edge(it2, 10);
             CHECK(n2 > n1);
 
@@ -613,11 +613,11 @@ TEST_CASE("nodes") {
 
             CHECK(n1 >= n2);
 
-            Graph<string, int>::iterator it1{g.emplace("node 1", node<string, int>("it1")).first};
+            auto it1{g.emplace("node 1", node<string, int>("it1")).first};
             n1.add_edge(it1, 10);
             CHECK(n1 >= n2);
 
-            Graph<string, int>::iterator it2{g.emplace("node 2", node<string, int>("it2")).first};
+            auto it2{g.emplace("node 2", node<string, int>("it2")).first};
             n2.add_edge(it2, 10);
             CHECK(n2 >= n1);
 
