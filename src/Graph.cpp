@@ -81,24 +81,26 @@ graph<Key, T, Cost, Nat>::graph(std::istream &is) {
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-graph<Key, T, Cost, Nat>::graph(const graph &g) {
-    *this = g;
+graph<Key, T, Cost, Nat>::graph(const graph &other) {
+    *this = other;
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-graph<Key, T, Cost, Nat>::graph(graph &&g) noexcept {
-    swap(g);
+graph<Key, T, Cost, Nat>::graph(graph &&other) noexcept
+    : _nodes(std::move(other._nodes))
+    , _num_edges(other._num_edges) {
+    other._num_edges = 0;
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-graph<Key, T, Cost, Nat> &graph<Key, T, Cost, Nat>::operator=(const graph &g) {
+graph<Key, T, Cost, Nat> &graph<Key, T, Cost, Nat>::operator=(const graph &other) {
     clear();
 
-    for (const_iterator it{g.cbegin()}; it != g.cend(); ++it) {
+    for (const_iterator it{other.cbegin()}; it != other.cend(); ++it) {
         add_node(it->first, it->second->get());
     }
 
-    for (const_iterator it{g.cbegin()}; it != g.cend(); ++it) {
+    for (const_iterator it{other.cbegin()}; it != other.cend(); ++it) {
         std::list<typename node::edge> list = it->second->get_edges();
         for (typename node::edge e : list) {
             graph::const_iterator i{e.target()};
@@ -110,10 +112,16 @@ graph<Key, T, Cost, Nat> &graph<Key, T, Cost, Nat>::operator=(const graph &g) {
 }
 
 template <class Key, class T, class Cost, Nature Nat>
-graph<Key, T, Cost, Nat> &graph<Key, T, Cost, Nat>::operator=(graph &&g) noexcept {
-    //! If there is a self-reference, it's a valid operation that don't require anything
-    if (this != &g) {
-        swap(g);
+graph<Key, T, Cost, Nat> &graph<Key, T, Cost, Nat>::operator=(graph&& other) noexcept {
+    // Handle self-assignment
+    if (this != &other) {
+        //swap(other);
+        // Move the resources directly for better performance
+        _nodes = std::move(other._nodes);
+        _num_edges = other._num_edges;
+
+        // Reset the moved-from object to a valid state
+        other._num_edges = 0;
     }
     return *this;
 }
@@ -346,7 +354,8 @@ std::size_t graph<Key, T, Cost, Nat>::del_node(const key_type &k) {
 }
 template <class Key, class T, class Cost, Nature Nat>
 void graph<Key, T, Cost, Nat>::clear() noexcept {
-    *this = std::move(graph());
+    _nodes.clear();
+    _num_edges = 0;
 }
 
 template <class Key, class T, class Cost, Nature Nat>
@@ -893,9 +902,9 @@ std::unique_ptr<std::string> graph<Key, T, Cost, Nat>::generate_dot(const std::s
     }
 
     if (get_nature() == DIRECTED) {
-        for_each(cbegin(), cend(), [ =, &dot](const value_type & element) {
+        for_each(cbegin(), cend(), [this, &dot, tab](const value_type & element) {
             std::list<typename node::edge> child{element.second->get_edges()};
-            for_each(child.cbegin(), child.cend(), [ =, &dot](const typename node::edge & i) {
+            for_each(child.cbegin(), child.cend(), [this, &dot, tab, &element](const typename node::edge & i) {
                 if (i.cost() != infinity) {
                     std::stringstream ss;
                     ss << tab << element.first << " -> " << i.target()->first << '\n';
@@ -905,16 +914,16 @@ std::unique_ptr<std::string> graph<Key, T, Cost, Nat>::generate_dot(const std::s
         });
     } else { /// get_nature() == UNDIRECTED
         std::set<std::pair<Key, Key >> list_edges;
-        for_each(cbegin(), cend(), [ =, &dot, &list_edges](const value_type & element) {
+        for_each(cbegin(), cend(), [this, &dot, &list_edges](const value_type & element) {
             std::list<typename node::edge> child{element.second->get_edges()};
-            for_each(child.cbegin(), child.cend(), [ =, &dot, &list_edges](const typename node::edge & i) {
+            for_each(child.cbegin(), child.cend(), [&dot, &list_edges, &element](const typename node::edge & i) {
                 const Key min{std::min(element.first, i.target()->first)};
                 const Key max{std::max(element.first, i.target()->first)};
                 list_edges.emplace(std::make_pair(min, max));
             });
         });
 
-        for_each(list_edges.cbegin(), list_edges.cend(), [ =, &dot](const std::pair<Key, Key> &p) {
+        for_each(list_edges.cbegin(), list_edges.cend(), [&dot, tab](const std::pair<Key, Key> &p) {
             std::stringstream ss;
             ss << tab << p.first << " -- " << p.second << '\n';
             dot += ss.str();
@@ -1092,9 +1101,9 @@ std::unique_ptr<std::string> graph<Key, T, Cost, Nat>::generate_grp() const {
         });
 
         size_type p{0};
-        for_each(cbegin(), cend(), [ =, &data, &p](const value_type & element) {
+        for_each(cbegin(), cend(), [this, &data, &p, tab, max_size_1, max_size_2](const value_type & element) {
             std::list<typename node::edge> child{element.second->get_edges()};
-            for_each(child.cbegin(), child.cend(), [ =, &data, &p](const typename node::edge & i) {
+            for_each(child.cbegin(), child.cend(), [this, &data, &p, tab, &element, max_size_1, max_size_2](const typename node::edge & i) {
                 ostringstream out_1, out_2;
                 out_1 << '"' << element.first     << "\",";
                 out_2 << '"' << i.target()->first << "\",";
