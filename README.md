@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/Terae/Graph.svg?branch=master)](https://travis-ci.org/Terae/Graph) [![codecov](https://codecov.io/gh/Terae/Graph/branch/master/graph/badge.svg)](https://codecov.io/gh/Terae/Graph)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/b79d80fae71f4eb9b447d1c78ce1fbc1)](https://www.codacy.com/app/Terae/Graph?utm_source=github.com&utm_medium=referral&utm_content=Terae/Graph&utm_campaign=Badge_Grade)
-[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/1526/badge)](https://bestpractices.coreinfrastructure.org/projects/1526)
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/11139/badge)](https://www.bestpractices.dev/projects/11139)
 [![Documentation](https://img.shields.io/badge/docs-doxygen-blue.svg)](http://terae.github.io/graph)
 [![Github Releases](https://img.shields.io/github/release/terae/graph.svg)](https://github.com/terae/graph/releases)
 [![Github license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/terae/Structure/master/LICENSE)
@@ -29,7 +29,7 @@ The Graph library is a STL-like library which can be used as an `std::` containe
 
 - **Intuitive syntax**. This container uses all the operator magic of modern C++ to achieve a good feeling in your code.
 - **Trivial integration**. The whole code consists of a single header file `graph.hpp`. No library, no subproject, no dependencies, no complex build system. The class is written in vanilla C++11 with optional features for C++17, C++20, and C++23.
-- **Serious testing**. This class is heavily [unit-tested](https://github.com/terae/Structure/blob/master/tests/src/unit.cpp) and covers [100%](https://www.codacy.com/app/Terae/Graph?utm_source=github.com&utm_medium=referral&utm_content=Terae/Graph&utm_campaign=Badge_Grade) of the code. Furthermore, I checked with [Valgrind](http://www.valgrind.org/) that there are no memory leaks. To maintain high quality, the project is following the [Core Infrastructure Initiative (CII) best practices](https://bestpractices.coreinfrastructure.org/projects/1526).
+- **Serious testing**. This class is heavily [unit-tested](https://github.com/terae/Structure/blob/master/tests/src/unit.cpp) and covers [100%](https://www.codacy.com/app/Terae/Graph?utm_source=github.com&utm_medium=referral&utm_content=Terae/Graph&utm_campaign=Badge_Grade) of the code. Furthermore, I checked with [Valgrind](http://www.valgrind.org/) that there are no memory leaks. To maintain high quality, the project is following the [Open Source Security Foundation (OpenSSF) best practices](https://bestpractices.coreinfrastructure.org/projects/11139).
 - **Modern C++ features**. The library automatically leverages modern C++ features when available:
   - **C++17**: `std::optional` support for safer value access
   - **C++20**: Concepts for better template error messages
