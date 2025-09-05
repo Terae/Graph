@@ -43,7 +43,7 @@ struct StartUp {
         pthread_t thread;
         thread = pthread_self();
         CPU_ZERO(&cpuset);
-        CPU_SET(std::thread::hardware_concurrency() - 1,  &cpuset);
+        CPU_SET(std::thread::hardware_concurrency() - 1, &cpuset);
         pthread_setaffinity_np(thread, sizeof(cpu_set_t), &cpuset);
 #endif
     }
